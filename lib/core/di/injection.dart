@@ -1,0 +1,28 @@
+import 'package:common_package/helpers/dio_network.dart';
+import 'package:common_package/helpers/shared_preferences_helper.dart';
+import 'package:get_it/get_it.dart';
+import 'package:injectable/injectable.dart';
+
+import 'injection.config.dart';
+import '../app_config.dart';
+
+final GetIt getIt = GetIt.instance;
+
+@InjectableInit(
+  initializerName: r'$initGetIt',
+  preferRelativeImports: true,
+  asExtension: false,
+)
+
+Future<GetIt> configureInjection() async {
+  await SharedPreferencesHelper.init();
+  return $initGetIt(getIt);
+}
+
+@module
+abstract class InjectableModule {
+  @singleton
+  DioNetwork get dio => DioNetwork(
+    baseUrl: AppConfig.baseUrl,
+  );
+}

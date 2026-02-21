@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "337309668395",
+    "project_id": "dllni-restaurant-owner",
+    "storage_bucket": "dllni-restaurant-owner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:337309668395:android:734458c0553660ec44866e",
+        "android_client_info": {
+          "package_name": "com.dllni.restOwner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2xeMTE7e2wJJ98GV997yFtipJdENCwec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
