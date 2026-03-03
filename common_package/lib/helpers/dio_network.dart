@@ -11,25 +11,25 @@ class DioNetwork {
   final String baseUrl;
   static late Dio dio;
 
-  final String? token;
-  final String? fcm;
+  final String? tokenKey;
+  final String? fcmKey;
   final String? lang;
   final Function()? onRequestFunction;
 
-  DioNetwork({this.interceptors = const [], required this.baseUrl, this.onRequestFunction, this.fcm, this.token, this.lang}) {
+  DioNetwork({this.interceptors = const [], required this.baseUrl, this.onRequestFunction, this.fcmKey, this.tokenKey, this.lang}) {
     dio = Dio(BaseOptions(baseUrl: baseUrl, receiveDataWhenStatusError: true));
     dio.options.headers = {'Accept': 'application/json'};
     dio.interceptors.addAll([
       LoggerInterceptor(),
-      TokenInterceptor(lang: lang, token: token, fcm: fcm, onRequestFunction: onRequestFunction),
+      TokenInterceptor(lang: lang, tokenKey: tokenKey, fcmKey: fcmKey, onRequestFunction: onRequestFunction),
       ...interceptors,
     ]);
   }
 
   Future<dynamic> _prepareRequestData(Map<String, dynamic> data) async {
     bool hasFile = data.values.any(
-      (value) =>
-          value is File ||
+          (value) =>
+      value is File ||
           value is Uint8List ||
           (value is List &&
               value.any((item) => item is File || item is Uint8List || (item is Map && item.values.any((v) => v is File || v is Uint8List)))) ||
@@ -47,7 +47,7 @@ class DioNetwork {
           formData.files.add(await _handleFile(key, value));
         } else if (value is List) {
           bool isFileList = value.any(
-            (item) => item is File || item is Uint8List || (item is Map && item.values.any((v) => v is File || v is Uint8List)),
+                (item) => item is File || item is Uint8List || (item is Map && item.values.any((v) => v is File || v is Uint8List)),
           );
 
           if (isFileList) {
@@ -94,7 +94,9 @@ class DioNetwork {
 
   Future<MapEntry<String, MultipartFile>> _handleFile(String key, dynamic file, {String? customFileName}) async {
     if (file is File) {
-      return MapEntry(key, await MultipartFile.fromFile(file.path, filename: customFileName ?? file.path.split('/').last));
+      return MapEntry(key, await MultipartFile.fromFile(file.path, filename: customFileName ?? file.path
+          .split('/')
+          .last));
     } else if (file is Uint8List) {
       return MapEntry(key, MultipartFile.fromBytes(file, filename: customFileName ?? 'uploaded_file'));
     } else {

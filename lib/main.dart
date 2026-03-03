@@ -12,6 +12,7 @@ Future<void> main() async {
       navigatorKey: navigatorKey,
       app: App(navigatorKey: navigatorKey),
       configureDependencies: configureInjection,
+      startLocale: Locale('ar'),
       enableNotifications: true,
       onBackgroundTap: (message) async {
         print('==================================================== background');
@@ -31,7 +32,7 @@ Future<void> main() async {
         Locale('ar'),
       ],
       translationsAssetPath: 'assets/translations',
-      fcmTokenKey: 'fcm_token',
+      fcmTokenKey: 'fcm',
     ),
   );
 }

@@ -56,7 +56,7 @@ class PaginationStateModel<T> {
     required Widget Function() successWidget,
   }) {
     if (failedWidget == null && onTapRetry == null) {
-      throw ArgumentError('Either failed widget or onTapRetry must be provided.');
+      throw ArgumentError('Either failed widgets or onTapRetry must be provided.');
     }
 
     if (isSuccess) {

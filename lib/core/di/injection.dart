@@ -1,3 +1,4 @@
+import 'package:common_package/common_package.dart';
 import 'package:common_package/helpers/dio_network.dart';
 import 'package:common_package/helpers/shared_preferences_helper.dart';
 import 'package:get_it/get_it.dart';
@@ -24,5 +25,6 @@ abstract class InjectableModule {
   @singleton
   DioNetwork get dio => DioNetwork(
     baseUrl: AppConfig.baseUrl,
+    interceptors: [TokenInterceptor(tokenKey: 'token', fcmKey: 'fcm', lang: '', onRequestFunction: (){})]
   );
 }
