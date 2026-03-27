@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/app_pickers.dart';
 import '../../../../generated/assets.dart';
+import '../../domain/usecases/update_working_time_use_case.dart';
 
 class PeriodData {
   String? from;
@@ -12,12 +13,22 @@ class PeriodData {
 }
 
 class WorkingTimeCard extends StatefulWidget {
-  const WorkingTimeCard({super.key, required this.dayName, required this.dayNameEn, required this.isToday, required this.dayIndex});
+  const WorkingTimeCard({
+    super.key,
+    required this.dayName,
+    required this.dayNameEn,
+    required this.isToday,
+    required this.dayIndex,
+    this.dayData,
+    this.onChanged,
+  });
 
   final String dayName;
   final String dayNameEn;
   final bool isToday;
   final int dayIndex;
+  final DailyHoursRequest? dayData;
+  final void Function(int dayIndex, bool isEnabled, List<PeriodData> periods)? onChanged;
 
   @override
   State<WorkingTimeCard> createState() => _WorkingTimeCardState();
@@ -57,14 +68,15 @@ class _WorkingTimeCardState extends State<WorkingTimeCard> {
   @override
   void initState() {
     super.initState();
-    isEnabled = true;
-    periodsList = [];
+    isEnabled = widget.dayData?.isEnabled ?? false;
+    periodsList = widget.dayData?.timeSlots.map((slot) => PeriodData(from: slot.startTime, to: slot.endTime)).toList() ?? [];
   }
 
   void _addPeriod() {
     if (periodsList.length < 24) {
       setState(() {
         periodsList.add(PeriodData());
+        _notifyParent();
       });
     }
   }
@@ -73,6 +85,7 @@ class _WorkingTimeCardState extends State<WorkingTimeCard> {
     if (periodsList.isNotEmpty) {
       setState(() {
         periodsList.removeAt(index);
+        _notifyParent();
       });
     }
   }
@@ -81,7 +94,12 @@ class _WorkingTimeCardState extends State<WorkingTimeCard> {
     setState(() {
       periodsList[index].from = from;
       periodsList[index].to = to;
+      _notifyParent();
     });
+  }
+
+  void _notifyParent() {
+    widget.onChanged?.call(widget.dayIndex, isEnabled, periodsList);
   }
 
   @override
@@ -116,7 +134,7 @@ class _WorkingTimeCardState extends State<WorkingTimeCard> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: isEnabled
-                        ? Center(child: AppImage.asset(Assets.imagesWorkingTimeCalender, color: Color(0xff064E3B),))
+                        ? Center(child: AppImage.asset(Assets.imagesWorkingTimeCalender, color: Color(0xff064E3B)))
                         : Center(child: Icon(Icons.door_front_door, color: Colors.grey.shade600, size: 24)),
                   ),
                   const SizedBox(width: 12),
@@ -161,6 +179,7 @@ class _WorkingTimeCardState extends State<WorkingTimeCard> {
                 onChanged: (value) {
                   setState(() {
                     isEnabled = value;
+                    _notifyParent();
                   });
                 },
               ),

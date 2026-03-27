@@ -31,4 +31,29 @@ class AppPickers {
 
     return DateFormat('HH:mm', 'en').format(selectedTime);
   }
+
+  static Future<String> showAppDatePicker({required BuildContext context}) async {
+    final DateTime? res = await showDatePicker(
+      context: context,
+      locale: const Locale('en'),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+      builder: (context, child) => Theme(
+        data: ThemeData.light().copyWith(
+          colorScheme: ColorScheme.light(
+            primary: Theme.of(context).primaryColor, // لون الهيدر
+            onPrimary: Colors.white, // لون النص داخل الهيدر
+            onSurface: Colors.black, // لون النص العام
+          ),
+          dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
+        ),
+        child: child!,
+      ),
+    );
+
+    if (res == null) return '';
+
+    return DateFormat('yyyy-MM-dd', 'en').format(res);
+  }
 }

@@ -1,77 +1,192 @@
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/assets.dart';
+import '../../data/models/fetch_products_model.dart';
+import 'app_switch.dart';
+import 'products_style_tokens.dart';
 
-class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
+class ProductCard extends StatefulWidget {
+  const ProductCard({super.key, required this.product});
+
+  final FetchProductsModelDataItem product;
+
+  @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  late bool enabled;
+
+  @override
+  void initState() {
+    super.initState();
+    enabled = widget.product.isAvailable ?? false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: !enabled ? 0.65 : 1,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: ProductsStyleTokens.cardBackground,
+          borderRadius: ProductsStyleTokens.cardRadius24,
+          // border: Border.all(color: limited ? ProductsStyleTokens.warning : ProductsStyleTokens.lineCard, width: limited ? 1.2 : 1),
+          boxShadow: const [ProductsStyleTokens.cardShadow],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ProductImage(unavailable: !enabled, limited: !enabled, quantity: widget.product.stockQuantity!),
+            const SizedBox(width: 12),
+            Expanded(
+              child: SizedBox(
+                height: 96,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(top: 2, bottom: 2),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppText(
+                              widget.product.name ?? '-',
+                              textAlign: TextAlign.start,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 28 / 2,
+                                fontWeight: FontWeight.w700,
+                                color: ProductsStyleTokens.textHigh,
+                                height: 1.25,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.more_vert, size: 18, color: Color(0xFFCACACA)),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      if (enabled) AvailabilityChip(isAvailable: enabled) else const SizedBox(height: 18),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          AppText(
+                            widget.product.price.toString(),
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(
+                              color: ProductsStyleTokens.primaryAction,
+                              fontSize: 26 / 2,
+                              fontWeight: FontWeight.w700,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          AppText(
+                            'ل.س',
+                            textAlign: TextAlign.start,
+                            style: TextStyle(color: ProductsStyleTokens.textHint, fontSize: 11, fontWeight: FontWeight.w500),
+                          ),
+                          const Spacer(),
+                          AppSwitch(
+                            value: enabled,
+                            onChanged: (value) {
+                              setState(() {
+                                enabled = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProductImage extends StatelessWidget {
+  const _ProductImage({required this.unavailable, required this.limited, required this.quantity});
+
+  final bool unavailable;
+  final bool limited;
+  final int quantity;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.all(Radius.circular(14)),
+      child: SizedBox(
+        width: 96,
+        height: 96,
+        child: Stack(
+          children: [
+            AppImage.asset(Assets.imagesTestBurger, fit: BoxFit.cover),
+            if (unavailable)
+              Container(
+                alignment: Alignment.center,
+                color: const Color(0x99000000),
+                child: const Text(
+                  'غير متوفر',
+                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                ),
+              ),
+            if (limited)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    width: 96,
+                    height: 20,
+                    padding: const EdgeInsetsDirectional.symmetric(vertical: 2),
+                    color: const Color(0xCCFF4C51),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'باقي $quantity فقط',
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700, height: 1.5),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AvailabilityChip extends StatelessWidget {
+  const AvailabilityChip({super.key, required this.isAvailable});
+
+  final bool isAvailable;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsetsDirectional.all(16),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        color: context.onPrimary,
-        border: Border.all(color: context.error),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(4), offset: Offset(0, 0), blurRadius: 15)],
+        color: isAvailable ? ProductsStyleTokens.successSoft : const Color(0x292F2B3D),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              alignment: AlignmentGeometry.bottomCenter,
-              children: [
-                AppImage.asset(Assets.imagesTestBurger, height: 96, width: 96),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(bottomRight: Radius.circular(16), bottomLeft: Radius.circular(16)),
-                    color: context.error.withAlpha(178),
-                  ),
-                  width: 96,
-                  padding: EdgeInsetsDirectional.symmetric(vertical: 2),
-                  child: AppText.labelSmall('باقي 3 فقط', color: context.onError, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppText.bodyLarge('برجر كلاسيك لحم', fontWeight: FontWeight.bold),
-                SizedBox(height: 9),
-                Row(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: Color(0xff28C76F).withAlpha(39)),
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
-                      child: AppText.labelSmall('متوفر', color: Color(0xff28C76F)),
-                    ),
-                    SizedBox(width: 10),
-                    Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6), color: Color(0xff2F2B3D).withAlpha(39)),
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
-                      child: AppText.labelSmall('غير متوفر', color: Color(0xff2F2B3D)),
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    AppText.titleLarge('350.00', fontWeight: FontWeight.bold, color: context.primaryContainer),
-                    SizedBox(width: 4),
-                    AppText.labelSmall('ل.س', fontWeight: FontWeight.w400, color: Color(0xff9CA3AF)),
-                    Spacer(),
-                    Switch(value: true, onChanged: (val) {}, activeTrackColor: context.primaryContainer),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+      child: Text(
+        isAvailable ? 'متوفر' : 'غير متوفر',
+        style: TextStyle(
+          color: isAvailable ? ProductsStyleTokens.success : const Color(0xFF6B7280),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          height: 1.5,
+        ),
       ),
     );
   }

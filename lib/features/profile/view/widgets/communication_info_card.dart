@@ -4,7 +4,18 @@ import 'package:flutter/material.dart';
 import '../../../../generated/assets.dart';
 
 class CommunicationInfoCard extends StatelessWidget {
-  const CommunicationInfoCard({super.key});
+  const CommunicationInfoCard({
+    super.key,
+    required this.phoneController,
+    required this.whatsappController,
+    required this.faceController,
+    required this.instagramController,
+  });
+
+  final TextEditingController phoneController;
+  final TextEditingController whatsappController;
+  final TextEditingController faceController;
+  final TextEditingController instagramController;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +48,8 @@ class CommunicationInfoCard extends StatelessWidget {
           ),
           SizedBox(height: 8),
           TextFormField(
+            controller: phoneController,
+            textDirection: TextDirection.ltr,
             style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
@@ -67,6 +80,8 @@ class CommunicationInfoCard extends StatelessWidget {
           ),
           SizedBox(height: 8),
           TextFormField(
+            controller: whatsappController,
+            textDirection: TextDirection.ltr,
             style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
@@ -112,6 +127,7 @@ class CommunicationInfoCard extends StatelessWidget {
           ),
           SizedBox(height: 8),
           TextFormField(
+            controller: faceController,
             style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
@@ -136,6 +152,7 @@ class CommunicationInfoCard extends StatelessWidget {
           ),
           SizedBox(height: 8),
           TextFormField(
+            controller: instagramController,
             style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(

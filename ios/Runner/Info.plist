@@ -14,6 +14,8 @@
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>dllni_resturant_owner_app</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>We need access to your photo library make you able to upload your resturant images</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

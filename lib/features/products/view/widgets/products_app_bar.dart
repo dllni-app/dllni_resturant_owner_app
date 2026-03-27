@@ -1,26 +1,47 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
+import 'filter_button.dart';
+import 'products_style_tokens.dart';
+import 'search_field.dart';
+
 class ProductsAppBar extends StatelessWidget {
   const ProductsAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: context.onPrimary,
-        borderRadius: BorderRadius.only(bottomRight: Radius.circular(24), bottomLeft: Radius.circular(24)),
-        border: Border(bottom: BorderSide(color: context.primaryContainer, width: 5)),
-        boxShadow: [BoxShadow(color: Colors.black.withAlpha(27), offset: Offset(0, -2), blurRadius: 12, spreadRadius: 0)],
-      ),
       width: context.width,
-      height: 80,
-      padding: EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.fromLTRB(16, 14 + MediaQuery.paddingOf(context).top, 16, 18),
+      decoration: const BoxDecoration(
+        color: ProductsStyleTokens.cardBackground,
+        borderRadius: ProductsStyleTokens.appBarRadius,
+        border: Border(bottom: BorderSide(width: 2, color: ProductsStyleTokens.primaryAction)),
+        boxShadow: [ProductsStyleTokens.softShadow],
+      ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppText.headlineLarge('المنتجات', fontWeight: FontWeight.w700, textAlign: TextAlign.start),
+          Text(
+            'المنتجات',
+            style: context.textTheme.titleLarge?.copyWith(
+              color: ProductsStyleTokens.titleColor,
+              fontSize: 38,
+              fontWeight: FontWeight.w700,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: SearchField(hintText: 'ابحث عن وجبة، مشروب...', onChanged: (value) {}),
+              ),
+              const SizedBox(width: 10),
+              const FilterButton(),
+            ],
+          ),
         ],
       ),
     );

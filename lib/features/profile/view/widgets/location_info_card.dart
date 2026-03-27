@@ -2,7 +2,26 @@ import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 class LocationInfoCard extends StatelessWidget {
-  const LocationInfoCard({super.key});
+  const LocationInfoCard({
+    super.key,
+    required this.city,
+    required this.county,
+    required this.address,
+    required this.lat,
+    required this.long,
+    required this.selectedLong,
+    required this.selectedLat,
+    this.onPickLocation,
+  });
+
+  final TextEditingController city;
+  final TextEditingController county;
+  final TextEditingController address;
+  final double lat;
+  final double long;
+  final Function(double long) selectedLong;
+  final Function(double lat) selectedLat;
+  final VoidCallback? onPickLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +60,7 @@ class LocationInfoCard extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     TextFormField(
+                      controller: city,
                       style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
                       decoration: InputDecoration(
                         filled: true,
@@ -62,7 +82,7 @@ class LocationInfoCard extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(width: 10,),
+              SizedBox(width: 10),
               Expanded(
                 child: Column(
                   children: [
@@ -74,6 +94,7 @@ class LocationInfoCard extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     TextFormField(
+                      controller: county,
                       style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
                       decoration: InputDecoration(
                         filled: true,
@@ -97,15 +118,16 @@ class LocationInfoCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 20,),
+          SizedBox(height: 20),
           Row(
             children: [
               AppText.bodyMedium('تفاصيل الموقع', fontWeight: FontWeight.w500),
               AppText.bodyMedium('*', fontWeight: FontWeight.w500, color: context.error),
             ],
           ),
-          SizedBox(height: 8,),
+          SizedBox(height: 8),
           TextFormField(
+            controller: address,
             style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
             decoration: InputDecoration(
               filled: true,
@@ -124,43 +146,44 @@ class LocationInfoCard extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 20,),
+          SizedBox(height: 20),
           AppText.bodyMedium('الموقع على الخريطة', fontWeight: FontWeight.w500),
-          SizedBox(height: 8,),
+          SizedBox(height: 8),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              color: Colors.lightBlueAccent.withAlpha(150),
-            ),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Colors.lightBlueAccent.withAlpha(150)),
             height: 200,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Icon(Icons.location_on_sharp, color: context.error, size: 60,),
+                Icon(Icons.location_on_sharp, color: context.error, size: 60),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: onPickLocation,
                         borderRadius: BorderRadius.circular(16),
-                        color: Color(0xff064E3B),
-                      ),
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 12),
-                      margin: EdgeInsetsDirectional.symmetric(vertical: 12, horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.my_location, color: context.onPrimary, size: 14,),
-                          SizedBox(width: 8,),
-                          AppText.bodyMedium('تحديد الموقع', color: context.onPrimary, fontWeight: FontWeight.bold,),
-                        ],
+                        child: Container(
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color(0xff064E3B)),
+                          padding: EdgeInsetsDirectional.symmetric(vertical: 12),
+                          margin: EdgeInsetsDirectional.symmetric(vertical: 12, horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.my_location, color: context.onPrimary, size: 14),
+                              SizedBox(width: 8),
+                              AppText.bodyMedium('تحديد الموقع', color: context.onPrimary, fontWeight: FontWeight.bold),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

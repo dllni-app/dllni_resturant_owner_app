@@ -53,9 +53,9 @@ class _OrdersAppBarState extends State<OrdersAppBar> {
                         ? null
                         : index == 1
                         ? 'pending'
-                        : index == 1
-                        ? 'preparing'
                         : index == 2
+                        ? 'preparing'
+                        : index == 3
                         ? 'ready_for_pickup'
                         : 'completed',
                   );
@@ -67,9 +67,9 @@ class _OrdersAppBarState extends State<OrdersAppBar> {
                             ? null
                             : index == 1
                             ? 'pending'
-                            : index == 1
-                            ? 'preparing'
                             : index == 2
+                            ? 'preparing'
+                            : index == 3
                             ? 'ready_for_pickup'
                             : 'completed',
                       ),
@@ -96,7 +96,7 @@ class _OrdersAppBarState extends State<OrdersAppBar> {
                       index == 0 ? SizedBox.shrink() : CircleAvatar(radius: 4, backgroundColor: colors[index - 1]),
                       index == 0 ? SizedBox.shrink() : SizedBox(width: 8),
                       AppText.labelLarge(titles[index], color: selectedIndex == index ? context.onPrimary : Color(0xff4B5563)),
-                      SizedBox(width: 8),
+                      /*SizedBox(width: 8),
                       Container(
                         decoration: BoxDecoration(
                           color: selectedIndex == index ? context.primaryContainer : Color(0xffF3F4F6),
@@ -104,7 +104,7 @@ class _OrdersAppBarState extends State<OrdersAppBar> {
                         ),
                         padding: EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 2),
                         child: AppText.labelLarge('1244', color: selectedIndex == index ? context.onPrimaryContainer : Color(0xff4B5563)),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

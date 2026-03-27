@@ -6,6 +6,7 @@ export 'extensions/theme_extension.dart';
 export 'helpers/api_handler.dart';
 export 'helpers/app_bootstrap_helper.dart';
 export 'helpers/bloc_observer.dart';
+export 'helpers/debug_agent_log.dart';
 export 'helpers/dio_network.dart';
 export 'helpers/droppable_helper.dart';
 export 'helpers/error_handler.dart';

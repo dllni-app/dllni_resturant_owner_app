@@ -58,6 +58,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             }
                             return OrderCard(
                               order: state.orders!.list[index],
+                              bloc: context.read<OrdersBloc>(),
                               isFromHome: false,
                               status: state.orders![index].status == 'pending'
                                   ? OrderStatus.newOrder

@@ -1,5 +1,9 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
+
+import '../manager/bloc/inventory_bloc.dart';
 
 class InventoryStatisticsGrid extends StatelessWidget {
   const InventoryStatisticsGrid({super.key});
@@ -19,8 +23,47 @@ class InventoryStatisticsGrid extends StatelessWidget {
               (i) => Expanded(
                 child: StatePointer(
                   title: titles[i],
-                  value: 100,
-                  valueColor: i == 0 ? context.primary : Color(0xffFF4C51),
+                  mainWidget: BlocBuilder<InventoryBloc, InventoryState>(
+                    builder: (context, state) {
+                      switch (state.inventorySummaryStatus) {
+                        case null:
+                          return SizedBox.shrink();
+                        case BlocStatus.failed:
+                          return Text(
+                            state.errorMessage ?? 'حدف خطا ما',
+                            style: TextStyle(fontSize: 10, color: Color(0xB22F2B3D), fontWeight: FontWeight.w500),
+                          );
+                        case BlocStatus.success:
+                          return Text(
+                            i == 0
+                                ? state.inventorySummary?.data?.totalItems == null
+                                      ? '-'
+                                      : state.inventorySummary!.data!.totalItems.toString()
+                                : state.inventorySummary?.data?.lowStockCount == null
+                                ? '-'
+                                : state.inventorySummary!.data!.lowStockCount.toString(),
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: i == 0 ? context.primary : Color(0xffFF4C51),
+                              fontWeight: FontWeight.bold,
+                              height: 1.333,
+                            ),
+                          );
+                        case BlocStatus.loading:
+                          return Shimmer.fromColors(
+                            baseColor: context.onPrimary,
+                            highlightColor: context.primary,
+                            child: Container(width: 30, height: 10, color: context.surface),
+                          );
+                        case BlocStatus.init:
+                          return Shimmer.fromColors(
+                            baseColor: context.onPrimary,
+                            highlightColor: context.primary,
+                            child: Container(width: 30, height: 10, color: context.surface),
+                          );
+                      }
+                    },
+                  ),
                   trailingWidget: i == 1
                       ? Container(
                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: Color(0xffFF4C51).withAlpha(20)),
@@ -40,8 +83,47 @@ class InventoryStatisticsGrid extends StatelessWidget {
               (i) => Expanded(
                 child: StatePointer(
                   title: titles[i + 2],
-                  value: 100,
-                  valueColor: i == 0 ? context.primaryContainer : context.primary,
+                  mainWidget: BlocBuilder<InventoryBloc, InventoryState>(
+                    builder: (context, state) {
+                      switch (state.inventorySummaryStatus) {
+                        case null:
+                          return SizedBox.shrink();
+                        case BlocStatus.failed:
+                          return Text(
+                            state.errorMessage ?? 'حدف خطا ما',
+                            style: TextStyle(fontSize: 10, color: Color(0xB22F2B3D), fontWeight: FontWeight.w500),
+                          );
+                        case BlocStatus.success:
+                          return Text(
+                            i == 0
+                                ? state.inventorySummary?.data?.totalValue == null
+                                      ? '-'
+                                      : state.inventorySummary!.data!.totalValue.toString()
+                                : state.inventorySummary?.data?.expiringItemsCount == null
+                                ? '-'
+                                : state.inventorySummary!.data!.expiringItemsCount.toString(),
+                            style: TextStyle(
+                              fontSize: 24,
+                              color: i == 0 ? context.primaryContainer : context.primary,
+                              fontWeight: FontWeight.bold,
+                              height: 1.333,
+                            ),
+                          );
+                        case BlocStatus.loading:
+                          return Shimmer.fromColors(
+                            baseColor: context.onPrimary,
+                            highlightColor: context.primary,
+                            child: Container(width: 30, height: 10, color: context.surface),
+                          );
+                        case BlocStatus.init:
+                          return Shimmer.fromColors(
+                            baseColor: context.onPrimary,
+                            highlightColor: context.primary,
+                            child: Container(width: 30, height: 10, color: context.surface),
+                          );
+                      }
+                    },
+                  ),
                   trailingWidget: i == 0
                       ? AppText.bodyMedium('ل.س', color: context.primaryContainer, fontWeight: FontWeight.w400)
                       : SizedBox.shrink(),
@@ -56,12 +138,11 @@ class InventoryStatisticsGrid extends StatelessWidget {
 }
 
 class StatePointer extends StatelessWidget {
-  const StatePointer({super.key, required this.title, required this.value, required this.valueColor, required this.trailingWidget});
+  const StatePointer({super.key, required this.title, required this.trailingWidget, required this.mainWidget});
 
   final String title;
-  final int value;
-  final Color valueColor;
   final Widget trailingWidget;
+  final Widget mainWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +166,8 @@ class StatePointer extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppText.displaySmall(value.toString(), color: valueColor, fontWeight: FontWeight.bold),
+              Expanded(child: mainWidget),
+              SizedBox(width: 8),
               trailingWidget,
             ],
           ),

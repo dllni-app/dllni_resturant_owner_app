@@ -3,7 +3,11 @@ class Assets {
   Assets._();
 
   static const String fontsCairo = 'assets/fonts/cairo.ttf';
+  static const String imagesAvgCancelation = 'assets/images/avg_cancelation.png';
   static const String imagesCoponsIcon = 'assets/images/copons_icon.png';
+  static const String imagesCup = 'assets/images/cup.png';
+  static const String imagesEmployeesHistoryIcon = 'assets/images/employees_history_icon.png';
+  static const String imagesEmployeesManagementIcon = 'assets/images/employees_management_icon.png';
   static const String imagesFaceIcon = 'assets/images/face_icon.png';
   static const String imagesHomeChart = 'assets/images/home_chart.svg';
   static const String imagesHomeCompletedOrdersIcon = 'assets/images/home_completed_orders_icon.png';
@@ -20,13 +24,22 @@ class Assets {
   static const String imagesNavBarOrders = 'assets/images/nav_bar_orders.png';
   static const String imagesNavBarProducts = 'assets/images/nav_bar_products.png';
   static const String imagesNewOfferAction = 'assets/images/new_offer_action.png';
+  static const String imagesNotificationsInventoryIcon = 'assets/images/notifications_inventory_icon.png';
+  static const String imagesNotificationsOffersIcon = 'assets/images/notifications_offers_icon.png';
+  static const String imagesNotificationsOrdersIcon = 'assets/images/notifications_orders_icon.png';
+  static const String imagesNotificationsSettingsIcon = 'assets/images/notifications_settings_icon.png';
   static const String imagesOffersManagementIcon = 'assets/images/offers_management_icon.png';
+  static const String imagesOffersStatisticsIcon = 'assets/images/offers_statistics_icon.png';
   static const String imagesOrderClock = 'assets/images/order_clock.png';
+  static const String imagesOrderHasOffers = 'assets/images/order_has_offers.png';
+  static const String imagesOverviewMoney = 'assets/images/overview_money.png';
   static const String imagesReadyOrderIcon = 'assets/images/ready_order_icon.png';
   static const String imagesReportsAction = 'assets/images/reports_action.png';
+  static const String imagesRevinuDashboard = 'assets/images/revinu_dashboard.png';
   static const String imagesStatisticsIcon = 'assets/images/statistics_icon.png';
   static const String imagesSupportIcon = 'assets/images/support_icon.png';
   static const String imagesTestBurger = 'assets/images/test_burger.png';
+  static const String imagesTodayCardArrow = 'assets/images/today_card_arrow.png';
   static const String imagesUpdateInventoryAction = 'assets/images/update_inventory_action.png';
   static const String imagesWhatsappIcon = 'assets/images/whatsapp_icon.png';
   static const String imagesWorkingHourIcon = 'assets/images/working_hour_icon.png';

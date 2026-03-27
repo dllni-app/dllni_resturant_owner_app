@@ -1,17 +1,16 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../generated/assets.dart';
+import '../manager/bloc/home_bloc.dart';
 
 class OrdersHourStatisticsCard extends StatelessWidget {
   const OrdersHourStatisticsCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<int> hours = [10, 11, 12, 13, 14, 15];
-    final List<double> values = [23, 11, 43, 37, 16, 26];
-
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
@@ -32,71 +31,97 @@ class OrdersHourStatisticsCard extends StatelessWidget {
           SizedBox(height: 24),
           SizedBox(
             height: 220,
-            child: BarChart(
-              BarChartData(
-                maxY: 50,
-                minY: 0,
-                barTouchData: BarTouchData(enabled: false),
-                titlesData: FlTitlesData(
-                  show: true,
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
-                        if (index >= 0 && index < hours.length) {
-                          return Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: AppText.labelMedium('${hours[index]}', color: Color(0xff6B7280), fontWeight: FontWeight.w500),
-                          );
-                        }
-                        return Text('');
-                      },
-                      reservedSize: 30,
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, meta) {
-                        if (value == meta.min || value == meta.max) {
-                          return Text('');
-                        }
-                        return AppText.labelSmall(value.toInt().toString(), color: Color(0xff9CA3AF), fontWeight: FontWeight.w400);
-                      },
-                      interval: 10,
-                    ),
-                  ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                  horizontalInterval: 10,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(color: Color(0xffF3F4F6), strokeWidth: 1);
-                  },
-                ),
-                borderData: FlBorderData(show: false),
-                barGroups: List.generate(
-                  hours.length,
-                  (index) => BarChartGroupData(
-                    x: index,
-                    barRods: [
-                      BarChartRodData(
-                        toY: values[index],
-                        color: hours[index] == 12 ? context.secondary : context.primary,
-                        width: 24,
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                switch (state.homeOverviewStatus) {
+                  case null:
+                    return Center(child: CircularProgressIndicator.adaptive());
+                  case BlocStatus.failed:
+                    return Center(child: AppText.labelMedium(state.errorMessage ?? 'حدث حطا ما', color: context.error));
+                  case BlocStatus.success:
+                    final chartWidth = state.homeOverview!.kpis!.orderActivityByHour!.length * 40.0;
+
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: SizedBox(
+                        width: chartWidth,
+                        child: BarChart(
+                          BarChartData(
+                            maxY: 210,
+                            minY: 0,
+                            barTouchData: BarTouchData(enabled: false),
+                            titlesData: FlTitlesData(
+                              show: true,
+                              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 30,
+                                  getTitlesWidget: (value, meta) {
+                                    final index = value.toInt();
+                                    if (index >= 0 && index < state.homeOverview!.kpis!.orderActivityByHour!.length) {
+                                      return Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: AppText.labelMedium(
+                                          '${state.homeOverview!.kpis!.orderActivityByHour![index].hour}',
+                                          color: Color(0xff6B7280),
+                                        ),
+                                      );
+                                    }
+                                    return const SizedBox();
+                                  },
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  interval: 50,
+                                  getTitlesWidget: (value, meta) {
+                                    if (value == meta.min || value == meta.max) {
+                                      return const SizedBox();
+                                    }
+                                    return AppText.labelSmall(value.toInt().toString(), color: Color(0xff9CA3AF));
+                                  },
+                                ),
+                              ),
+                            ),
+                            gridData: FlGridData(
+                              show: true,
+                              drawVerticalLine: false,
+                              horizontalInterval: 10,
+                              getDrawingHorizontalLine: (value) {
+                                return FlLine(color: Color(0xffF3F4F6), strokeWidth: 1);
+                              },
+                            ),
+                            borderData: FlBorderData(show: false),
+                            barGroups: List.generate(
+                              state.homeOverview!.kpis!.orderActivityByHour!.length,
+                              (index) => BarChartGroupData(
+                                x: index,
+                                barRods: [
+                                  BarChartRodData(
+                                    toY: state.homeOverview!.kpis!.orderActivityByHour![index].count!.toDouble(),
+                                    width: 24,
+                                    color: state.homeOverview!.kpis!.orderActivityByHour![index].hour == 12 ? context.secondary : context.primary,
+                                    borderRadius: BorderRadius.only(topLeft: Radius.circular(4), topRight: Radius.circular(4)),
+                                  ),
+                                ],
+                                barsSpace: 8,
+                              ),
+                            ),
+                            alignment: BarChartAlignment.start,
+                          ),
+                        ),
                       ),
-                    ],
-                    barsSpace: 8,
-                  ),
-                ),
-                alignment: BarChartAlignment.spaceAround,
-              ),
+                    );
+                  case BlocStatus.loading:
+                    return Center(child: CircularProgressIndicator.adaptive());
+                  case BlocStatus.init:
+                    return Center(child: CircularProgressIndicator.adaptive());
+                }
+              },
             ),
           ),
         ],

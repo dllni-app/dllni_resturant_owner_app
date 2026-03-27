@@ -36,40 +36,39 @@ class StatisticsRow extends StatelessWidget {
                   child: AppImage.asset(images[i], size: 15, color: colors[i]),
                 ),
                 SizedBox(height: 14),
-                // BlocBuilder<HomeBloc, HomeState>(
-                //   builder: (context, state) {
-                //     switch (state.homePageUsecaseStatus) {
-                //       case null:
-                //         return Shimmer.fromColors(
-                //           baseColor: context.onPrimary,
-                //           highlightColor: context.primary,
-                //           child: Container(color: context.surface, height: 20, width: 20),
-                //         );
-                //       case BlocStatus.failed:
-                //         return CircleAvatar(radius: 15, backgroundColor: context.surface, child: AppText.labelMedium('0'));
-                //       case BlocStatus.success:
-                //         final value = i == 0
-                //             ? state.homePageUsecase!.newOrdersCount
-                //             : i == 1
-                //             ? state.homePageUsecase!.inProgressCount
-                //             : state.homePageUsecase!.completedCount;
-                //         return AppText.labelLarge('${value ?? 0}');
-                //       case BlocStatus.loading:
-                //         return Shimmer.fromColors(
-                //           baseColor: context.onPrimary,
-                //           highlightColor: context.primary,
-                //           child: Container(color: context.surface, height: 20, width: 20),
-                //         );
-                //       case BlocStatus.init:
-                //         return Shimmer.fromColors(
-                //           baseColor: context.onPrimary,
-                //           highlightColor: context.primary,
-                //           child: Container(color: context.surface, height: 20, width: 20),
-                //         );
-                //     }
-                //   },
-                // ),
-                AppText.labelLarge('21'),
+                BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    switch (state.homeOverviewStatus) {
+                      case null:
+                        return Shimmer.fromColors(
+                          baseColor: context.onPrimary,
+                          highlightColor: context.primary,
+                          child: Container(color: context.surface, height: 20, width: 20),
+                        );
+                      case BlocStatus.failed:
+                        return CircleAvatar(radius: 15, backgroundColor: context.surface, child: AppText.labelMedium('0'));
+                      case BlocStatus.success:
+                        final value = i == 0
+                            ? state.homeOverview?.kpis?.ordersByStatus?.pending
+                            : i == 1
+                            ? state.homeOverview?.kpis?.ordersByStatus?.accepted
+                            : state.homeOverview?.kpis?.ordersByStatus?.completed;
+                        return AppText.labelLarge('${value ?? 0}');
+                      case BlocStatus.loading:
+                        return Shimmer.fromColors(
+                          baseColor: context.onPrimary,
+                          highlightColor: context.primary,
+                          child: Container(color: context.surface, height: 20, width: 20),
+                        );
+                      case BlocStatus.init:
+                        return Shimmer.fromColors(
+                          baseColor: context.onPrimary,
+                          highlightColor: context.primary,
+                          child: Container(color: context.surface, height: 20, width: 20),
+                        );
+                    }
+                  },
+                ),
                 SizedBox(height: 14),
                 AppText.labelMedium(titles[i], fontWeight: FontWeight.w500),
               ],

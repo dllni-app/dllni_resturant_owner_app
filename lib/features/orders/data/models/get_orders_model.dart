@@ -184,6 +184,7 @@ class GetOrdersModelDataItem {
   double? totalAmount;
   double? cancellationFeeAmount;
 
+  String? cancellationPolicySnapshot;
   String? specialInstructions;
   String? acceptedAt;
   int? estimatedPreparationMinutes;
@@ -196,9 +197,12 @@ class GetOrdersModelDataItem {
 
   OrderUser? user;
   OrderRestaurant? restaurant;
+  PromoCode? promoCode;
+  Staff? assignedStaff;
 
   List<OrderItem>? orderItems;
   List<OrderStatusLog>? orderStatusLogs;
+  List<Dispute>? disputes;
 
   String? createdAt;
   String? updatedAt;
@@ -225,6 +229,7 @@ class GetOrdersModelDataItem {
     this.serviceFee,
     this.totalAmount,
     this.cancellationFeeAmount,
+    this.cancellationPolicySnapshot,
     this.specialInstructions,
     this.acceptedAt,
     this.estimatedPreparationMinutes,
@@ -236,8 +241,11 @@ class GetOrdersModelDataItem {
     this.cancellationReasonCode,
     this.user,
     this.restaurant,
+    this.promoCode,
+    this.assignedStaff,
     this.orderItems,
     this.orderStatusLogs,
+    this.disputes,
     this.createdAt,
     this.updatedAt,
   });
@@ -265,6 +273,7 @@ class GetOrdersModelDataItem {
       serviceFee: _asDouble(json['serviceFee']),
       totalAmount: _asDouble(json['totalAmount']),
       cancellationFeeAmount: _asDouble(json['cancellationFeeAmount']),
+      cancellationPolicySnapshot: _asString(json['cancellationPolicySnapshot']),
       specialInstructions: _asString(json['specialInstructions']),
       acceptedAt: _asString(json['acceptedAt']),
       estimatedPreparationMinutes: _asInt(json['estimatedPreparationMinutes']),
@@ -274,14 +283,17 @@ class GetOrdersModelDataItem {
       cancelledAt: _asString(json['cancelledAt']),
       cancellationReason: _asString(json['cancellationReason']),
       cancellationReasonCode: _asString(json['cancellationReasonCode']),
-      user: json['user'] is Map ? OrderUser.fromJson(Map<String, dynamic>.from(json['user'])) : null,
-      restaurant: json['restaurant'] is Map ? OrderRestaurant.fromJson(Map<String, dynamic>.from(json['restaurant'])) : null,
+      user: json['user'] != null ? OrderUser.fromJson(Map<String, dynamic>.from(json['user'])) : null,
+      restaurant: json['restaurant'] != null ? OrderRestaurant.fromJson(Map<String, dynamic>.from(json['restaurant'])) : null,
+      promoCode: json['promoCode'] != null ? PromoCode.fromJson(Map<String, dynamic>.from(json['promoCode'])) : null,
+      assignedStaff: json['assignedStaff'] != null ? Staff.fromJson(Map<String, dynamic>.from(json['assignedStaff'])) : null,
       orderItems: json['orderItems'] is List
-          ? (json['orderItems'] as List).whereType<Map>().map((e) => OrderItem.fromJson(Map<String, dynamic>.from(e))).toList()
-          : null,
+          ? (json['orderItems'] as List).map((e) => OrderItem.fromJson(Map<String, dynamic>.from(e))).toList()
+          : [],
       orderStatusLogs: json['orderStatusLogs'] is List
-          ? (json['orderStatusLogs'] as List).whereType<Map>().map((e) => OrderStatusLog.fromJson(Map<String, dynamic>.from(e))).toList()
-          : null,
+          ? (json['orderStatusLogs'] as List).map((e) => OrderStatusLog.fromJson(Map<String, dynamic>.from(e))).toList()
+          : [],
+      disputes: json['disputes'] is List ? (json['disputes'] as List).map((e) => Dispute.fromJson(Map<String, dynamic>.from(e))).toList() : [],
       createdAt: _asString(json['createdAt']),
       updatedAt: _asString(json['updatedAt']),
     );
@@ -291,13 +303,87 @@ class GetOrdersModelDataItem {
     "id": id,
     "userId": userId,
     "restaurantId": restaurantId,
+    "promoCodeId": promoCodeId,
+    "assignedStaffId": assignedStaffId,
+    "cancellationPolicyId": cancellationPolicyId,
     "orderNumber": orderNumber,
     "status": status,
+    "statusLabelAr": statusLabelAr,
     "orderType": orderType,
+    "pickupMode": pickupMode,
+    "pickupScheduledFor": pickupScheduledFor,
+    "readyForPickupAt": readyForPickupAt,
+    "pickedUpAt": pickedUpAt,
+    "customerPickupConfirmedAt": customerPickupConfirmedAt,
+    "subtotal": subtotal,
+    "discountAmount": discountAmount,
+    "taxAmount": taxAmount,
+    "serviceFee": serviceFee,
     "totalAmount": totalAmount,
+    "cancellationFeeAmount": cancellationFeeAmount,
+    "cancellationPolicySnapshot": cancellationPolicySnapshot,
+    "specialInstructions": specialInstructions,
+    "acceptedAt": acceptedAt,
+    "estimatedPreparationMinutes": estimatedPreparationMinutes,
+    "kitchenNotes": kitchenNotes,
+    "preparingAt": preparingAt,
+    "completedAt": completedAt,
+    "cancelledAt": cancelledAt,
+    "cancellationReason": cancellationReason,
+    "cancellationReasonCode": cancellationReasonCode,
+    "user": user?.toJson(),
+    "restaurant": restaurant?.toJson(),
+    "promoCode": promoCode?.toJson(),
+    "assignedStaff": assignedStaff?.toJson(),
+    "orderItems": orderItems?.map((e) => e.toJson()).toList(),
+    "orderStatusLogs": orderStatusLogs?.map((e) => e.toJson()).toList(),
+    "disputes": disputes?.map((e) => e.toJson()).toList(),
     "createdAt": createdAt,
     "updatedAt": updatedAt,
   };
+}
+
+// Additional classes based on JSON
+class PromoCode {
+  int? id;
+  String? code;
+  double? discount;
+
+  PromoCode({this.id, this.code, this.discount});
+
+  factory PromoCode.fromJson(Map<String, dynamic> json) {
+    return PromoCode(id: _asInt(json['id']), code: _asString(json['code']), discount: _asDouble(json['discount']));
+  }
+
+  Map<String, dynamic> toJson() => {"id": id, "code": code, "discount": discount};
+}
+
+class Staff {
+  int? id;
+  String? name;
+  String? email;
+
+  Staff({this.id, this.name, this.email});
+
+  factory Staff.fromJson(Map<String, dynamic> json) {
+    return Staff(id: _asInt(json['id']), name: _asString(json['name']), email: _asString(json['email']));
+  }
+
+  Map<String, dynamic> toJson() => {"id": id, "name": name, "email": email};
+}
+
+class Dispute {
+  int? id;
+  String? reason;
+  String? createdAt;
+
+  Dispute({this.id, this.reason, this.createdAt});
+
+  factory Dispute.fromJson(Map<String, dynamic> json) {
+    return Dispute(id: _asInt(json['id']), reason: _asString(json['reason']), createdAt: _asString(json['createdAt']));
+  }
+
+  Map<String, dynamic> toJson() => {"id": id, "reason": reason, "createdAt": createdAt};
 }
 
 class OrderUser {
@@ -329,13 +415,53 @@ class OrderRestaurant {
 }
 
 class OrderItem {
-  OrderItem();
+  int? id;
+  int? orderId;
+  int? productId;
+  int? quantity;
+  double? unitPrice;
+  double? totalPrice;
+  String? specialInstructions;
+  Product? product;
+
+  OrderItem({this.id, this.orderId, this.productId, this.quantity, this.unitPrice, this.totalPrice, this.specialInstructions, this.product});
 
   factory OrderItem.fromJson(Map<String, dynamic> json) {
-    return OrderItem();
+    return OrderItem(
+      id: _asInt(json['id']),
+      orderId: _asInt(json['orderId']),
+      productId: _asInt(json['productId']),
+      quantity: _asInt(json['quantity']),
+      unitPrice: _asDouble(json['unitPrice']),
+      totalPrice: _asDouble(json['totalPrice']),
+      specialInstructions: _asString(json['specialInstructions']),
+      product: json['product'] != null ? Product.fromJson(Map<String, dynamic>.from(json['product'])) : null,
+    );
   }
 
-  Map<String, dynamic> toJson() => {};
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "orderId": orderId,
+    "productId": productId,
+    "quantity": quantity,
+    "unitPrice": unitPrice,
+    "totalPrice": totalPrice,
+    "specialInstructions": specialInstructions,
+    "product": product?.toJson(),
+  };
+}
+
+class Product {
+  int? id;
+  String? name;
+
+  Product({this.id, this.name});
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(id: _asInt(json['id']), name: _asString(json['name']));
+  }
+
+  Map<String, dynamic> toJson() => {"id": id, "name": name};
 }
 
 class OrderStatusLog {

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ProductsNotifier {
+  final ValueNotifier<int> selectedCategoryId = ValueNotifier<int>(0);
 
-  ValueNotifier<int> categoryId = ValueNotifier<int>(-1);
-
-  changeCategoryId(val){
-    categoryId.value = val;
+  changeSelectedCategoryId(int categoryId) {
+    selectedCategoryId.value = categoryId;
   }
-
 }

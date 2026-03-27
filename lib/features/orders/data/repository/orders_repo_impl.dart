@@ -6,6 +6,10 @@ import 'package:common_package/helpers/typedef.dart';
 import '../source/orders_remote_data_source.dart';
 import '../../domain/usecases/get_orders_use_case.dart';
 import '../models/get_orders_model.dart';
+import '../../domain/usecases/accept_order_use_case.dart';
+import '../models/accept_order_model.dart';
+import '../../domain/usecases/reject_order_use_case.dart';
+import '../models/reject_order_model.dart';
 
 @LazySingleton(as: OrdersRepo)
 class OrdersRepoImpl with HandlingException implements OrdersRepo {
@@ -17,6 +21,20 @@ class OrdersRepoImpl with HandlingException implements OrdersRepo {
   DataResponse<GetOrdersModel> getOrders(GetOrdersParams params) {
     return wrapHandlingException(
       tryCall: () => ordersRemoteDataSource.getOrders(params),
+    );
+  }
+
+  @override
+  DataResponse<AcceptOrderModel> acceptOrder(AcceptOrderParams params) {
+    return wrapHandlingException(
+      tryCall: () => ordersRemoteDataSource.acceptOrder(params),
+    );
+  }
+
+  @override
+  DataResponse<RejectOrderModel> rejectOrder(RejectOrderParams params) {
+    return wrapHandlingException(
+      tryCall: () => ordersRemoteDataSource.rejectOrder(params),
     );
   }}
 

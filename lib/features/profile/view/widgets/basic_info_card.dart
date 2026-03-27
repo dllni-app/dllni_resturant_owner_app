@@ -1,9 +1,80 @@
+import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:common_package/common_package.dart';
+import 'package:dio/dio.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
-class BasicInfoCard extends StatelessWidget {
-  const BasicInfoCard({super.key});
+import '../../../../core/helpers/app_image_picker.dart';
+
+class BasicInfoCard extends StatefulWidget {
+  const BasicInfoCard({
+    super.key,
+    required this.image,
+    required this.images,
+    required this.name,
+    required this.desc,
+    required this.selectedImage,
+    required this.selectedImages,
+  });
+
+  final String image;
+  final String images;
+  final TextEditingController name;
+  final TextEditingController desc;
+
+  final Function(File? image) selectedImage;
+  final Function(File? images) selectedImages;
+
+  @override
+  State<BasicInfoCard> createState() => _BasicInfoCardState();
+}
+
+class _BasicInfoCardState extends State<BasicInfoCard> {
+  File? image;
+  File? images;
+
+  Future<File?> downloadImage(String url) async {
+    try {
+      final dio = Dio();
+      final response = await dio.get(url, options: Options(responseType: ResponseType.bytes));
+
+      return uint8ListToFile(response.data, 'primaryImage');
+    } catch (e) {
+      log('Error downloading image: $e');
+      return null;
+    }
+  }
+
+  Future<List<File>> downloadImages(List<String> urls) async {
+    if (urls.isEmpty) return [];
+    final dio = Dio();
+    final responses = await Future.wait(
+      urls.map((url) async {
+        final res = await dio.get(url, options: Options(responseType: ResponseType.bytes));
+        return await uint8ListToFile(res.data, 'image${res.data.toString().split('.')}');
+      }),
+    );
+
+    return responses;
+  }
+
+  Future<File> uint8ListToFile(Uint8List bytes, String fileName) async {
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/$fileName');
+    await file.writeAsBytes(bytes);
+    return file;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    downloadImage(widget.image).then((value) => setState(() => image = value));
+    downloadImage(widget.images).then((value) => setState(() => images = value));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,22 +115,41 @@ class BasicInfoCard extends StatelessWidget {
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color(0xffC4C4C4)),
                   width: 112,
                   height: 112,
+                  child: image == null
+                      ? Padding(padding: const EdgeInsets.all(40.0), child: CircularProgressIndicator())
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.file(image!, fit: BoxFit.cover),
+                        ),
                 ),
                 SizedBox(width: 12),
                 Expanded(
-                  child: DottedBorder(
-                    options: RoundedRectDottedBorderOptions(radius: Radius.circular(24), strokeWidth: 2, dashPattern: [8, 4], color: context.surface),
-                    child: Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: Color(0xffF9FAFB)),
-                      width: context.width,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Icon(Icons.cloud_upload, color: Color(0xff064E3B)),
-                          SizedBox(height: 8),
-                          AppText.labelLarge('اضغط لرفع صورة', fontWeight: FontWeight.w500, color: Color(0xff2F2B3D)),
-                        ],
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: () async {
+                      image = await AppImagePicker.pickSingleImage();
+                      widget.selectedImage(image);
+                      setState(() {});
+                    },
+                    child: DottedBorder(
+                      options: RoundedRectDottedBorderOptions(
+                        radius: Radius.circular(24),
+                        strokeWidth: 2,
+                        dashPattern: [8, 4],
+                        color: context.surface,
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: Color(0xffF9FAFB)),
+                        width: context.width,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.cloud_upload, color: Color(0xff064E3B)),
+                            SizedBox(height: 8),
+                            AppText.labelLarge('اضغط لرفع صورة', fontWeight: FontWeight.w500, color: Color(0xff2F2B3D)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -95,22 +185,41 @@ class BasicInfoCard extends StatelessWidget {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color(0xffC4C4C4)),
             width: context.width,
             height: 112,
+            child: images == null
+                ? Center(
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.symmetric(horizontal: 100, vertical: 40),
+                      child: CircularProgressIndicator.adaptive(),
+                    ),
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.file(images!, fit: BoxFit.cover, width: 112),
+                  ),
           ),
           SizedBox(height: 8),
-          DottedBorder(
-            options: RoundedRectDottedBorderOptions(radius: Radius.circular(24), strokeWidth: 2, dashPattern: [8, 4], color: context.surface),
-            child: Container(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: Color(0xffF9FAFB)),
-              width: context.width,
-              padding: EdgeInsetsDirectional.symmetric(vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Icon(Icons.cloud_upload, color: Color(0xff064E3B)),
-                  SizedBox(height: 8),
-                  AppText.labelLarge('اضغط لرفع صورة', fontWeight: FontWeight.w500, color: Color(0xff2F2B3D)),
-                ],
+          InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: () async {
+              images = await AppImagePicker.pickSingleImage();
+              widget.selectedImages(images);
+              setState(() {});
+            },
+            child: DottedBorder(
+              options: RoundedRectDottedBorderOptions(radius: Radius.circular(24), strokeWidth: 2, dashPattern: [8, 4], color: context.surface),
+              child: Container(
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: Color(0xffF9FAFB)),
+                width: context.width,
+                padding: EdgeInsetsDirectional.symmetric(vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.cloud_upload, color: Color(0xff064E3B)),
+                    SizedBox(height: 8),
+                    AppText.labelLarge('اضغط لرفع صورة', fontWeight: FontWeight.w500, color: Color(0xff2F2B3D)),
+                  ],
+                ),
               ),
             ),
           ),
@@ -137,8 +246,9 @@ class BasicInfoCard extends StatelessWidget {
               AppText.bodyMedium('*', fontWeight: FontWeight.w500, color: context.error),
             ],
           ),
-          SizedBox(height: 8,),
+          SizedBox(height: 8),
           TextFormField(
+            controller: widget.name,
             style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
             decoration: InputDecoration(
               filled: true,
@@ -159,8 +269,9 @@ class BasicInfoCard extends StatelessWidget {
           ),
           SizedBox(height: 20),
           AppText.bodyMedium('وصف المتجر', fontWeight: FontWeight.w500),
-          SizedBox(height: 8,),
+          SizedBox(height: 8),
           TextFormField(
+            controller: widget.desc,
             maxLines: 5,
             style: TextStyle(color: Color(0xff2F2B3D), fontSize: 14, fontWeight: FontWeight.w400),
             decoration: InputDecoration(

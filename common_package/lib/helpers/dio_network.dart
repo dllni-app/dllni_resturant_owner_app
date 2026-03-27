@@ -4,25 +4,19 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 
 import 'logger_interceptor.dart';
-import 'token_interceptor.dart';
 
 class DioNetwork {
   final List<Interceptor> interceptors;
   final String baseUrl;
   static late Dio dio;
 
-  final String? tokenKey;
-  final String? fcmKey;
-  final String? lang;
-  final Function()? onRequestFunction;
-
-  DioNetwork({this.interceptors = const [], required this.baseUrl, this.onRequestFunction, this.fcmKey, this.tokenKey, this.lang}) {
+  DioNetwork({this.interceptors = const [], required this.baseUrl}) {
     dio = Dio(BaseOptions(baseUrl: baseUrl, receiveDataWhenStatusError: true));
     dio.options.headers = {'Accept': 'application/json'};
+    // Add custom interceptors first (TokenInterceptor), then LoggerInterceptor to log final headers
     dio.interceptors.addAll([
-      LoggerInterceptor(),
-      TokenInterceptor(lang: lang, tokenKey: tokenKey, fcmKey: fcmKey, onRequestFunction: onRequestFunction),
       ...interceptors,
+      LoggerInterceptor(),
     ]);
   }
 

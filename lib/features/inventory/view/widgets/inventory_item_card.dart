@@ -1,6 +1,8 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
+enum _InventoryItemAction { update, delete }
+
 class InventoryItemCard extends StatelessWidget {
   final String productName;
   final String currentQuantity;
@@ -11,6 +13,8 @@ class InventoryItemCard extends StatelessWidget {
   final VoidCallback? onIncrement;
   final VoidCallback? onDecrement;
   final VoidCallback? onAdjustQuantity;
+  final VoidCallback? onUpdate;
+  final VoidCallback? onDelete;
 
   final bool isLow;
 
@@ -26,13 +30,13 @@ class InventoryItemCard extends StatelessWidget {
     this.onIncrement,
     this.onDecrement,
     this.onAdjustQuantity,
+    this.onUpdate,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     final currentQty = double.tryParse(currentQuantity.replaceAll(RegExp(r'[^\d.]'), '')) ?? 0;
-    final minQty = double.tryParse(minimumQuantity.replaceAll(RegExp(r'[^\d.]'), '')) ?? 1;
-    final progress = (currentQty / minQty).clamp(0.0, 1.0);
 
     return InkWell(
       onTap: () {},
@@ -50,7 +54,7 @@ class InventoryItemCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppText.bodyLarge(productName, fontWeight: FontWeight.bold, color: Colors.black),
+                  AppText.bodyLarge(productName, fontWeight: FontWeight.bold, color: Colors.black, textAlign: TextAlign.start,),
                   SizedBox(height: 12),
                   Row(
                     children: [
@@ -66,17 +70,51 @@ class InventoryItemCard extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 12),
-                  LinearProgressIndicator(value: .5, color: cardColor, backgroundColor: Color(0xffF3F4F6), minHeight: 6),
+                  LinearProgressIndicator(value: ((currentQty * 100) / (currentQty + 50) / 100), color: cardColor, backgroundColor: Color(0xffF3F4F6), minHeight: 6),
                   SizedBox(height: 12),
                   // Last updated
                   Row(
                     children: [
                       Icon(Icons.access_time, size: 14, color: Colors.grey.shade600),
                       SizedBox(width: 6),
-                      AppText.labelLarge('آخر تحديث: $lastUpdated', color: Colors.grey.shade600),
+                      AppText.labelLarge('آخر تحديث: ', color: Colors.grey.shade600),
+                      AppText.labelLarge(lastUpdated, color: Colors.grey.shade600, textDirection: TextDirection.ltr),
+                      Spacer(),
+                      PopupMenuButton<_InventoryItemAction>(
+                        icon: const Icon(Icons.more_vert, color: Color(0xFF6B7280)),
+                        onSelected: (value) {
+                          if (value == _InventoryItemAction.update) {
+                            onUpdate?.call();
+                          } else {
+                            onDelete?.call();
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem<_InventoryItemAction>(
+                            value: _InventoryItemAction.update,
+                            child: Row(
+                              children: [
+                                Icon(Icons.edit_outlined, size: 18, color: Color(0xFF065F46)),
+                                SizedBox(width: 8),
+                                AppText.labelLarge('تعديل'),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<_InventoryItemAction>(
+                            value: _InventoryItemAction.delete,
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete_outline, size: 18, color: Color(0xFFEF4444)),
+                                SizedBox(width: 8),
+                                AppText.labelLarge('حذف'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  /*SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -118,12 +156,12 @@ class InventoryItemCard extends StatelessWidget {
                         child: Container(
                           width: 40,
                           height: 40,
-                          decoration: BoxDecoration(color: isLow ? context.primaryContainer : Colors.grey.shade300, shape: BoxShape.circle),
+                          decoration: BoxDecoration(color: context.primaryContainer, shape: BoxShape.circle),
                           child: Icon(Icons.add, color: Colors.white, size: 20),
                         ),
                       ),
                     ],
-                  ),
+                  ),*/
                 ],
               ),
             ),

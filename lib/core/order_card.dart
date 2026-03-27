@@ -1,26 +1,31 @@
 import 'package:common_package/common_package.dart';
+import 'package:dllni_resturant_owner_app/features/orders/view/screens/order_details_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:injectable/injectable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../features/orders/data/models/get_orders_model.dart';
+import '../features/orders/view/manager/bloc/orders_bloc.dart';
+import '../features/orders/view/widgets/accept_order_bottom_sheet.dart';
+import '../features/orders/view/widgets/reject_order_bottom_sheet.dart';
 import '../generated/assets.dart';
 
 enum OrderStatus { newOrder, preparingOrder, readyOrder, completedOrder }
 
 class OrderCard extends StatefulWidget {
-  const OrderCard({super.key, required this.isFromHome, required this.status, required this.order});
+  const OrderCard({super.key, required this.isFromHome, required this.status, required this.order, required this.bloc});
 
   final bool isFromHome;
   final OrderStatus status;
 
   final GetOrdersModelDataItem order;
 
+  final OrdersBloc bloc;
+
   @override
   State<OrderCard> createState() => _OrderCardState();
 }
 
 class _OrderCardState extends State<OrderCard> {
-
   Color orderStatusColor(OrderStatus status) {
     switch (status) {
       case OrderStatus.newOrder:
@@ -50,7 +55,9 @@ class _OrderCardState extends State<OrderCard> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        context.pushRoute('/orders/details', arguments: OrderDetailsParams(order: widget.order));
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
@@ -77,7 +84,11 @@ class _OrderCardState extends State<OrderCard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AppText.bodyMedium('${widget.order.user?.name}', color: Color(0xff2F2B3D), fontWeight: FontWeight.bold),
-                            AppText.labelMedium('#${widget.order.orderNumber} • منذ 2 دقيقة', color: Color(0xff2F2B3D).withAlpha(153), fontWeight: FontWeight.w500),
+                            AppText.labelMedium(
+                              '#${widget.order.orderNumber} • منذ 2 دقيقة',
+                              color: Color(0xff2F2B3D).withAlpha(153),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ],
                         ),
                       ),
@@ -106,7 +117,7 @@ class _OrderCardState extends State<OrderCard> {
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: AppText.labelLarge(
-                            'مشاوي مشكل - 2× حمص - 4× بيبسي',
+                            widget.order.orderItems?.map((e) => e.product?.name).join(', ') ?? '',
                             color: Color(0xff2F2B3D).withAlpha(230),
                             fontWeight: FontWeight.w400,
                             maxLines: 1,
@@ -121,7 +132,12 @@ class _OrderCardState extends State<OrderCard> {
                             Expanded(
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
-                                child: AppText.labelLarge('توصيل', color: Color(0xff2F2B3D).withAlpha(153), fontWeight: FontWeight.bold, maxLines: 1),
+                                child: AppText.labelLarge(
+                                  widget.order.orderType == 'pickup' ? 'توصيل' : 'توصيل',
+                                  color: Color(0xff2F2B3D).withAlpha(153),
+                                  fontWeight: FontWeight.bold,
+                                  maxLines: 1,
+                                ),
                               ),
                             ),
                           ],
@@ -134,17 +150,35 @@ class _OrderCardState extends State<OrderCard> {
                     children: [
                       Expanded(
                         flex: 5,
-                        child: Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
-                          padding: EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
-                          child: AppText.labelLarge('قبول الطلب', color: context.onPrimary, fontWeight: FontWeight.w500),
+                        child: InkWell(
+                          onTap: () async {
+                            await showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              enableDrag: true,
+                              builder: (context) => AcceptOrderBottomSheet(order: widget.order, bloc: widget.bloc),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
+                            padding: EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
+                            child: AppText.labelLarge('قبول الطلب', color: context.onPrimary, fontWeight: FontWeight.w500),
+                          ),
                         ),
                       ),
                       SizedBox(width: 8),
                       Expanded(
                         flex: 2,
                         child: InkWell(
-                          onTap: () {},
+                          onTap: () async {
+                            await showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => RejectOrderBottomSheet(order: widget.order, bloc: widget.bloc),
+                            );
+                          },
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),

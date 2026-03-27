@@ -1,10 +1,13 @@
 import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
+import 'package:dllni_resturant_owner_app/features/home/domain/usecases/home_overview_performance_use_case.dart';
+import 'package:dllni_resturant_owner_app/features/home/domain/usecases/home_overview_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../orders/domain/usecases/get_orders_use_case.dart';
 import '../../../orders/view/manager/bloc/orders_bloc.dart';
+import '../manager/bloc/home_bloc.dart';
 import '../widgets/home_app_bar.dart';
 import '../../../../core/order_card.dart';
 import '../widgets/orders_hour_statistics_card.dart';
@@ -13,15 +16,30 @@ import '../widgets/quick_actions_row.dart';
 import '../widgets/statistics_row.dart';
 import '../widgets/today_overview_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrdersBloc>(
-      create: (context) =>
-      getIt<OrdersBloc>()
-        ..add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: 'pending'), isReload: true)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<OrdersBloc>(
+          create: (context) => getIt<OrdersBloc>()
+            ..add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: 'pending'), isReload: true))
+            ..add(GetHomePreparingOrdersEvent(params: GetOrdersParams(page: 1, status: 'preparing'))),
+        ),
+        BlocProvider<HomeBloc>(
+          lazy: false,
+          create: (context) => getIt<HomeBloc>()
+            ..add(HomeOverviewEvent(params: HomeOverviewParams()))
+            ..add(HomeOverviewPerformanceEvent(params: HomeOverviewPerformanceParams())),
+        ),
+      ],
       child: SafeArea(
         child: Column(
           children: [
@@ -73,13 +91,18 @@ class HomeScreen extends StatelessWidget {
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
-                                return OrderCard(order: state.orders!.list[index], isFromHome: false, status: OrderStatus.newOrder);
+                                return OrderCard(
+                                  order: state.orders!.list[index],
+                                  isFromHome: false,
+                                  status: OrderStatus.newOrder,
+                                  bloc: context.read<OrdersBloc>(),
+                                );
                               },
                               separatorBuilder: (context, index) => SizedBox(height: 16),
                               itemCount: state.orders!.length,
                             );
                           },
-                          failedWidget: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error,),
+                          failedWidget: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error),
                           onTapRetry: () {
                             context.read<OrdersBloc>().add(GetOrdersEvent(params: GetOrdersParams(page: 1), isReload: true));
                           },
