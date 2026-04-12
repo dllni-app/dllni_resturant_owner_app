@@ -1,7 +1,4 @@
-﻿import 'dart:math';
-import 'dart:ui';
-
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/assets.dart';

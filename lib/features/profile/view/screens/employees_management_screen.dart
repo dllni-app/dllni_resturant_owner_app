@@ -8,7 +8,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/fetch_employees_use_case.dart';
 import '../manager/bloc/profile_bloc.dart';
-import '../widgets/employee_management_filter_card.dart';
 
 @AutoRoutePage(path: '/employeesmanagement')
 class EmployeesManagementScreen extends StatefulWidget {

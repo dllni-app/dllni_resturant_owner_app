@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
 
-import '../../../../features/main/view/screens/main_screen.dart';
 import '../../domain/usecases/login_use_case.dart';
 import '../manager/bloc/auth_bloc.dart';
 
