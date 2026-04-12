@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,7 +73,7 @@ class _CouponsStatisticsGridState extends State<CouponsStatisticsGrid> with Sing
                     Container(
                       decoration: BoxDecoration(color: Color(0xffDBEAFE), borderRadius: BorderRadius.circular(16)),
                       padding: EdgeInsetsDirectional.all(10),
-                      child: AppImage.asset(Assets.imagesOffersStatisticsIcon, width: 24, height: 24),
+                      child: AppImage.asset(Assets.images.offersStatisticsIcon.path, width: 24, height: 24),
                     ),
                     SizedBox(width: 12),
                     AppText.bodyMedium('الإحصائيات', fontWeight: FontWeight.bold, color: Color(0xff111827)),

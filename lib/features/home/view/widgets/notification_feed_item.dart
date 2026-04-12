@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -36,16 +36,16 @@ class _NotificationFeedItemState extends State<NotificationFeedItem> {
 
   String notificationStatusIcon() {
     if (widget.notification.type == 'order') {
-      return Assets.imagesNotificationsOrdersIcon;
+      return Assets.images.notificationsOrdersIcon.path;
     }
     else if (widget.notification.type == 'inventory') {
-      return Assets.imagesNotificationsInventoryIcon;
+      return Assets.images.notificationsInventoryIcon.path;
     }
     else if (widget.notification.type == 'offers') {
-      return Assets.imagesNotificationsOffersIcon;
+      return Assets.images.notificationsOffersIcon.path;
     }
     else {
-      return Assets.imagesNotificationsSettingsIcon;
+      return Assets.images.notificationsSettingsIcon.path;
     }
   }
 

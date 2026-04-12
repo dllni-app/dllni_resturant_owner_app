@@ -1,11 +1,10 @@
 import 'package:common_package/common_package.dart';
-import 'package:common_package/helpers/dio_network.dart';
-import 'package:common_package/helpers/shared_preferences_helper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
 import 'injection.config.dart';
 import '../app_config.dart';
+import '../session/session_expired_handler.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -24,7 +23,23 @@ Future<GetIt> configureInjection() async {
 abstract class InjectableModule {
   @singleton
   DioNetwork get dio => DioNetwork(
-    baseUrl: AppConfig.baseUrl,
-    interceptors: [TokenInterceptor(tokenKey: 'token', fcmKey: 'fcm', lang: '', onRequestFunction: (){})]
-  );
+        baseUrl: AppConfig.baseUrl,
+        interceptors: [
+          TokenInterceptor(
+            tokenKey: 'token',
+            fcmKey: 'fcm',
+            lang: '',
+            onRequestFunction: () {},
+          ),
+        ],
+        trailingInterceptors: [
+          UnauthorizedInterceptor(
+            onUnauthorized: SessionExpiredHandler.handle,
+            excludedPathSuffixes: const [
+              '/api/v1/user/login',
+              '/api/login',
+            ],
+          ),
+        ],
+      );
 }

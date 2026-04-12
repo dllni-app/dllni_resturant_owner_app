@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Dllni Resturant Owner App</string>
+	<string>مطعم عالندهة</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>dllni_resturant_owner_app</string>
+	<string>مطعم عالندهة</string>
 	<key>NSPhotoLibraryUsageDescription</key>
     <string>We need access to your photo library make you able to upload your resturant images</string>
 	<key>CFBundlePackageType</key>

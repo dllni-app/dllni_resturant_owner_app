@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/manager/bloc/profile_bloc.dart';
 import 'package:dllni_resturant_owner_app/features/profile/data/models/fetch_resturant_data_model.dart';
 import 'package:flutter/material.dart';
@@ -131,7 +131,7 @@ class HomeAppBar extends StatelessWidget {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      AppImage.asset(Assets.imagesHomeNotification, size: 18),
+                      AppImage.asset(Assets.images.homeNotification.path, size: 18),
                       PositionedDirectional(
                         top: -2,
                         end: -2,

@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/features/home/domain/usecases/fetch_notifications_use_case.dart';
 import 'package:flutter/material.dart';
@@ -43,10 +43,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   return NotificationsFilterBar(
                     items: [
                       NotificationFilterItem(title: 'الكل', key: 'all', icon: null),
-                      NotificationFilterItem(title: 'طلبات', key: 'orders', icon: Assets.imagesNotificationsOrdersIcon),
-                      NotificationFilterItem(title: 'مخزون', key: 'inventory', icon: Assets.imagesNotificationsInventoryIcon),
-                      NotificationFilterItem(title: 'عروض', key: 'offers', icon: Assets.imagesNotificationsOffersIcon),
-                      NotificationFilterItem(title: 'نظام', key: 'system', icon: Assets.imagesNotificationsSettingsIcon),
+                      NotificationFilterItem(title: 'طلبات', key: 'orders', icon: Assets.images.notificationsOrdersIcon.path),
+                      NotificationFilterItem(title: 'مخزون', key: 'inventory', icon: Assets.images.notificationsInventoryIcon.path),
+                      NotificationFilterItem(title: 'عروض', key: 'offers', icon: Assets.images.notificationsOffersIcon.path),
+                      NotificationFilterItem(title: 'نظام', key: 'system', icon: Assets.images.notificationsSettingsIcon.path),
                     ],
                     selectedKey: selectedKey,
                     onChanged: (val) {

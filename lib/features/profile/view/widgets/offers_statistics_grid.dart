@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,7 +73,7 @@ class _OffersStatisticsGridState extends State<OffersStatisticsGrid> with Single
                     Container(
                       decoration: BoxDecoration(color: Color(0xffDBEAFE), borderRadius: BorderRadius.circular(16)),
                       padding: EdgeInsetsDirectional.all(10),
-                      child: AppImage.asset(Assets.imagesOffersStatisticsIcon, width: 24, height: 24),
+                      child: AppImage.asset(Assets.images.offersStatisticsIcon.path, width: 24, height: 24),
                     ),
                     SizedBox(width: 12),
                     AppText.bodyMedium('الإحصائيات', fontWeight: FontWeight.bold, color: Color(0xff111827)),
@@ -130,7 +130,7 @@ class _OffersStatisticsGridState extends State<OffersStatisticsGrid> with Single
                               value: i == 0 ? (summary?.expiredCount ?? 0) : (summary?.totalUsageOrders ?? 0),
                               containerBorderColor: i == 0 ? Color(0xffE5E7EB) : Color(0xff064E3B).withAlpha(51),
                               containerColor: i == 0 ? Color(0xffF3F4F6) : Color(0xff064E3B).withAlpha(25),
-                              icon: i == 0 ? Icons.block : Assets.imagesNavBarOrders,
+                              icon: i == 0 ? Icons.block : Assets.images.navBarOrders.path,
                               iconCardColor: i == 0 ? Color(0xffE5E7EB) : Color(0xff064E3B).withAlpha(51),
                               iconColor: i == 0 ? Color(0xff6B7280) : Color(0xff064E3B),
                             ),

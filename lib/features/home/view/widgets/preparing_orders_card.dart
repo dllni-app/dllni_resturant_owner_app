@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -49,7 +49,7 @@ class PreparingOrdersCard extends StatelessWidget {
                       padding: EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 2),
                       child: Row(
                         children: [
-                          AppImage.asset(Assets.imagesOrderClock, color: context.primary, width: 12, height: 12),
+                          AppImage.asset(Assets.images.orderClock.path, color: context.primary, width: 12, height: 12),
                           SizedBox(width: 4),
                           AppText.labelLarge(
                             '${DateTime.now().difference(state.homePreparingOrders?.data?[index].acceptedAt == null ? DateTime.now() : DateTime.parse(state.homePreparingOrders!.data![index].acceptedAt!)).inMinutes} دقيقة',

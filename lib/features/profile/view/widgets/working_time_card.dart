@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/widgets/app_pickers.dart';
@@ -134,7 +134,7 @@ class _WorkingTimeCardState extends State<WorkingTimeCard> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: isEnabled
-                        ? Center(child: AppImage.asset(Assets.imagesWorkingTimeCalender, color: Color(0xff064E3B)))
+                        ? Center(child: AppImage.asset(Assets.images.workingTimeCalender.path, color: Color(0xff064E3B)))
                         : Center(child: Icon(Icons.door_front_door, color: Colors.grey.shade600, size: 24)),
                   ),
                   const SizedBox(width: 12),

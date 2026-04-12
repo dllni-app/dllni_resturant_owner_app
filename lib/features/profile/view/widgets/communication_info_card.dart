@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/assets.dart';
@@ -86,7 +86,7 @@ class CommunicationInfoCard extends StatelessWidget {
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               filled: true,
-              prefixIcon: Transform.scale(scale: .5, child: AppImage.asset(Assets.imagesWhatsappIcon)),
+              prefixIcon: Transform.scale(scale: .5, child: AppImage.asset(Assets.images.whatsappIcon.path)),
               fillColor: Color(0xffF9FAFB),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -134,7 +134,7 @@ class CommunicationInfoCard extends StatelessWidget {
               hintText: 'اسم المستخدم في انستغرام',
               hintStyle: TextStyle(color: Color(0xff9CA3AF), fontSize: 14, fontWeight: FontWeight.w400),
               filled: true,
-              prefixIcon: Transform.scale(scale: .3, child: AppImage.asset(Assets.imagesInstaIcon)),
+              prefixIcon: Transform.scale(scale: .3, child: AppImage.asset(Assets.images.instaIcon.path)),
               fillColor: Color(0xffF9FAFB),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -159,7 +159,7 @@ class CommunicationInfoCard extends StatelessWidget {
               filled: true,
               hintText: 'اسم الصفحة في فيسبوك',
               hintStyle: TextStyle(color: Color(0xff9CA3AF), fontSize: 14, fontWeight: FontWeight.w400),
-              prefixIcon: Transform.scale(scale: .3, child: AppImage.asset(Assets.imagesFaceIcon)),
+              prefixIcon: Transform.scale(scale: .3, child: AppImage.asset(Assets.images.faceIcon.path)),
               fillColor: Color(0xffF9FAFB),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),

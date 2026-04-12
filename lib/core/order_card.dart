@@ -1,7 +1,6 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/orders/view/screens/order_details_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../features/orders/data/models/get_orders_model.dart';
 import '../features/orders/view/manager/bloc/orders_bloc.dart';
@@ -44,7 +43,7 @@ class _OrderCardState extends State<OrderCard> {
       case OrderStatus.newOrder:
         return CircleAvatar(radius: 4, backgroundColor: color);
       case OrderStatus.preparingOrder:
-        return AppImage.asset(Assets.imagesReadyOrderIcon, size: 13);
+        return AppImage.asset(Assets.images.readyOrderIcon.path, size: 13);
       case OrderStatus.readyOrder:
         return Icon(Icons.check_circle, size: 10, color: color);
       case OrderStatus.completedOrder:
@@ -127,7 +126,7 @@ class _OrderCardState extends State<OrderCard> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            AppImage.asset(Assets.imagesMotor, size: 18),
+                            AppImage.asset(Assets.images.motor.path, size: 18),
                             SizedBox(width: 4),
                             Expanded(
                               child: SingleChildScrollView(

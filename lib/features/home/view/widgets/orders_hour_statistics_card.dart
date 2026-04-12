@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,7 +25,7 @@ class OrdersHourStatisticsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               AppText.bodyLarge('نشاط الطلبات (ساعات)', fontWeight: FontWeight.bold),
-              AppImage.asset(Assets.imagesStatisticsIcon, width: 18, height: 18),
+              AppImage.asset(Assets.images.statisticsIcon.path, width: 18, height: 18),
             ],
           ),
           SizedBox(height: 24),

@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/assets.dart';
@@ -40,7 +40,7 @@ class OfferAnalysisSection extends StatelessWidget {
                         Container(
                           decoration: BoxDecoration(color: Color(0xff064E3B).withAlpha(51), borderRadius: BorderRadius.circular(12)),
                           padding: const EdgeInsetsDirectional.all(10),
-                          child: AppImage.asset(Assets.imagesOrderHasOffers, color: Color(0xff064E3B), size: 20),
+                          child: AppImage.asset(Assets.images.orderHasOffers.path, color: Color(0xff064E3B), size: 20),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -147,7 +147,7 @@ class OfferAnalysisSection extends StatelessWidget {
                     Container(
                       decoration: BoxDecoration(color: Color(0xffD97706).withAlpha(51), borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsetsDirectional.all(8),
-                      child: AppImage.asset(Assets.imagesCup, size: 25),
+                      child: AppImage.asset(Assets.images.cup.path, size: 25),
                     ),
                   ],
                 ),
@@ -195,7 +195,7 @@ class _OfferRow extends StatelessWidget {
           Container(
             decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(12)),
             padding: const EdgeInsetsDirectional.all(10),
-            child: AppImage.asset(Assets.imagesRevinuDashboard, color: iconColor, size: 20),
+            child: AppImage.asset(Assets.images.revinuDashboard.path, color: iconColor, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(

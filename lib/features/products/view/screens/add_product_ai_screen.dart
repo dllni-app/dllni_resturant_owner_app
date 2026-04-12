@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:io';
 
 import 'package:common_package/common_package.dart';
@@ -7,6 +7,7 @@ import 'package:dllni_resturant_owner_app/features/products/domain/usecases/gene
 import 'package:dllni_resturant_owner_app/features/products/domain/usecases/generate_ai_product_image_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../../../generated/assets.dart';
 import '../manager/bloc/products_bloc.dart';
@@ -74,12 +75,17 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                         backgroundColor: const Color(0xFFEFEBFF),
                         foregroundColor: const Color(0xFF7C5CFF),
                         title: 'توليد الصورة من الاسم',
-                        subtitle: 'اكتب اسم ووصف الوجبة وسيتم اقتراح الصورة والوصف تلقائياً',
+                        subtitle:
+                            'اكتب اسم ووصف الوجبة وسيتم اقتراح الصورة والوصف تلقائياً',
                         icon: Icons.perm_media_rounded,
                         expandedWidget: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            ProductTextField(title: 'اسم المنتج', hintText: 'مثال: برجر دجاج كلاسيك', controller: productNameController),
+                            ProductTextField(
+                              title: 'اسم المنتج',
+                              hintText: 'مثال: برجر دجاج كلاسيك',
+                              controller: productNameController,
+                            ),
                             const SizedBox(height: 10),
                             ProductTextField(
                               title: 'وصف المنتج',
@@ -94,11 +100,23 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                   title: 'توليد الصورة',
                                   icon: const Icon(Icons.auto_awesome_rounded),
                                   onTap: () {
+                                    final title = productNameController.text
+                                        .trim();
+                                    if (title.isEmpty) {
+                                      AppToast.showToast(
+                                        context: context,
+                                        message: 'يرجى إدخال اسم المنتج أولاً',
+                                        type: ToastificationType.error,
+                                      );
+                                      return;
+                                    }
+
                                     context.read<ProductsBloc>().add(
                                       GenerateAiProductImageEvent(
                                         params: GenerateAiProductImageParams(
-                                          name: productNameController.text,
-                                          description: productDescriptionController.text,
+                                          title: title,
+                                          description:
+                                              productDescriptionController.text,
                                         ),
                                       ),
                                     );
@@ -108,41 +126,75 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                             ),
                             BlocBuilder<ProductsBloc, ProductsState>(
                               builder: (context, state) {
-                                if (state.generateAiProductImageStatus == BlocStatus.success) {
+                                if (state.generateAiProductImageStatus ==
+                                    BlocStatus.success) {
+                                  final imageBase64 = state
+                                      .generateAiProductImage
+                                      ?.data
+                                      ?.imageBase64;
                                   return Column(
                                     children: [
                                       const SizedBox(height: 12),
+                                      if (imageBase64 == null) ...[
+                                        const Text(
+                                          'تعذر توليد الصورة حالياً، يمكنك إعادة المحاولة أو المتابعة برفع صورة يدوياً.',
+                                          style: TextStyle(
+                                            color: ProductsStyleTokens.textLow,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                      ],
                                       Row(
                                         children: [
                                           Expanded(
                                             child: Column(
                                               children: [
-                                                AppOutlinedButton(color: const Color(0xFF00A7BC), title: 'عرض الصورة', onTap: () {}),
+                                                AppOutlinedButton(
+                                                  color: const Color(
+                                                    0xFF00A7BC,
+                                                  ),
+                                                  title: 'عرض الصورة',
+                                                  onTap: () {},
+                                                ),
                                                 const SizedBox(height: 8),
                                                 AppButton(
                                                   withShadow: false,
                                                   title: 'الموافقة والاستمرار',
                                                   onTap: () => context.pushRoute(
                                                     '/products/new_product/details',
-                                                    arguments: AddProductDetailsScreenParams(image: state.generateAiProductImage?.data?.imageBase64),
+                                                    arguments:
+                                                        AddProductDetailsScreenParams(
+                                                          image: state
+                                                              .generateAiProductImage
+                                                              ?.data
+                                                              ?.imageBase64,
+                                                        ),
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
                                           const SizedBox(width: 10),
-                                          state.generateAiProductImage?.data?.imageBase64 == null
+                                          imageBase64 == null
                                               ? AppImage.asset(
-                                                  Assets.imagesTestBurger,
+                                                  Assets.images.testBurger.path,
                                                   width: 92,
                                                   height: 92,
-                                                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                        Radius.circular(16),
+                                                      ),
                                                   fit: BoxFit.cover,
                                                 )
                                               : ClipRRect(
-                                                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                        Radius.circular(16),
+                                                      ),
                                                   child: Image.memory(
-                                                    base64Decode(state.generateAiProductImage!.data!.imageBase64!),
+                                                    base64Decode(imageBase64),
                                                     width: 92,
                                                     height: 92,
                                                     fit: BoxFit.cover,
@@ -165,7 +217,8 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                         backgroundColor: const Color(0xFFFFF3E6),
                         foregroundColor: const Color(0xFFEF7A00),
                         title: 'توليد الاسم من الصورة',
-                        subtitle: 'قم برفع صورة لمنتجك وسيتم اقتراح اسم ووصف المنتج تلقائياً',
+                        subtitle:
+                            'قم برفع صورة لمنتجك وسيتم اقتراح اسم ووصف المنتج تلقائياً',
                         icon: Icons.text_fields_rounded,
                         expandedWidget: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -184,9 +237,22 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                   title: 'توليد الاقتراحات',
                                   icon: const Icon(Icons.auto_awesome_rounded),
                                   onTap: () {
+                                    final currentImagePath = uploadedImagePath;
+                                    if (currentImagePath == null) {
+                                      AppToast.showToast(
+                                        context: context,
+                                        message: 'اختر صورة مناسبة',
+                                        type: ToastificationType.error,
+                                      );
+                                      return;
+                                    }
                                     context.read<ProductsBloc>().add(
                                       GenerateAiProductDataFromImageEvent(
-                                        params: GenerateAiProductDataFromImageParams(image: File(uploadedImagePath!)),
+                                        params:
+                                            GenerateAiProductDataFromImageParams(
+                                              image: File(currentImagePath),
+                                              locale: _resolveAiLocale(context),
+                                            ),
                                       ),
                                     );
                                   },
@@ -200,27 +266,69 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                   Expanded(
                                     child: Text(
                                       'تم رفع الصورة بنجاح',
-                                      style: const TextStyle(color: ProductsStyleTokens.textLow, fontSize: 12, fontWeight: FontWeight.w600),
+                                      style: const TextStyle(
+                                        color: ProductsStyleTokens.textLow,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                   ClipRRect(
-                                    borderRadius: const BorderRadius.all(Radius.circular(12)),
-                                    child: Image.file(File(uploadedImagePath!), width: 74, height: 74, fit: BoxFit.cover),
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(12),
+                                    ),
+                                    child: Image.file(
+                                      File(uploadedImagePath!),
+                                      width: 74,
+                                      height: 74,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ],
                               ),
                             ],
                             BlocBuilder<ProductsBloc, ProductsState>(
                               builder: (context, state) {
-                                if (state.generateAiProductDataFromImageStatus == BlocStatus.success) {
-                                  suggestedNameController.text = state.generateAiProductDataFromImage?.data?.title ?? '';
-                                  suggestedDescriptionController.text = state.generateAiProductDataFromImage?.data?.description ?? '';
+                                if (state
+                                        .generateAiProductDataFromImageStatus ==
+                                    BlocStatus.success) {
+                                  final extractedTitle = state
+                                      .generateAiProductDataFromImage
+                                      ?.data
+                                      ?.title;
+                                  suggestedNameController.text =
+                                      extractedTitle ?? '';
+                                  suggestedDescriptionController.text =
+                                      state
+                                          .generateAiProductDataFromImage
+                                          ?.data
+                                          ?.description ??
+                                      '';
                                   return Column(
                                     children: [
                                       const SizedBox(height: 14),
-                                      ProductTextField(title: 'اسم المنتج', controller: suggestedNameController),
+                                      if (extractedTitle == null) ...[
+                                        const Text(
+                                          'لم يتم استخراج اسم المنتج تلقائياً، يمكنك إدخال الاسم والوصف يدوياً.',
+                                          style: TextStyle(
+                                            color: ProductsStyleTokens.textLow,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                      ],
+                                      ProductTextField(
+                                        title: 'اسم المنتج',
+                                        controller: suggestedNameController,
+                                      ),
                                       const SizedBox(height: 10),
-                                      ProductTextField(title: 'وصف المنتج', maxLines: 5, controller: suggestedDescriptionController),
+                                      ProductTextField(
+                                        title: 'وصف المنتج',
+                                        maxLines: 5,
+                                        controller:
+                                            suggestedDescriptionController,
+                                      ),
                                       const SizedBox(height: 14),
                                       AppButton(
                                         withShadow: false,
@@ -228,8 +336,14 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                         onTap: () => context.pushRoute(
                                           '/products/new_product/details',
                                           arguments: AddProductDetailsScreenParams(
-                                            title: state.generateAiProductDataFromImage?.data?.title,
-                                            desc: state.generateAiProductDataFromImage?.data?.description,
+                                            title: state
+                                                .generateAiProductDataFromImage
+                                                ?.data
+                                                ?.title,
+                                            desc: state
+                                                .generateAiProductDataFromImage
+                                                ?.data
+                                                ?.description,
                                           ),
                                         ),
                                       ),
@@ -252,5 +366,15 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
         ),
       ),
     );
+  }
+
+  String? _resolveAiLocale(BuildContext context) {
+    final languageCode = Localizations.localeOf(
+      context,
+    ).languageCode.toLowerCase();
+    if (languageCode == 'ar' || languageCode == 'en') {
+      return languageCode;
+    }
+    return null;
   }
 }

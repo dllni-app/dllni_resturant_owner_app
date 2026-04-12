@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/assets.dart';
@@ -16,11 +16,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     List<String> images = [
-      Assets.imagesNavBarHome,
-      Assets.imagesNavBarOrders,
-      Assets.imagesNavBarProducts,
-      Assets.imagesNavBarInventory,
-      Assets.imagesNavBarMore,
+      Assets.images.navBarHome.path,
+      Assets.images.navBarOrders.path,
+      Assets.images.navBarProducts.path,
+      Assets.images.navBarInventory.path,
+      Assets.images.navBarMore.path,
     ];
     List<String> titles = ['الرئيسية', 'الطلبات', 'المنتجات', 'المخزون', 'المزيد'];
 

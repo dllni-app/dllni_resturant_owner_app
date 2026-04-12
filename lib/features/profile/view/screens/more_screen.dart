@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +42,7 @@ class MoreScreen extends StatelessWidget {
                             return SectionCard(
                               containerColor: Color(0xffD1FAE5),
                               imageColor: Color(0xff059669),
-                              image: Assets.imagesMarketInfoIcon,
+                              image: Assets.images.marketInfoIcon.path,
                               title: 'معلومات المتجر',
                               subtitle: 'الاسم والعنوان والتفاصيل',
                               onTap: () {
@@ -59,7 +59,7 @@ class MoreScreen extends StatelessWidget {
                         SectionCard(
                           containerColor: Color(0xffE0F2FE),
                           imageColor: Color(0xff0284C7),
-                          image: Assets.imagesWorkingHourIcon,
+                          image: Assets.images.workingHourIcon.path,
                           title: 'ساعات العمل',
                           subtitle: 'تحديد اوقات الفتح والاغلاق',
                           onTap: () {
@@ -85,7 +85,7 @@ class MoreScreen extends StatelessWidget {
                         SectionCard(
                           containerColor: Color(0xffFEE2E2),
                           imageColor: Color(0xffDC2626),
-                          image: Assets.imagesOffersManagementIcon,
+                          image: Assets.images.offersManagementIcon.path,
                           title: 'ادارة العروض',
                           subtitle: 'انشاء وتعديل العروض الترويجية',
                           onTap: () {
@@ -99,7 +99,7 @@ class MoreScreen extends StatelessWidget {
                         SectionCard(
                           containerColor: Color(0xffFEF3C7),
                           imageColor: Color(0xffD97706),
-                          image: Assets.imagesCoponsIcon,
+                          image: Assets.images.coponsIcon.path,
                           title: 'الكوبونات',
                           subtitle: 'ادارة اكواد الخصم',
                           onTap: () {
@@ -125,7 +125,7 @@ class MoreScreen extends StatelessWidget {
                         SectionCard(
                           containerColor: Color(0xffCFFAFE),
                           imageColor: Color(0xff0891B2),
-                          image: Assets.imagesEmployeesManagementIcon,
+                          image: Assets.images.employeesManagementIcon.path,
                           title: 'إدارة الموظفين',
                           subtitle: 'إضافة وتعديل بيانات الموظفين',
                           onTap: () {
@@ -139,7 +139,7 @@ class MoreScreen extends StatelessWidget {
                         SectionCard(
                           containerColor: Color(0xffF1F5F9),
                           imageColor: Color(0xff475569),
-                          image: Assets.imagesEmployeesHistoryIcon,
+                          image: Assets.images.employeesHistoryIcon.path,
                           title: 'سجل نشاط الموظفين',
                           subtitle: 'متابعة نشاط الفريق',
                           onTap: () {
@@ -163,7 +163,7 @@ class MoreScreen extends StatelessWidget {
                         SectionCard(
                           containerColor: Color(0xffDBEAFE),
                           imageColor: Color(0xff2563EB),
-                          image: Assets.imagesSupportIcon,
+                          image: Assets.images.supportIcon.path,
                           title: 'الدعم الفني',
                           subtitle: 'تواصل مع فريق الدعم',
                           onTap: () {},

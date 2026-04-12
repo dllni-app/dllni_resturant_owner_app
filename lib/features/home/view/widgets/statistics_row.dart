@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -13,7 +13,7 @@ class StatisticsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Color> colors = [Color(0xff3B82F6), Color(0xffF97316), Color(0xff22C55E)];
     List<String> titles = ['طلبات جديدة', 'طلبات مؤكدة', 'طلبات مكتملة'];
-    List<String> images = [Assets.imagesHomeNewOrdersIcon, Assets.imagesHomeConfirmedOrdersIcon, Assets.imagesHomeCompletedOrdersIcon];
+    List<String> images = [Assets.images.homeNewOrdersIcon.path, Assets.images.homeConfirmedOrdersIcon.path, Assets.images.homeCompletedOrdersIcon.path];
 
     return Row(
       spacing: 24,

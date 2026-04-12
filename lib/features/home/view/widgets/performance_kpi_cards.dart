@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/generated/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
@@ -46,7 +46,7 @@ class PerformanceKpiCards extends StatelessWidget {
     final cards = [
       _KpiCardConfig(
         title: 'إجمالي المبيعات',
-        icon: Assets.imagesOverviewMoney,
+        icon: Assets.images.overviewMoney.path,
         backgroundColor: const Color(0xff064E3B).withAlpha(51),
         iconColor: const Color(0xff064E3B),
         valueBuilder: () => valueOrState('${summary?.totalRevenue ?? 0}'),
@@ -54,7 +54,7 @@ class PerformanceKpiCards extends StatelessWidget {
       ),
       _KpiCardConfig(
         title: 'عدد الطلبات',
-        icon: Assets.imagesNavBarOrders,
+        icon: Assets.images.navBarOrders.path,
         backgroundColor: const Color(0xffD97706).withAlpha(51),
         iconColor: const Color(0xffD97706),
         valueBuilder: () => valueOrState('${summary?.totalOrders ?? 0}'),
@@ -68,7 +68,7 @@ class PerformanceKpiCards extends StatelessWidget {
       ),
       _KpiCardConfig(
         title: 'متوسط قيمة الطلب',
-        icon: Assets.imagesAvgCancelation,
+        icon: Assets.images.avgCancelation.path,
         backgroundColor: const Color(0xff10B981).withAlpha(51),
         iconColor: const Color(0xff10B981),
         valueBuilder: () => valueOrState('${summary?.averageOrderValue ?? 0}'),

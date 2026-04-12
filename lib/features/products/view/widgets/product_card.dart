@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'dart:ui';
 
 import 'package:common_package/common_package.dart';
@@ -132,7 +132,7 @@ class _ProductImage extends StatelessWidget {
         height: 96,
         child: Stack(
           children: [
-            AppImage.asset(Assets.imagesTestBurger, fit: BoxFit.cover),
+            AppImage.asset(Assets.images.testBurger.path, fit: BoxFit.cover),
             if (unavailable)
               Container(
                 alignment: Alignment.center,

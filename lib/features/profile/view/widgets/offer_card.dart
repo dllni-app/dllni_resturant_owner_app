@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/create_offer_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/manager/bloc/profile_bloc.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/screens/create_offer_screen.dart';
@@ -181,7 +181,7 @@ class OfferCard extends StatelessWidget {
               Row(
                 spacing: 8,
                 children: [
-                  AppImage.asset(Assets.imagesNavBarOrders, color: Color(0xff4B5563), size: 10),
+                  AppImage.asset(Assets.images.navBarOrders.path, color: Color(0xff4B5563), size: 10),
                   AppText.labelLarge('طلبات مستفيدة', color: Color(0xff4B5563), fontWeight: FontWeight.w400),
                 ],
               ),

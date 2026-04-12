@@ -1,0 +1,78 @@
+---
+description: Dllni owner app conventions for API, navigation, widgets, and DI
+globs: **/*.dart
+alwaysApply: false
+---
+
+# Flutter App Conventions (Dllni Owner)
+
+Apply these patterns when implementing endpoints, passing data between screens, and creating sub-widgets.
+
+## 1) Endpoint implementation flow
+
+- Follow the same layer order: `data/source` -> `data/repository` -> `domain/repository` -> `domain/usecases` -> `view/manager/bloc`.
+- In remote data source classes:
+  - Use `@lazySingleton`.
+  - Mix in `HandlingApiManager`.
+  - Inject `DioNetwork`.
+  - Wrap each request with `wrapHandlingApi(...)`.
+  - Use `jsonConvert: yourModelFromJson`.
+- In repository impl classes:
+  - Use `@LazySingleton(as: YourRepo)`.
+  - Mix in `HandlingException`.
+  - Return `wrapHandlingException(tryCall: ...)`.
+- In use cases:
+  - Use `@lazySingleton`.
+  - Implement `UseCase<ResultModel, ParamsType>`.
+  - Keep params types using `Params` (`getBody()` and `getParams()`).
+
+Endpoint checklist:
+1. Add/adjust request and response model(s).
+2. Add remote method in `data/source`.
+3. Add contract method in `domain/repository`.
+4. Implement it in `data/repository`.
+5. Add/extend use case and params.
+6. Dispatch/use from bloc event/state flow.
+7. Run code generation if new injectable classes were added.
+
+## 2) Data passing between screens
+
+- Register route screens with `@AutoRoutePage(path: '/your/path')`.
+- Do not manually edit generated route file; use generated route flow.
+- Navigate with route extensions:
+  - `context.pushRoute('/path', arguments: YourParams(...))`
+  - `context.pushRouteAndRemoveUntil('/path', arguments: ...)`
+  - `context.pushRouteReplacement('/path', arguments: ...)`
+- For screens with arguments, prefer a single constructor argument (usually `params`) with a typed params class.
+- For returned values:
+  - Caller: `final result = await context.pushRoute<T>(...)`
+  - Child: `context.pop(result)`
+
+## 3) Sub-widgets and screen structure
+
+- Keep route-level widgets in `view/screens/`.
+- Keep reusable UI pieces in `view/widgets/`.
+- If a screen gets large, split it into private body widgets (for example `_ScreenBody`) and focused widget files.
+- Pass data down through constructor parameters and callbacks.
+- Keep shared feature state in Bloc classes under `view/manager/bloc/`.
+
+## 4) Related project conventions
+
+- Dependency injection uses `getIt`, `@injectable`, and `@lazySingleton`.
+- Do not hand-edit generated DI and route files.
+- Use `DataResponse` (`Future<Either<Failure, T>>`) from use cases through repositories.
+- Keep localization text aligned with existing `easy_localization` and `.tr()` usage.
+
+## 5) Code generation reminders
+
+After route annotation changes:
+- `flutter pub run build_runner build --delete-conflicting-outputs`
+
+After adding/changing injectable classes:
+- `flutter pub run build_runner build --delete-conflicting-outputs`
+
+## 6) Guardrails
+
+- Match existing naming and folder layout before adding new files.
+- Keep changes scoped to requested feature; avoid unrelated refactors.
+- Prefer extending existing abstractions over introducing parallel patterns.

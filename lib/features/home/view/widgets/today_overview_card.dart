@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -81,7 +81,7 @@ class TodayOverviewCard extends StatelessWidget {
                         builder: (context, state) {
                           return Row(
                             children: [
-                              AppImage.asset(Assets.imagesTodayCardArrow, width: 13),
+                              AppImage.asset(Assets.images.todayCardArrow.path, width: 13),
                               SizedBox(width: 4),
                               AppText.labelSmall(
                                 '${state.homeOverview?.kpis?.salesChangePercent ?? 0}%',
@@ -100,7 +100,7 @@ class TodayOverviewCard extends StatelessWidget {
               ],
             ),
           ),
-          AppImage.asset(Assets.imagesHomeEarningIcon, size: 60),
+          AppImage.asset(Assets.images.homeEarningIcon.path, size: 60),
         ],
       ),
     );

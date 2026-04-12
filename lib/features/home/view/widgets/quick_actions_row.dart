@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/assets.dart';
@@ -9,7 +9,7 @@ class QuickActionsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<String> titles = ['منتج جديد', 'إنشاء عرض', 'تعديل مخزون', 'التقارير'];
-    List<String> images = [Assets.imagesNewOfferAction, Assets.imagesUpdateInventoryAction, Assets.imagesReportsAction];
+    List<String> images = [Assets.images.newOfferAction.path, Assets.images.updateInventoryAction.path, Assets.images.reportsAction.path];
 
     return Row(
       spacing: 12,

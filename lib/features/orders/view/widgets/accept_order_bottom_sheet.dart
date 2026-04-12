@@ -1,4 +1,4 @@
-import 'package:common_package/common_package.dart';
+﻿import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/orders/domain/usecases/accept_order_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -368,7 +368,7 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
           //         boxShadow: [BoxShadow(color: Colors.black.withAlpha(6), offset: Offset(0, 2), blurRadius: 2)],
           //       ),
           //       padding: EdgeInsetsDirectional.all(9),
-          //       child: AppImage.asset(Assets.imagesNavBarInventory, size: 14, color: Color(0xff2563EB),),
+          //       child: AppImage.asset(Assets.images.navBarInventory.path, size: 14, color: Color(0xff2563EB),),
           //     ),
           //     SizedBox(width: 12),
           //     Expanded(
@@ -394,7 +394,7 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
                   boxShadow: [BoxShadow(color: Colors.black.withAlpha(6), offset: Offset(0, 2), blurRadius: 2)],
                 ),
                 padding: EdgeInsetsDirectional.all(9),
-                child: AppImage.asset(Assets.imagesHomeNotification, size: 14, color: Color(0xff2563EB)),
+                child: AppImage.asset(Assets.images.homeNotification.path, size: 14, color: Color(0xff2563EB)),
               ),
               SizedBox(width: 12),
               Expanded(

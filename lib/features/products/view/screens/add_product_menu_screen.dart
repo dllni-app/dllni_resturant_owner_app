@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
@@ -47,22 +47,45 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                       _buildUploaderCard(),
                       BlocBuilder<ProductsBloc, ProductsState>(
                         builder: (context, state) {
-                          if (state.generateAiProductDataFromMenuStatus == BlocStatus.success) {
-                            return state.generateAiProductDataFromMenu?.data?.items?.isNotEmpty == true
+                          if (state.generateAiProductDataFromMenuStatus ==
+                              BlocStatus.success) {
+                            return state
+                                        .generateAiProductDataFromMenu
+                                        ?.data
+                                        ?.items
+                                        ?.isNotEmpty ==
+                                    true
                                 ? Column(
                                     children: [
                                       const SizedBox(height: 16),
                                       ListView.separated(
-                                        physics: const NeverScrollableScrollPhysics(),
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
                                         shrinkWrap: true,
-                                        itemCount: state.generateAiProductDataFromMenu!.data!.items!.length,
+                                        itemCount: state
+                                            .generateAiProductDataFromMenu!
+                                            .data!
+                                            .items!
+                                            .length,
                                         padding: EdgeInsets.zero,
-                                        separatorBuilder: (_, _) => const SizedBox(height: 12),
-                                        itemBuilder: (context, index) => _NewProductCard(state.generateAiProductDataFromMenu!.data!.items![index]),
+                                        separatorBuilder: (_, _) =>
+                                            const SizedBox(height: 12),
+                                        itemBuilder: (context, index) =>
+                                            _NewProductCard(
+                                              state
+                                                  .generateAiProductDataFromMenu!
+                                                  .data!
+                                                  .items![index],
+                                            ),
                                       ),
                                     ],
                                   )
-                                : Center(child: AppText.labelLarge('لم يتم العثور على نتائج', fontWeight: FontWeight.bold));
+                                : Center(
+                                    child: AppText.labelLarge(
+                                      'لم يتم العثور على منتجات، يمكنك إضافة المنتجات يدوياً',
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  );
                           } else {
                             return SizedBox.shrink();
                           }
@@ -74,16 +97,22 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
               ),
               BlocBuilder<ProductsBloc, ProductsState>(
                 builder: (context, state) {
-                  if (state.generateAiProductDataFromMenuStatus == BlocStatus.success) {
+                  if (state.generateAiProductDataFromMenuStatus ==
+                      BlocStatus.success) {
                     return Column(
                       children: [
                         SizedBox(height: 10),
                         Padding(
-                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
+                          padding: const EdgeInsetsDirectional.symmetric(
+                            horizontal: 24,
+                          ),
                           child: Row(
                             children: [
                               Expanded(
-                                child: AppButton(title: 'إضافة للقائمة', onTap: () {}),
+                                child: AppButton(
+                                  title: 'إضافة للقائمة',
+                                  onTap: () {},
+                                ),
                               ),
                               const SizedBox(width: 12),
                               AppOutlinedButton(
@@ -117,7 +146,9 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
       decoration: const BoxDecoration(
         color: ProductsStyleTokens.cardBackground,
         borderRadius: ProductsStyleTokens.cardRadius16,
-        border: Border.fromBorderSide(BorderSide(color: ProductsStyleTokens.lineCard)),
+        border: Border.fromBorderSide(
+          BorderSide(color: ProductsStyleTokens.lineCard),
+        ),
         boxShadow: [ProductsStyleTokens.softShadow],
       ),
       child: Column(
@@ -125,12 +156,22 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
         children: [
           const Text(
             'رفع صورة المنيو',
-            style: TextStyle(color: ProductsStyleTokens.textHigh, fontSize: 24 / 1.4, fontWeight: FontWeight.w700, height: 1.3),
+            style: TextStyle(
+              color: ProductsStyleTokens.textHigh,
+              fontSize: 24 / 1.4,
+              fontWeight: FontWeight.w700,
+              height: 1.3,
+            ),
           ),
           const SizedBox(height: 4),
           const Text(
             'قم برفع صورة المنيو ليتم استخراج المنتجات تلقائياً',
-            style: TextStyle(color: ProductsStyleTokens.textHint, fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+            style: TextStyle(
+              color: ProductsStyleTokens.textHint,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 14),
           Row(
@@ -140,7 +181,12 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                 const SizedBox(width: 10),
                 ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(16)),
-                  child: Image.file(File(imagePath!), width: 130, height: 190, fit: BoxFit.cover),
+                  child: Image.file(
+                    File(imagePath!),
+                    width: 130,
+                    height: 190,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ],
             ],
@@ -153,11 +199,20 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                 icon: const Icon(Icons.auto_awesome_rounded),
                 onTap: () {
                   if (imagePath == null) {
-                    AppToast.showToast(context: context, message: 'اختر صورة مناسبة', type: ToastificationType.error);
+                    AppToast.showToast(
+                      context: context,
+                      message: 'اختر صورة مناسبة',
+                      type: ToastificationType.error,
+                    );
                     return;
                   }
                   context.read<ProductsBloc>().add(
-                    GenerateAiProductDataFromMenuEvent(params: GenerateAiProductDataFromMenuParams(image: File(imagePath!))),
+                    GenerateAiProductDataFromMenuEvent(
+                      params: GenerateAiProductDataFromMenuParams(
+                        image: File(imagePath!),
+                        locale: _resolveAiLocale(context),
+                      ),
+                    ),
                   );
                 },
               );
@@ -181,20 +236,35 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
         child: Container(
           height: 190,
           width: context.width,
-          decoration: const BoxDecoration(color: ProductsStyleTokens.fieldBackground, borderRadius: BorderRadius.all(Radius.circular(16))),
+          decoration: const BoxDecoration(
+            color: ProductsStyleTokens.fieldBackground,
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
           child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.camera_alt_rounded, size: 22, color: ProductsStyleTokens.textHint),
+              Icon(
+                Icons.camera_alt_rounded,
+                size: 22,
+                color: ProductsStyleTokens.textHint,
+              ),
               SizedBox(height: 8),
               Text(
                 'اضغط لرفع صورة',
-                style: TextStyle(color: ProductsStyleTokens.textLow, fontSize: 12, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: ProductsStyleTokens.textLow,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               SizedBox(height: 4),
               Text(
                 'PNG, JPG حتى 5MB',
-                style: TextStyle(color: ProductsStyleTokens.textHint, fontSize: 10, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  color: ProductsStyleTokens.textHint,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -204,11 +274,23 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedImage == null) return;
     setState(() {
       imagePath = pickedImage.path;
     });
+  }
+
+  String? _resolveAiLocale(BuildContext context) {
+    final languageCode = Localizations.localeOf(
+      context,
+    ).languageCode.toLowerCase();
+    if (languageCode == 'ar' || languageCode == 'en') {
+      return languageCode;
+    }
+    return null;
   }
 }
 
@@ -224,7 +306,9 @@ class _NewProductCard extends StatelessWidget {
       decoration: const BoxDecoration(
         color: ProductsStyleTokens.cardBackground,
         borderRadius: ProductsStyleTokens.cardRadius16,
-        border: Border.fromBorderSide(BorderSide(color: ProductsStyleTokens.lineCard)),
+        border: Border.fromBorderSide(
+          BorderSide(color: ProductsStyleTokens.lineCard),
+        ),
         boxShadow: [ProductsStyleTokens.softShadow],
       ),
       child: Column(
@@ -232,7 +316,7 @@ class _NewProductCard extends StatelessWidget {
           Row(
             children: [
               AppImage.asset(
-                Assets.imagesTestBurger,
+                Assets.images.testBurger.path,
                 width: 78,
                 height: 78,
                 fit: BoxFit.cover,
@@ -240,7 +324,10 @@ class _NewProductCard extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               const Expanded(
-                child: ProductTextField(title: 'اسم المنتج', hintText: 'برجر دجاج كلاسيك'),
+                child: ProductTextField(
+                  title: 'اسم المنتج',
+                  hintText: 'برجر دجاج كلاسيك',
+                ),
               ),
             ],
           ),
