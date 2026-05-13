@@ -1,6 +1,5 @@
 import 'package:common_package/annotations/auto_route_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/di/injection.dart';
 import '../../../profile/domain/usecases/fetch_resturant_data_use_case.dart';
 import '../../../profile/view/manager/bloc/profile_bloc.dart';
@@ -37,15 +36,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>.value(
-      value: getIt<ProfileBloc>(),
-      child: Scaffold(
-        bottomNavigationBar: BottomNavBar(controller: controller),
-        body: TabBarView(
-          physics: NeverScrollableScrollPhysics(),
-          controller: controller,
-          children: [HomeScreen(), OrdersScreen(), ProductsScreen(), InventoryScreen(), MoreScreen()],
-        ),
+    return Scaffold(
+      bottomNavigationBar: BottomNavBar(controller: controller),
+      body: TabBarView(
+        physics: NeverScrollableScrollPhysics(),
+        controller: controller,
+        children: [HomeScreen(), OrdersScreen(), ProductsScreen(), InventoryScreen(), MoreScreen()],
       ),
     );
   }

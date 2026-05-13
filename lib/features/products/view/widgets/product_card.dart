@@ -40,7 +40,12 @@ class _ProductCardState extends State<ProductCard> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _ProductImage(unavailable: !enabled, limited: !enabled, quantity: widget.product.stockQuantity!),
+            _ProductImage(
+              imageUrl: widget.product.primaryImage ?? "",
+              unavailable: !enabled,
+              limited: !enabled,
+              quantity: widget.product.stockQuantity!,
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: SizedBox(
@@ -66,11 +71,18 @@ class _ProductCardState extends State<ProductCard> {
                               ),
                             ),
                           ),
-                          const Icon(Icons.more_vert, size: 18, color: Color(0xFFCACACA)),
+                          const Icon(
+                            Icons.more_vert,
+                            size: 18,
+                            color: Color(0xFFCACACA),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 4),
-                      if (enabled) AvailabilityChip(isAvailable: enabled) else const SizedBox(height: 18),
+                      if (enabled)
+                        AvailabilityChip(isAvailable: enabled)
+                      else
+                        const SizedBox(height: 18),
                       const Spacer(),
                       Row(
                         children: [
@@ -88,7 +100,11 @@ class _ProductCardState extends State<ProductCard> {
                           AppText(
                             'ل.س',
                             textAlign: TextAlign.start,
-                            style: TextStyle(color: ProductsStyleTokens.textHint, fontSize: 11, fontWeight: FontWeight.w500),
+                            style: TextStyle(
+                              color: ProductsStyleTokens.textHint,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           const Spacer(),
                           AppSwitch(
@@ -114,8 +130,14 @@ class _ProductCardState extends State<ProductCard> {
 }
 
 class _ProductImage extends StatelessWidget {
-  const _ProductImage({required this.unavailable, required this.limited, required this.quantity});
+  const _ProductImage({
+    required this.imageUrl,
+    required this.unavailable,
+    required this.limited,
+    required this.quantity,
+  });
 
+  final String imageUrl;
   final bool unavailable;
   final bool limited;
   final int quantity;
@@ -129,14 +151,21 @@ class _ProductImage extends StatelessWidget {
         height: 96,
         child: Stack(
           children: [
-            AppImage.asset(Assets.images.testBurger.path, fit: BoxFit.cover),
+            AppImage.network(imageUrl,
+            loadingBuilder: (context) => const Center(child: CircularProgressIndicator()),
+            failedBuilder: (context) => const Center(child: Icon(Icons.error, color: Colors.red,)),
+             fit: BoxFit.cover),
             if (unavailable)
               Container(
                 alignment: Alignment.center,
                 color: const Color(0x99000000),
                 child: const Text(
                   'غير متوفر',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             if (limited)
@@ -151,7 +180,12 @@ class _ProductImage extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       'باقي $quantity فقط',
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700, height: 1.5),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        height: 1.5,
+                      ),
                     ),
                   ),
                 ],
@@ -171,15 +205,22 @@ class AvailabilityChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 8,
+        vertical: 2,
+      ),
       decoration: BoxDecoration(
-        color: isAvailable ? ProductsStyleTokens.successSoft : const Color(0x292F2B3D),
+        color: isAvailable
+            ? ProductsStyleTokens.successSoft
+            : const Color(0x292F2B3D),
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
       child: Text(
         isAvailable ? 'متوفر' : 'غير متوفر',
         style: TextStyle(
-          color: isAvailable ? ProductsStyleTokens.success : const Color(0xFF6B7280),
+          color: isAvailable
+              ? ProductsStyleTokens.success
+              : const Color(0xFF6B7280),
           fontSize: 10,
           fontWeight: FontWeight.w700,
           height: 1.5,

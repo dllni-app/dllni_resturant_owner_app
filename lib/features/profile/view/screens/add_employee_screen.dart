@@ -45,6 +45,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
       _isAccountEnabled = widget.params.employee!.isActive ?? false;
       _selectedPermissions.addAll(widget.params.employee!.permissionIds!.map((e) => e));
     }
+    getIt<ProfileBloc>().add(FetchEmployeesPermissionsEvent(params: FetchEmployeesPermissionsParams()));
   }
 
   @override
@@ -56,10 +57,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      create: (context) => getIt<ProfileBloc>()..add(FetchEmployeesPermissionsEvent(params: FetchEmployeesPermissionsParams())),
-      child: Scaffold(
-        body: SafeArea(
+    return Scaffold(
+      body: SafeArea(
           child: Column(
             children: [
               AddEmployeeAppBar(),
@@ -190,7 +189,6 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 

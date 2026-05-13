@@ -34,16 +34,16 @@ class _ProductsBodyState extends State<ProductsBody> {
             },
           ),
         ),
-        const Padding(
-          padding: EdgeInsetsDirectional.fromSTEB(20, 12, 20, 0),
-          child: Row(
-            children: [
-              Expanded(child: StatePointer(title: 'إجمالي المنتجات النشطة', value: 142)),
-              SizedBox(width: 12),
-              Expanded(child: StatePointer(title: 'منخفض المخزون', value: 8, isCritical: true)),
-            ],
-          ),
-        ),
+        // const Padding(
+        //   padding: EdgeInsetsDirectional.fromSTEB(20, 12, 20, 0),
+        //   child: Row(
+        //     children: [
+        //       Expanded(child: StatePointer(title: 'إجمالي المنتجات النشطة', value: 142)),
+        //       SizedBox(width: 12),
+        //       Expanded(child: StatePointer(title: 'منخفض المخزون', value: 8, isCritical: true)),
+        //     ],
+        //   ),
+        // ),
         ProductsTabBar(productsNotifier: productsNotifier),
         Expanded(
           child: BlocBuilder<ProductsBloc, ProductsState>(
@@ -68,7 +68,7 @@ class _ProductsBodyState extends State<ProductsBody> {
                       itemCount: state.products!.listLength(1),
                       itemBuilder: (context, index) {
                         if (state.products!.list.length == index) {
-                          if (state.products!.list.length <= index) {
+                          if (!state.products!.isEndPage && state.products!.status != BlocStatus.loading) {
                             context.read<ProductsBloc>().add(
                               FetchProductsEvent(
                                 params: FetchProductsParams(categoryId: id, page: state.products!.pageNumber),

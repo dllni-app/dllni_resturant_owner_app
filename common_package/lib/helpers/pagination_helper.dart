@@ -51,7 +51,7 @@ class PaginationStateModel<T> {
   Widget builder({
     required Widget loadingWidget,
     required Widget emptyWidget,
-    Widget? failedWidget,
+    required Widget failedWidget,
     VoidCallback? onTapRetry,
     required Widget Function() successWidget,
   }) {

@@ -24,14 +24,17 @@ class _CouponsManagementScreenState extends State<CouponsManagementScreen> {
   final ProfileNotifier profileNotifier = ProfileNotifier();
 
   @override
+  void initState() {
+    super.initState();
+    final bloc = getIt<ProfileBloc>();
+    bloc.add(FetchCouponsEvent(params: FetchCouponsParams(status: 'all'), isReload: true));
+    bloc.add(FetchCouponsSummaryEvent(params: FetchCouponsSummaryParams()));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      lazy: false,
-      create: (context) => getIt<ProfileBloc>()
-        ..add(FetchCouponsEvent(params: FetchCouponsParams(status: 'all'), isReload: true))
-        ..add(FetchCouponsSummaryEvent(params: FetchCouponsSummaryParams())),
-      child: Scaffold(
-        body: SafeArea(
+    return Scaffold(
+      body: SafeArea(
           child: Column(
             children: [
               CouponManagementAppBar(),
@@ -98,7 +101,6 @@ class _CouponsManagementScreenState extends State<CouponsManagementScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

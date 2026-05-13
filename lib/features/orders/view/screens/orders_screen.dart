@@ -1,3 +1,4 @@
+import 'package:common_package/helpers/pagination_helper.dart';
 import 'package:common_package/widgets/app_text.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/core/order_card.dart';
@@ -23,38 +24,60 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget build(BuildContext context) {
     return BlocProvider<OrdersBloc>(
       lazy: false,
-      create: (context) => getIt<OrdersBloc>()..add(GetOrdersEvent(params: GetOrdersParams(page: 1), isReload: true)),
+      create: (context) => getIt<OrdersBloc>()
+        ..add(GetOrdersEvent(params: GetOrdersParams(page: 1), isReload: true)),
       child: SafeArea(
         child: Column(
           children: [
-            OrdersAppBar(ordersNotifier: ordersNotifier,),
-            SizedBox(height: 12,),
+            OrdersAppBar(ordersNotifier: ordersNotifier),
+            SizedBox(height: 12),
             Expanded(
               child: BlocBuilder<OrdersBloc, OrdersState>(
-                buildWhen: (previous, current) => previous.orders != current.orders,
+                buildWhen: (previous, current) =>
+                    previous.orders != current.orders,
                 builder: (context, state) {
                   return state.orders!.builder(
                     loadingWidget: Padding(
                       padding: EdgeInsetsDirectional.only(top: 40),
-                      child: Center(child: CircularProgressIndicator.adaptive()),
+                      child: Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
                     ),
-                    emptyWidget: AppText.labelMedium('لا يوجد طلبات', fontWeight: FontWeight.w400),
+                    emptyWidget: AppText.labelMedium(
+                      'لا يوجد طلبات',
+                      fontWeight: FontWeight.w400,
+                    ),
                     successWidget: () {
                       return ValueListenableBuilder(
                         valueListenable: ordersNotifier.status,
                         builder: (context, status, _) => ListView.separated(
-                          padding: EdgeInsetsDirectional.only(start: 24, end: 24, bottom: 20),
+                          padding: EdgeInsetsDirectional.only(
+                            start: 24,
+                            end: 24,
+                            bottom: 20,
+                          ),
                           itemBuilder: (context, index) {
-                            if (state.orders!.length <= index) {
-                              if (state.orders!.length == index) {
+                            if (state.orders!.length == index) {
+                              if (!state.orders!.isEndPage && state.orders!.status != BlocStatus.loading) {
                                 context.read<OrdersBloc>().add(
                                   GetOrdersEvent(
                                     isReload: false,
-                                    params: GetOrdersParams(page: state.orders!.pageNumber, status: status),
+                                    params: GetOrdersParams(
+                                      page: state.orders!.pageNumber,
+                                      status: status,
+                                    ),
                                   ),
                                 );
                               }
-                              return SizedBox(width: 30, height: 30, child: FittedBox(child: CircularProgressIndicator.adaptive(strokeWidth: 3)));
+                              return SizedBox(
+                                width: 30,
+                                height: 30,
+                                child: FittedBox(
+                                  child: CircularProgressIndicator.adaptive(
+                                    strokeWidth: 3,
+                                  ),
+                                ),
+                              );
                             }
                             return OrderCard(
                               order: state.orders!.list[index],
@@ -69,14 +92,27 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                   : OrderStatus.readyOrder,
                             );
                           },
-                          separatorBuilder: (context, index) => SizedBox(height: 16),
+                          separatorBuilder: (context, index) =>
+                              SizedBox(height: 16),
                           itemCount: state.orders!.listLength(1),
                         ),
                       );
                     },
                     onTapRetry: () {
-                      context.read<OrdersBloc>().add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: 'worker_assigned'), isReload: true));
+                      context.read<OrdersBloc>().add(
+                        GetOrdersEvent(
+                          params: GetOrdersParams(
+                            page: 1,
+                            status: 'worker_assigned',
+                          ),
+                          isReload: true,
+                        ),
+                      );
                     },
+                    failedWidget: AppText.labelLarge(
+                      state.errorMessage ?? 'حدث خطا ما',
+                      color: Colors.red,
+                    ),
                   );
                 },
               ),

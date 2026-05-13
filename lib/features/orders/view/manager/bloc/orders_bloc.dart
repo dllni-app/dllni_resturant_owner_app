@@ -38,10 +38,12 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
 
   FutureOr<void> _getOrders(GetOrdersEvent event, Emitter<OrdersState> emit) async {
     if (!state.orders!.isEndPage || event.isReload) {
+      if (state.orders!.status == BlocStatus.loading && !event.isReload) return;
       emit(state.copyWith(orders: state.orders!.setLoading(isReload: event.isReload)));
       final res = await getOrdersUseCase(event.params);
       res.fold(
         (l) {
+          if (isClosed) return;
           emit(
             state.copyWith(
               orders: state.orders!.setFaild(errorMessage: l.message),
@@ -50,6 +52,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
           );
         },
         (r) {
+          if (isClosed) return;
           emit(state.copyWith(orders: state.orders!.setSuccess(data: r.data!)));
         },
       );
@@ -61,9 +64,11 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     final res = await getOrdersUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(homePreparingOrdersStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(homePreparingOrdersStatus: BlocStatus.success, homePreparingOrders: r));
       },
     );
@@ -74,9 +79,11 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     final res = await acceptOrderUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(acceptOrderStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         add(GetOrdersEvent(params: GetOrdersParams(page: 1), isReload: true));
         emit(state.copyWith(acceptOrderStatus: BlocStatus.success, acceptOrder: r));
       },
@@ -88,9 +95,11 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     final res = await rejectOrderUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(rejectOrderStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         add(GetOrdersEvent(params: GetOrdersParams(page: 1), isReload: true));
         emit(state.copyWith(rejectOrderStatus: BlocStatus.success, rejectOrder: r));
       },

@@ -28,15 +28,18 @@ class _WorkingTimeScreenState extends State<WorkingTimeScreen> {
   bool tempClosed = false;
 
   @override
+  void initState() {
+    super.initState();
+    getIt<ProfileBloc>().add(FetchWorkingTimeEvent(params: FetchWorkingTimeParams()));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final today = DateTime.now();
     final todayWeekday = today.weekday == 7 ? 0 : today.weekday;
 
-    return BlocProvider<ProfileBloc>(
-      lazy: false,
-      create: (context) => getIt<ProfileBloc>()..add(FetchWorkingTimeEvent(params: FetchWorkingTimeParams())),
-      child: Scaffold(
-        body: SafeArea(
+    return Scaffold(
+      body: SafeArea(
           child: Column(
             children: [
               const WorkingTimeAppBar(),
@@ -234,7 +237,6 @@ class _WorkingTimeScreenState extends State<WorkingTimeScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

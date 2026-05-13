@@ -144,53 +144,55 @@ class _OrderCardState extends State<OrderCard> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: InkWell(
-                          onTap: () async {
-                            await showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              enableDrag: true,
-                              builder: (context) => AcceptOrderBottomSheet(order: widget.order, bloc: widget.bloc),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
-                            padding: EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
-                            child: AppText.labelLarge('قبول الطلب', color: context.onPrimary, fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        flex: 2,
-                        child: InkWell(
-                          onTap: () async {
-                            await showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (context) => RejectOrderBottomSheet(order: widget.order, bloc: widget.bloc),
-                            );
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: context.error.withAlpha(50),
-                              border: Border.all(color: context.error),
+                  if (widget.order.status == 'pending') ...[
+                    SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: InkWell(
+                            onTap: () async {
+                              await showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                enableDrag: true,
+                                builder: (context) => AcceptOrderBottomSheet(order: widget.order, bloc: widget.bloc),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
+                              padding: EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
+                              child: AppText.labelLarge('قبول الطلب', color: context.onPrimary, fontWeight: FontWeight.w500),
                             ),
-                            padding: EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 8),
-                            child: AppText.labelLarge('رفض', color: context.error, fontWeight: FontWeight.w500),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          flex: 2,
+                          child: InkWell(
+                            onTap: () async {
+                              await showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) => RejectOrderBottomSheet(order: widget.order, bloc: widget.bloc),
+                              );
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: context.error.withAlpha(50),
+                                border: Border.all(color: context.error),
+                              ),
+                              padding: EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 8),
+                              child: AppText.labelLarge('رفض', color: context.error, fontWeight: FontWeight.w500),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),

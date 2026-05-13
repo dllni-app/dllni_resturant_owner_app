@@ -18,9 +18,9 @@ class AppBlocObserver extends BlocObserver {
   @override
   void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
     log(
-      'Error  occurred in ${bloc.runtimeType}\n'
-      '-----------------StackTrace--------------------\n'
-      '${stackTrace.toString()}',
+      '[BLOC_ERROR] ${bloc.runtimeType} | $error',
+      error: error,
+      stackTrace: stackTrace,
     );
     super.onError(bloc, error, stackTrace);
   }
