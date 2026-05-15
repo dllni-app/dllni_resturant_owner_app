@@ -70,67 +70,98 @@ dynamic _asDynamic(dynamic value) {
   return value.toString();
 }
 
-FetchProductsModel fetchProductsModelFromJson(str) => FetchProductsModel.fromJson(str);
+FetchProductsModel fetchProductsModelFromJson(str) =>
+    FetchProductsModel.fromJson(str);
 
-String fetchProductsModelToJson(FetchProductsModel data) => json.encode(data.toJson());
+String fetchProductsModelToJson(FetchProductsModel data) =>
+    json.encode(data.toJson());
 
+FetchProductsModelMeta fetchProductsModelMetaFromJson(str) =>
+    FetchProductsModelMeta.fromJson(str);
 
-FetchProductsModelMeta fetchProductsModelMetaFromJson(str) => FetchProductsModelMeta.fromJson(str);
+String fetchProductsModelMetaToJson(FetchProductsModelMeta data) =>
+    json.encode(data.toJson());
 
-String fetchProductsModelMetaToJson(FetchProductsModelMeta data) => json.encode(data.toJson());
+FetchProductsModelMetaLinksItem fetchProductsModelMetaLinksItemFromJson(str) =>
+    FetchProductsModelMetaLinksItem.fromJson(str);
 
+String fetchProductsModelMetaLinksItemToJson(
+  FetchProductsModelMetaLinksItem data,
+) => json.encode(data.toJson());
 
-FetchProductsModelMetaLinksItem fetchProductsModelMetaLinksItemFromJson(str) => FetchProductsModelMetaLinksItem.fromJson(str);
+FetchProductsModelLinks fetchProductsModelLinksFromJson(str) =>
+    FetchProductsModelLinks.fromJson(str);
 
-String fetchProductsModelMetaLinksItemToJson(FetchProductsModelMetaLinksItem data) => json.encode(data.toJson());
+String fetchProductsModelLinksToJson(FetchProductsModelLinks data) =>
+    json.encode(data.toJson());
 
+FetchProductsModelDataItem fetchProductsModelDataItemFromJson(str) =>
+    FetchProductsModelDataItem.fromJson(str);
 
-FetchProductsModelLinks fetchProductsModelLinksFromJson(str) => FetchProductsModelLinks.fromJson(str);
+String fetchProductsModelDataItemToJson(FetchProductsModelDataItem data) =>
+    json.encode(data.toJson());
 
-String fetchProductsModelLinksToJson(FetchProductsModelLinks data) => json.encode(data.toJson());
+FetchProductsModelDataItemSubstitutionsItem
+fetchProductsModelDataItemSubstitutionsItemFromJson(str) =>
+    FetchProductsModelDataItemSubstitutionsItem.fromJson(str);
 
+String fetchProductsModelDataItemSubstitutionsItemToJson(
+  FetchProductsModelDataItemSubstitutionsItem data,
+) => json.encode(data.toJson());
 
-FetchProductsModelDataItem fetchProductsModelDataItemFromJson(str) => FetchProductsModelDataItem.fromJson(str);
+FetchProductsModelDataItemModifierGroupsItem
+fetchProductsModelDataItemModifierGroupsItemFromJson(str) =>
+    FetchProductsModelDataItemModifierGroupsItem.fromJson(str);
 
-String fetchProductsModelDataItemToJson(FetchProductsModelDataItem data) => json.encode(data.toJson());
+String fetchProductsModelDataItemModifierGroupsItemToJson(
+  FetchProductsModelDataItemModifierGroupsItem data,
+) => json.encode(data.toJson());
 
+FetchProductsModelDataItemCategory fetchProductsModelDataItemCategoryFromJson(
+  str,
+) => FetchProductsModelDataItemCategory.fromJson(str);
 
-FetchProductsModelDataItemSubstitutionsItem fetchProductsModelDataItemSubstitutionsItemFromJson(str) => FetchProductsModelDataItemSubstitutionsItem.fromJson(str);
+String fetchProductsModelDataItemCategoryToJson(
+  FetchProductsModelDataItemCategory data,
+) => json.encode(data.toJson());
 
-String fetchProductsModelDataItemSubstitutionsItemToJson(FetchProductsModelDataItemSubstitutionsItem data) => json.encode(data.toJson());
+FetchProductsModelDataItemRestaurant
+fetchProductsModelDataItemRestaurantFromJson(str) =>
+    FetchProductsModelDataItemRestaurant.fromJson(str);
 
-
-FetchProductsModelDataItemModifierGroupsItem fetchProductsModelDataItemModifierGroupsItemFromJson(str) => FetchProductsModelDataItemModifierGroupsItem.fromJson(str);
-
-String fetchProductsModelDataItemModifierGroupsItemToJson(FetchProductsModelDataItemModifierGroupsItem data) => json.encode(data.toJson());
-
-
-FetchProductsModelDataItemCategory fetchProductsModelDataItemCategoryFromJson(str) => FetchProductsModelDataItemCategory.fromJson(str);
-
-String fetchProductsModelDataItemCategoryToJson(FetchProductsModelDataItemCategory data) => json.encode(data.toJson());
-
-
-FetchProductsModelDataItemRestaurant fetchProductsModelDataItemRestaurantFromJson(str) => FetchProductsModelDataItemRestaurant.fromJson(str);
-
-String fetchProductsModelDataItemRestaurantToJson(FetchProductsModelDataItemRestaurant data) => json.encode(data.toJson());
-
+String fetchProductsModelDataItemRestaurantToJson(
+  FetchProductsModelDataItemRestaurant data,
+) => json.encode(data.toJson());
 
 class FetchProductsModel {
   List<FetchProductsModelDataItem>? data;
   FetchProductsModelLinks? links;
   FetchProductsModelMeta? meta;
 
-  FetchProductsModel({
-    this.data,
-    this.links,
-    this.meta,
-  });
+  FetchProductsModel({this.data, this.links, this.meta});
 
   factory FetchProductsModel.fromJson(Map<String, dynamic> json) {
     return FetchProductsModel(
-      data: json['data'] is List ? (json['data'] as List).whereType<Map>().map((item) => FetchProductsModelDataItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
-      links: json['links'] is Map ? FetchProductsModelLinks.fromJson(Map<String, dynamic>.from(json['links'] as Map)) : null,
-      meta: json['meta'] is Map ? FetchProductsModelMeta.fromJson(Map<String, dynamic>.from(json['meta'] as Map)) : null,
+      data: json['data'] is List
+          ? (json['data'] as List)
+                .whereType<Map>()
+                .map(
+                  (item) => FetchProductsModelDataItem.fromJson(
+                    Map<String, dynamic>.from(item),
+                  ),
+                )
+                .toList()
+          : null,
+      links: json['links'] is Map
+          ? FetchProductsModelLinks.fromJson(
+              Map<String, dynamic>.from(json['links'] as Map),
+            )
+          : null,
+      meta: json['meta'] is Map
+          ? FetchProductsModelMeta.fromJson(
+              Map<String, dynamic>.from(json['meta'] as Map),
+            )
+          : null,
     );
   }
 
@@ -169,7 +200,16 @@ class FetchProductsModelMeta {
       currentPage: _asInt(json['current_page']),
       from: _asInt(json['from']),
       lastPage: _asInt(json['last_page']),
-      links: json['links'] is List ? (json['links'] as List).whereType<Map>().map((item) => FetchProductsModelMetaLinksItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
+      links: json['links'] is List
+          ? (json['links'] as List)
+                .whereType<Map>()
+                .map(
+                  (item) => FetchProductsModelMetaLinksItem.fromJson(
+                    Map<String, dynamic>.from(item),
+                  ),
+                )
+                .toList()
+          : null,
       path: _asString(json['path']),
       perPage: _asInt(json['per_page']),
       to: _asInt(json['to']),
@@ -196,11 +236,7 @@ class FetchProductsModelMetaLinksItem {
   String? label;
   bool? active;
 
-  FetchProductsModelMetaLinksItem({
-    this.url,
-    this.label,
-    this.active,
-  });
+  FetchProductsModelMetaLinksItem({this.url, this.label, this.active});
 
   factory FetchProductsModelMetaLinksItem.fromJson(Map<String, dynamic> json) {
     return FetchProductsModelMetaLinksItem(
@@ -211,11 +247,7 @@ class FetchProductsModelMetaLinksItem {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'url': url,
-      'label': label,
-      'active': active,
-    };
+    return {'url': url, 'label': label, 'active': active};
   }
 }
 
@@ -225,12 +257,7 @@ class FetchProductsModelLinks {
   String? prev;
   String? next;
 
-  FetchProductsModelLinks({
-    this.first,
-    this.last,
-    this.prev,
-    this.next,
-  });
+  FetchProductsModelLinks({this.first, this.last, this.prev, this.next});
 
   factory FetchProductsModelLinks.fromJson(Map<String, dynamic> json) {
     return FetchProductsModelLinks(
@@ -242,12 +269,7 @@ class FetchProductsModelLinks {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'first': first,
-      'last': last,
-      'prev': prev,
-      'next': next,
-    };
+    return {'first': first, 'last': last, 'prev': prev, 'next': next};
   }
 }
 
@@ -270,12 +292,11 @@ class FetchProductsModelDataItem {
   int? lowStockThreshold;
   int? preparationTime;
   bool? isFeatured;
+  String? primaryImage;
   FetchProductsModelDataItemRestaurant? restaurant;
   FetchProductsModelDataItemCategory? category;
   List<FetchProductsModelDataItemModifierGroupsItem>? modifierGroups;
   List<FetchProductsModelDataItemSubstitutionsItem>? substitutions;
-  /// Main image URL from the API (`primaryImage`).
-  String? primaryImage;
   String? createdAt;
   String? updatedAt;
 
@@ -317,6 +338,7 @@ class FetchProductsModelDataItem {
       slug: _asString(json['slug']),
       description: _asString(json['description']),
       price: _asInt(json['price']),
+      primaryImage: _asString(json['primaryImage']),
       discountedPrice: _asInt(json['discountedPrice']),
       isAvailable: _asBool(json['isAvailable']),
       isAvailableNow: _asBool(json['isAvailableNow']),
@@ -327,11 +349,38 @@ class FetchProductsModelDataItem {
       lowStockThreshold: _asInt(json['lowStockThreshold']),
       preparationTime: _asInt(json['preparationTime']),
       isFeatured: _asBool(json['isFeatured']),
-      restaurant: json['restaurant'] is Map ? FetchProductsModelDataItemRestaurant.fromJson(Map<String, dynamic>.from(json['restaurant'] as Map)) : null,
-      category: json['category'] is Map ? FetchProductsModelDataItemCategory.fromJson(Map<String, dynamic>.from(json['category'] as Map)) : null,
-      modifierGroups: json['modifierGroups'] is List ? (json['modifierGroups'] as List).whereType<Map>().map((item) => FetchProductsModelDataItemModifierGroupsItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
-      substitutions: json['substitutions'] is List ? (json['substitutions'] as List).whereType<Map>().map((item) => FetchProductsModelDataItemSubstitutionsItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
-      primaryImage: _asString(json['primaryImage']),
+      restaurant: json['restaurant'] is Map
+          ? FetchProductsModelDataItemRestaurant.fromJson(
+              Map<String, dynamic>.from(json['restaurant'] as Map),
+            )
+          : null,
+      category: json['category'] is Map
+          ? FetchProductsModelDataItemCategory.fromJson(
+              Map<String, dynamic>.from(json['category'] as Map),
+            )
+          : null,
+      modifierGroups: json['modifierGroups'] is List
+          ? (json['modifierGroups'] as List)
+                .whereType<Map>()
+                .map(
+                  (item) =>
+                      FetchProductsModelDataItemModifierGroupsItem.fromJson(
+                        Map<String, dynamic>.from(item),
+                      ),
+                )
+                .toList()
+          : null,
+      substitutions: json['substitutions'] is List
+          ? (json['substitutions'] as List)
+                .whereType<Map>()
+                .map(
+                  (item) =>
+                      FetchProductsModelDataItemSubstitutionsItem.fromJson(
+                        Map<String, dynamic>.from(item),
+                      ),
+                )
+                .toList()
+          : null,
       createdAt: _asString(json['createdAt']),
       updatedAt: _asString(json['updatedAt']),
     );
@@ -361,7 +410,6 @@ class FetchProductsModelDataItem {
       'category': category?.toJson(),
       'modifierGroups': modifierGroups?.map((item) => item.toJson()).toList(),
       'substitutions': substitutions?.map((item) => item.toJson()).toList(),
-      'primaryImage': primaryImage,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };
@@ -385,7 +433,9 @@ class FetchProductsModelDataItemSubstitutionsItem {
     this.updatedAt,
   });
 
-  factory FetchProductsModelDataItemSubstitutionsItem.fromJson(Map<String, dynamic> json) {
+  factory FetchProductsModelDataItemSubstitutionsItem.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return FetchProductsModelDataItemSubstitutionsItem(
       id: _asInt(json['id']),
       restaurantId: _asInt(json['restaurant_id']),
@@ -429,7 +479,9 @@ class FetchProductsModelDataItemModifierGroupsItem {
     this.updatedAt,
   });
 
-  factory FetchProductsModelDataItemModifierGroupsItem.fromJson(Map<String, dynamic> json) {
+  factory FetchProductsModelDataItemModifierGroupsItem.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return FetchProductsModelDataItemModifierGroupsItem(
       id: _asInt(json['id']),
       restaurantId: _asInt(json['restaurant_id']),
@@ -460,12 +512,11 @@ class FetchProductsModelDataItemCategory {
   int? id;
   String? name;
 
-  FetchProductsModelDataItemCategory({
-    this.id,
-    this.name,
-  });
+  FetchProductsModelDataItemCategory({this.id, this.name});
 
-  factory FetchProductsModelDataItemCategory.fromJson(Map<String, dynamic> json) {
+  factory FetchProductsModelDataItemCategory.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return FetchProductsModelDataItemCategory(
       id: _asInt(json['id']),
       name: _asString(json['name']),
@@ -473,10 +524,7 @@ class FetchProductsModelDataItemCategory {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-    };
+    return {'id': id, 'name': name};
   }
 }
 
@@ -484,12 +532,11 @@ class FetchProductsModelDataItemRestaurant {
   int? id;
   String? name;
 
-  FetchProductsModelDataItemRestaurant({
-    this.id,
-    this.name,
-  });
+  FetchProductsModelDataItemRestaurant({this.id, this.name});
 
-  factory FetchProductsModelDataItemRestaurant.fromJson(Map<String, dynamic> json) {
+  factory FetchProductsModelDataItemRestaurant.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return FetchProductsModelDataItemRestaurant(
       id: _asInt(json['id']),
       name: _asString(json['name']),
@@ -497,9 +544,6 @@ class FetchProductsModelDataItemRestaurant {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-    };
+    return {'id': id, 'name': name};
   }
 }

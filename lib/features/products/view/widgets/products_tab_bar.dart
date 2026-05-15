@@ -38,7 +38,7 @@ class _ProductsTabBarState extends State<ProductsTabBar> {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   if (state.categories!.list.length == index) {
-                    if (state.categories!.list.length <= index) {
+                    if (!state.categories!.isEndPage && state.categories!.status != BlocStatus.loading) {
                       context.read<ProductsBloc>().add(FetchCategoriesEvent(params: FetchCategoriesParams(page: state.categories!.pageNumber)));
                     }
                     return LoadingMoreRow();
@@ -89,29 +89,38 @@ class _CategoryChip extends StatelessWidget {
         borderRadius: ProductsStyleTokens.chipRadius,
         border: isSelected ? null : const Border.fromBorderSide(BorderSide(color: ProductsStyleTokens.lineLight)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : ProductsStyleTokens.textMid),
-          ),
-          const SizedBox(width: 6),
-          Container(
-            constraints: const BoxConstraints(minWidth: 26),
-            padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: isSelected ? ProductsStyleTokens.primaryAction : const Color(0xFFF3F4F6),
-              borderRadius: ProductsStyleTokens.chipRadius,
-            ),
-            child: Text(
-              count.toString(),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : ProductsStyleTokens.textMid),
-            ),
-          ),
-        ],
+      child: 
+      Text(
+        title,
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: isSelected ? Colors.white : ProductsStyleTokens.textMid,
+        ),
       ),
+      // Row(
+      //   mainAxisSize: MainAxisSize.min,
+      //   children: [
+      //     Text(
+      //       title,
+      //       style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : ProductsStyleTokens.textMid),
+      //     ),
+      //     const SizedBox(width: 6),
+      //     Container(
+      //       constraints: const BoxConstraints(minWidth: 26),
+      //       padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
+      //       decoration: BoxDecoration(
+      //         color: isSelected ? ProductsStyleTokens.primaryAction : const Color(0xFFF3F4F6),
+      //         borderRadius: ProductsStyleTokens.chipRadius,
+      //       ),
+      //       child: Text(
+      //         count.toString(),
+      //         textAlign: TextAlign.center,
+      //         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: isSelected ? Colors.white : ProductsStyleTokens.textMid),
+      //       ),
+      //     ),
+      //   ],
+      // ),
     );
   }
 }

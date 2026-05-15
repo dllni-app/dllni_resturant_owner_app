@@ -39,10 +39,24 @@ class ExhaustMapStreamTransformer<T extends EventWithReload> extends StreamTrans
         }
         final Stream<T> mappedStream;
         mappedStream = mapper(data);
-        mappedSubscription = mappedStream.listen(controller.add, onError: controller.addError, onDone: () => mappedSubscription = null);
+        mappedSubscription = mappedStream.listen(
+          (T e) {
+            if (!controller.isClosed) controller.add(e);
+          },
+          onError: (Object e, StackTrace st) {
+            if (!controller.isClosed) controller.addError(e, st);
+          },
+          onDone: () => mappedSubscription = null,
+        );
       },
-      onError: controller.addError,
-      onDone: () => mappedSubscription ?? controller.close(),
+      onError: (Object e, StackTrace st) {
+        if (!controller.isClosed) controller.addError(e, st);
+      },
+      onDone: () {
+        if (mappedSubscription == null && !controller.isClosed) {
+          controller.close();
+        }
+      },
     );
 
     return controller.stream;

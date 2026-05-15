@@ -23,6 +23,7 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
   @override
   void initState() {
     super.initState();
+    getIt<ProfileBloc>().add(FetchEmployeesEvent(params: FetchEmployeesParams()));
   }
 
   @override
@@ -33,10 +34,8 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      create: (context) => getIt<ProfileBloc>()..add(FetchEmployeesEvent(params: FetchEmployeesParams())),
-      child: Scaffold(
-        body: SafeArea(
+    return Scaffold(
+      body: SafeArea(
           child: Column(
             children: [
               const EmployeesManagementAppBar(),
@@ -100,7 +99,6 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

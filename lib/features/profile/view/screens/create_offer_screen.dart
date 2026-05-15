@@ -1,5 +1,4 @@
 import 'package:common_package/common_package.dart';
-import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/features/profile/data/models/fetch_offers_model.dart';
 import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/create_offer_use_case.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -56,10 +55,8 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      create: (context) => getIt<ProfileBloc>(),
-      child: Scaffold(
-        body: SafeArea(
+    return Scaffold(
+      body: SafeArea(
           child: Column(
             children: [
               const CreateOfferAppBar(),
@@ -189,7 +186,6 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

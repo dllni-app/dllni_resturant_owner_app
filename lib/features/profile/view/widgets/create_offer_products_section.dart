@@ -36,6 +36,7 @@ class _CreateOfferProductsSectionState extends State<CreateOfferProductsSection>
   void _onSearchChanged() {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
       final searchQuery = _searchController.text.trim();
       context.read<ProfileBloc>().add(
         FetchProductsEvent(

@@ -24,14 +24,17 @@ class _OffersManagementScreenState extends State<OffersManagementScreen> {
   final ProfileNotifier profileNotifier = ProfileNotifier();
 
   @override
+  void initState() {
+    super.initState();
+    final bloc = getIt<ProfileBloc>();
+    bloc.add(FetchOffersEvent(params: FetchOffersParams(page: 1, status: null), isReload: true));
+    bloc.add(FetchOffersSummaryEvent(params: FetchOffersSummaryParams()));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      lazy: false,
-      create: (context) => getIt<ProfileBloc>()
-        ..add(FetchOffersEvent(params: FetchOffersParams(page: 1, status: null), isReload: true))
-        ..add(FetchOffersSummaryEvent(params: FetchOffersSummaryParams())),
-      child: Scaffold(
-        body: SafeArea(
+    return Scaffold(
+      body: SafeArea(
           child: Column(
             children: [
               OffersManagementAppBar(),
@@ -104,7 +107,6 @@ class _OffersManagementScreenState extends State<OffersManagementScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

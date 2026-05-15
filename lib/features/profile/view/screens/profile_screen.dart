@@ -70,9 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>.value(
-      value: getIt<ProfileBloc>(),
-      child: BlocListener<ProfileBloc, ProfileState>(
+    return BlocListener<ProfileBloc, ProfileState>(
         listenWhen: (previous, current) => previous.updateResturantDataStatus != current.updateResturantDataStatus,
         listener: (context, state) {
           if (state.updateResturantDataStatus == BlocStatus.loading) {
@@ -222,7 +220,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ),
-      ),
     );
   }
 }

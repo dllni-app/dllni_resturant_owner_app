@@ -28,7 +28,10 @@ class GenerateAiProductImageParams with Params {
 
   @override
   BodyMap getBody() {
-    final body = <String, dynamic>{"title": title};
+    final body = <String, dynamic>{
+      "title": title,
+      "module": "resturant",
+    };
     final normalizedDescription = description?.trim();
     if (normalizedDescription != null && normalizedDescription.isNotEmpty) {
       body["description"] = normalizedDescription;

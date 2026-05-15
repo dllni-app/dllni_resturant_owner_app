@@ -60,10 +60,12 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   FutureOr<void> _fetchCategories(FetchCategoriesEvent event, Emitter<ProductsState> emit) async {
     if (!state.categories!.isEndPage || event.isReload) {
+      if (state.categories!.status == BlocStatus.loading && !event.isReload) return;
       emit(state.copyWith(categories: state.categories!.setLoading(isReload: event.isReload)));
       final res = await fetchCategoriesUseCase(event.params);
       res.fold(
         (l) {
+          if (isClosed) return;
           emit(
             state.copyWith(
               categories: state.categories!.setFaild(errorMessage: l.message),
@@ -72,6 +74,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
           );
         },
         (r) {
+          if (isClosed) return;
           add(FetchProductsEvent(params: FetchProductsParams(categoryId: r.data![0].id!, page: 1)));
           emit(state.copyWith(categories: state.categories!.setSuccess(data: r.data!)));
         },
@@ -81,10 +84,12 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   FutureOr<void> _fetchProducts(FetchProductsEvent event, Emitter<ProductsState> emit) async {
     if (!state.products!.isEndPage || event.isReload) {
+      if (state.products!.status == BlocStatus.loading && !event.isReload) return;
       emit(state.copyWith(products: state.products!.setLoading(isReload: event.isReload)));
       final res = await fetchProductsUseCase(event.params);
       res.fold(
         (l) {
+          if (isClosed) return;
           emit(
             state.copyWith(
               products: state.products!.setFaild(errorMessage: l.message),
@@ -93,6 +98,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
           );
         },
         (r) {
+          if (isClosed) return;
           emit(state.copyWith(products: state.products!.setSuccess(data: r.data!)));
         },
       );

@@ -46,9 +46,11 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     final res = await fetchInventorySummaryUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(inventorySummaryStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(inventorySummaryStatus: BlocStatus.success, inventorySummary: r));
       },
     );
@@ -62,10 +64,12 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
 
   FutureOr<void> _fetchInventoryItems(FetchInventoryItemsEvent event, Emitter<InventoryState> emit) async {
     if (!state.inventoryItems!.isEndPage || event.isReload) {
+      if (state.inventoryItems!.status == BlocStatus.loading && !event.isReload) return;
       emit(state.copyWith(inventoryItems: state.inventoryItems!.setLoading(isReload: event.isReload)));
       final res = await fetchInventoryItemsUseCase(event.params);
       res.fold(
         (l) {
+          if (isClosed) return;
           emit(
             state.copyWith(
               inventoryItems: state.inventoryItems!.setFaild(errorMessage: l.message),
@@ -74,6 +78,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
           );
         },
         (r) {
+          if (isClosed) return;
           emit(state.copyWith(inventoryItems: state.inventoryItems!.setSuccess(data: r.data!)));
         },
       );
@@ -85,9 +90,11 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     final res = await createInventoryItemUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(createInventoryItemStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(), isReload: true));
         emit(state.copyWith(createInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },
@@ -99,9 +106,11 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     final res = await updateInventoryItemUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(updateInventoryItemStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(), isReload: true));
         emit(state.copyWith(updateInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },
@@ -115,11 +124,13 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
     res.fold(
       (l) {
         Loading.close();
+        if (isClosed) return;
         AppToast.showToast(context: event.context, message: l.message, type: ToastificationType.error);
         emit(state.copyWith(deleteInventoryItemStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
         Loading.close();
+        if (isClosed) return;
         add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(), isReload: true));
         emit(state.copyWith(deleteInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },

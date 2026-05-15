@@ -1,6 +1,11 @@
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
+import 'dart:developer' as developer;
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'bloc_observer.dart';
 import 'notification_helper.dart';
 import 'shared_preferences_helper.dart';
 
@@ -49,6 +54,36 @@ Future<void> bootstrapApp(AppBootstrapConfig config) async {
   await EasyLocalization.ensureInitialized();
   await SharedPreferencesHelper.init();
   await config.configureDependencies();
+  Bloc.observer = AppBlocObserver();
+
+  final previousFlutterOnError = FlutterError.onError;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    final ex = details.exception;
+    if (ex is StateError && ex.toString().contains('Cannot add new events')) {
+      developer.log(
+        '[DISPOSED_STREAM_ADD] ${ex.toString()}',
+        stackTrace: details.stack,
+        name: 'bootstrap',
+      );
+    }
+    if (previousFlutterOnError != null) {
+      previousFlutterOnError(details);
+    } else {
+      FlutterError.presentError(details);
+    }
+  };
+
+  final previousPlatformError = PlatformDispatcher.instance.onError;
+  PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+    if (error is StateError && error.toString().contains('Cannot add new events')) {
+      developer.log(
+        '[DISPOSED_STREAM_ADD_ASYNC] ${error.toString()}',
+        stackTrace: stack,
+        name: 'bootstrap',
+      );
+    }
+    return previousPlatformError?.call(error, stack) ?? false;
+  };
 
   if (config.enableNotifications) {
     await NotificationHelper.initAllNotifications(

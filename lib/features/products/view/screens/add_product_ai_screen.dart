@@ -60,17 +60,45 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
   Widget build(BuildContext context) {
     return BlocProvider<ProductsBloc>(
       create: (context) => getIt<ProductsBloc>(),
-      child: Scaffold(
-        backgroundColor: ProductsStyleTokens.pageBackground,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const AddNewProductAppBar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 24),
-                  child: Column(
-                    children: [
+      child: BlocListener<ProductsBloc, ProductsState>(
+        listenWhen:
+            (previous, current) =>
+                (previous.generateAiProductImageStatus !=
+                        current.generateAiProductImageStatus &&
+                    current.generateAiProductImageStatus ==
+                        BlocStatus.failed) ||
+                (previous.generateAiProductDataFromImageStatus !=
+                        current.generateAiProductDataFromImageStatus &&
+                    current.generateAiProductDataFromImageStatus ==
+                        BlocStatus.failed),
+        listener: (context, state) {
+          AppToast.showToast(
+            context: context,
+            message:
+                state.errorMessage ??
+                (state.generateAiProductDataFromImageStatus ==
+                        BlocStatus.failed
+                    ? 'حدث خطأ أثناء توليد الاقتراحات'
+                    : 'حدث خطأ أثناء توليد الصورة'),
+            type: ToastificationType.error,
+          );
+        },
+        child: Scaffold(
+          backgroundColor: ProductsStyleTokens.pageBackground,
+          body: SafeArea(
+            child: Column(
+              children: [
+                const AddNewProductAppBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      20,
+                      16,
+                      20,
+                      24,
+                    ),
+                    child: Column(
+                      children: [
                       ExpandedProductCard(
                         backgroundColor: const Color(0xFFEFEBFF),
                         foregroundColor: const Color(0xFF7C5CFF),
@@ -96,10 +124,34 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                             const SizedBox(height: 14),
                             BlocBuilder<ProductsBloc, ProductsState>(
                               builder: (context, state) {
+                                final isGeneratingImage =
+                                    state.generateAiProductImageStatus ==
+                                    BlocStatus.loading;
                                 return GradientButton(
-                                  title: 'توليد الصورة',
-                                  icon: const Icon(Icons.auto_awesome_rounded),
-                                  onTap: () {
+                                  title:
+                                      isGeneratingImage
+                                          ? 'جاري توليد الصورة...'
+                                          : 'توليد الصورة',
+                                  icon:
+                                      isGeneratingImage
+                                          ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.white,
+                                                  ),
+                                            ),
+                                          )
+                                          : const Icon(
+                                            Icons.auto_awesome_rounded,
+                                          ),
+                                  onTap:
+                                      isGeneratingImage
+                                          ? null
+                                          : () {
                                     final title = productNameController.text
                                         .trim();
                                     if (title.isEmpty) {
@@ -121,6 +173,30 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                       ),
                                     );
                                   },
+                                );
+                              },
+                            ),
+                            BlocBuilder<ProductsBloc, ProductsState>(
+                              builder: (context, state) {
+                                final isGeneratingImage =
+                                    state.generateAiProductImageStatus ==
+                                    BlocStatus.loading;
+                                if (!isGeneratingImage) {
+                                  return const SizedBox.shrink();
+                                }
+                                return const Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                  child: Align(
+                                    alignment: AlignmentDirectional.centerStart,
+                                    child: Text(
+                                      'يتم تجهيز صورة المنتج الآن، يرجى الانتظار...',
+                                      style: TextStyle(
+                                        color: ProductsStyleTokens.textLow,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -233,10 +309,34 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                             const SizedBox(height: 14),
                             BlocBuilder<ProductsBloc, ProductsState>(
                               builder: (context, state) {
+                                final isGeneratingSuggestions =
+                                    state.generateAiProductDataFromImageStatus ==
+                                    BlocStatus.loading;
                                 return GradientButton(
-                                  title: 'توليد الاقتراحات',
-                                  icon: const Icon(Icons.auto_awesome_rounded),
-                                  onTap: () {
+                                  title:
+                                      isGeneratingSuggestions
+                                          ? 'جاري توليد الاقتراحات...'
+                                          : 'توليد الاقتراحات',
+                                  icon:
+                                      isGeneratingSuggestions
+                                          ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    Colors.white,
+                                                  ),
+                                            ),
+                                          )
+                                          : const Icon(
+                                            Icons.auto_awesome_rounded,
+                                          ),
+                                  onTap:
+                                      isGeneratingSuggestions
+                                          ? null
+                                          : () {
                                     final currentImagePath = uploadedImagePath;
                                     if (currentImagePath == null) {
                                       AppToast.showToast(
@@ -256,6 +356,30 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                       ),
                                     );
                                   },
+                                );
+                              },
+                            ),
+                            BlocBuilder<ProductsBloc, ProductsState>(
+                              builder: (context, state) {
+                                final isGeneratingSuggestions =
+                                    state.generateAiProductDataFromImageStatus ==
+                                    BlocStatus.loading;
+                                if (!isGeneratingSuggestions) {
+                                  return const SizedBox.shrink();
+                                }
+                                return const Padding(
+                                  padding: EdgeInsets.only(top: 8),
+                                  child: Align(
+                                    alignment: AlignmentDirectional.centerStart,
+                                    child: Text(
+                                      'يتم توليد الاقتراحات الآن، يرجى الانتظار...',
+                                      style: TextStyle(
+                                        color: ProductsStyleTokens.textLow,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -357,11 +481,12 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                           ],
                         ),
                       ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

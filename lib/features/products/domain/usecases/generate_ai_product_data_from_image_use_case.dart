@@ -33,7 +33,7 @@ class GenerateAiProductDataFromImageParams with Params {
 
   @override
   BodyMap getBody() {
-    final body = <String, dynamic>{"image": image};
+    final body = <String, dynamic>{"image": image, "module": "resturant"};
     final normalizedLocale = locale?.trim();
     if (normalizedLocale == 'ar' || normalizedLocale == 'en') {
       body['locale'] = normalizedLocale;

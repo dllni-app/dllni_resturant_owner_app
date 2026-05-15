@@ -1,4 +1,5 @@
 import 'package:common_package/common_package.dart';
+import 'package:dllni_resturant_owner_app/core/debug_agent_log.dart';
 import 'package:dllni_resturant_owner_app/features/profile/data/models/create_offer_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -101,6 +102,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final res = await fetchOffersUseCase(event.params);
       res.fold(
         (l) {
+          if (isClosed) return;
           emit(
             state.copyWith(
               offers: state.offers!.setFaild(errorMessage: l.message),
@@ -109,6 +111,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           );
         },
         (r) {
+          if (isClosed) return;
           emit(state.copyWith(offers: state.offers!.setSuccess(data: r.data!)));
         },
       );
@@ -120,9 +123,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await fetchOffersSummaryUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(offersSummaryStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(offersSummaryStatus: BlocStatus.success, offersSummary: r));
       },
     );
@@ -134,6 +139,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final res = await fetchCouponsUseCase(event.params);
       res.fold(
         (l) {
+          if (isClosed) return;
           emit(
             state.copyWith(
               coupons: state.coupons!.setFaild(errorMessage: l.message),
@@ -142,6 +148,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           );
         },
         (r) {
+          if (isClosed) return;
           emit(state.copyWith(coupons: state.coupons!.setSuccess(data: r.data!)));
         },
       );
@@ -153,9 +160,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await fetchCouponsSummaryUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(couponsSummaryStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(couponsSummaryStatus: BlocStatus.success, couponsSummary: r));
       },
     );
@@ -166,9 +175,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await fetchWorkingTimeUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(workingTimeStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(workingTimeStatus: BlocStatus.success, workingTime: r));
       },
     );
@@ -179,9 +190,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await updateWorkingTimeUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(updateWorkingTimeStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(updateWorkingTimeStatus: BlocStatus.success, updateWorkingTime: r));
       },
     );
@@ -194,11 +207,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     res.fold(
       (l) {
         Loading.close();
+        if (isClosed) return;
         AppToast.showToast(context: event.context, message: l.message, type: ToastificationType.error);
         emit(state.copyWith(createOfferStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
         Loading.close();
+        if (isClosed) return;
         add(FetchOffersEvent(params: FetchOffersParams(page: 1, status: null), isReload: true));
         emit(state.copyWith(createOfferStatus: BlocStatus.success, createOfferDraft: r));
       },
@@ -214,10 +229,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     res.fold(
       (l) {
         if (event.params.isDelete) Loading.close();
+        if (isClosed) return;
         AppToast.showToast(context: event.context, message: l.message, type: ToastificationType.error);
         emit(state.copyWith(createCouponStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(createCouponStatus: BlocStatus.success, createCouponDraft: r));
         if (event.params.isDelete) {
           Loading.close();
@@ -240,6 +257,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final res = await fetchProductsUseCase(event.params);
       res.fold(
         (l) {
+          if (isClosed) return;
           emit(
             state.copyWith(
               products: state.products!.setFaild(errorMessage: l.message),
@@ -248,6 +266,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           );
         },
         (r) {
+          if (isClosed) return;
           emit(state.copyWith(products: state.products!.setSuccess(data: r.data!)));
         },
       );
@@ -273,9 +292,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await fetchEmployeesUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(employeesStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(employeesStatus: BlocStatus.success, employees: r));
       },
     );
@@ -286,9 +307,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await fetchEmployeesPermissionsUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(employeesPermissionsStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(employeesPermissionsStatus: BlocStatus.success, employeesPermissions: r));
       },
     );
@@ -304,6 +327,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       (l) {
         if (event.params.isDelete == true) {
           Loading.close();
+        }
+        if (isClosed) return;
+        if (event.params.isDelete == true) {
           AppToast.showToast(context: event.context, message: l.message, type: ToastificationType.error);
         }
         emit(state.copyWith(addEmployeeStatus: BlocStatus.failed, errorMessage: l.message));
@@ -311,6 +337,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       (r) {
         if (event.params.isDelete == true) {
           Loading.close();
+        }
+        if (isClosed) return;
+        if (event.params.isDelete == true) {
           add(FetchEmployeesEvent(params: FetchEmployeesParams()));
         }
         emit(state.copyWith(addEmployeeStatus: BlocStatus.success, addEmployee: r));
@@ -323,9 +352,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await fetchResturantDataUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         emit(state.copyWith(resturantDataStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         emit(state.copyWith(resturantDataStatus: BlocStatus.success, resturantData: r));
       },
     );
@@ -336,13 +367,51 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final res = await updateResturantDataUseCase(event.params);
     res.fold(
       (l) {
+        if (isClosed) return;
         AppToast.showToast(context: event.context, message: l.message, type: ToastificationType.error);
         emit(state.copyWith(updateResturantDataStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (isClosed) return;
         AppToast.showToast(context: event.context, message: 'تم تحديث معلومات المتجر بنجاح', type: ToastificationType.success);
         emit(state.copyWith(updateResturantDataStatus: BlocStatus.success, resturantDataStatus: BlocStatus.success, resturantData: r));
       },
     );
   }
+
+  // #region agent log
+  @override
+  void add(ProfileEvent event) {
+    debugAgentLog(
+      hypothesisId: 'H1_H2_H3_H4',
+      location: 'profile_bloc.dart:add',
+      message: 'ProfileBloc.add',
+      data: {'isClosed': isClosed, 'eventType': event.runtimeType.toString()},
+      runId: 'post-fix',
+    );
+    if (isClosed) {
+      debugAgentLog(
+        hypothesisId: 'H5',
+        location: 'profile_bloc.dart:add',
+        message: 'ProfileBloc.add skipped (bloc closed)',
+        data: {'eventType': event.runtimeType.toString()},
+        runId: 'post-fix',
+      );
+      return;
+    }
+    super.add(event);
+  }
+
+  @override
+  Future<void> close() {
+    debugAgentLog(
+      hypothesisId: 'H1',
+      location: 'profile_bloc.dart:close',
+      message: 'ProfileBloc.close',
+      data: const {},
+      runId: 'post-fix',
+    );
+    return super.close();
+  }
+  // #endregion
 }
