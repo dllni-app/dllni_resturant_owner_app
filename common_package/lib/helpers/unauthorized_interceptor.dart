@@ -1,7 +1,11 @@
 import 'package:dio/dio.dart';
 
-/// Runs [onUnauthorized] once per burst when the API returns 401, then forwards
-/// the error so repositories/blocs still receive the [DioException].
+/// Runs [onUnauthorized] at most once until that callback's [Future] completes.
+///
+/// The handler should await navigation to login (until that route is popped);
+/// otherwise it may finish too early and each additional 401 would invoke
+/// [onUnauthorized] again. Forwards the error so callers still receive the
+/// [DioException].
 class UnauthorizedInterceptor extends Interceptor {
   UnauthorizedInterceptor({
     required this.onUnauthorized,

@@ -1,6 +1,7 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
+import '../../data/models/fetch_products_model.dart';
 import '../widgets/add_new_product_app_bar.dart';
 import '../widgets/add_product_way_card.dart';
 import '../widgets/products_style_tokens.dart';
@@ -8,10 +9,31 @@ import 'add_product_details_screen.dart';
 
 @AutoRoutePage(path: '/products/new_product')
 class AddNewProductScreen extends StatelessWidget {
-  const AddNewProductScreen({super.key});
+  const AddNewProductScreen({
+    super.key,
+    this.params = const AddNewProductScreenParams(),
+  });
+
+  final AddNewProductScreenParams params;
 
   @override
   Widget build(BuildContext context) {
+    if (params.productForEdit != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.pushRouteReplacement(
+          '/products/new_product/details',
+          arguments: AddProductDetailsScreenParams.fromProduct(
+            params.productForEdit!,
+          ),
+        );
+      });
+
+      return const Scaffold(
+        backgroundColor: ProductsStyleTokens.pageBackground,
+        body: SizedBox.expand(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: ProductsStyleTokens.pageBackground,
       body: SafeArea(
@@ -74,4 +96,10 @@ class AddNewProductScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class AddNewProductScreenParams {
+  const AddNewProductScreenParams({this.productForEdit});
+
+  final FetchProductsModelDataItem? productForEdit;
 }

@@ -80,12 +80,14 @@ class ProductMenuField<T> extends StatelessWidget {
     super.key,
     required this.title,
     this.hintText,
+    this.value,
     this.onChanged,
     required this.items,
   });
 
   final String title;
   final String? hintText;
+  final T? value;
   final void Function(T? value)? onChanged;
   final List<DropdownMenuItem<T>> items;
 
@@ -105,6 +107,7 @@ class ProductMenuField<T> extends StatelessWidget {
           ),
         ),
         DropdownButtonFormField<T>(
+          initialValue: value,
           items: items,
           onChanged: onChanged,
           style: const TextStyle(

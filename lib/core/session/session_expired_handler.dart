@@ -14,10 +14,15 @@ class SessionExpiredHandler {
     _navigating = true;
     try {
       await SharedPreferencesHelper.clearData();
-      navigatorKey?.currentState?.pushNamedAndRemoveUntil(
-        '/login',
-        (route) => false,
-      );
+      final nav = navigatorKey?.currentState;
+      if (nav != null) {
+        // Must await: otherwise [handle] completes immediately, the interceptor
+        // clears its gate, and every other 401 triggers another login navigation.
+        await nav.pushNamedAndRemoveUntil<void>(
+          '/login',
+          (route) => false,
+        );
+      }
     } finally {
       _navigating = false;
     }

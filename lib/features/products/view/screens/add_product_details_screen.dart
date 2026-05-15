@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
+import 'package:dllni_resturant_owner_app/features/products/data/models/fetch_products_model.dart';
 import 'package:dllni_resturant_owner_app/features/products/domain/usecases/fetch_categories_use_case.dart';
+import 'package:dllni_resturant_owner_app/features/products/domain/usecases/fetch_products_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/products/domain/usecases/post_new_product_use_case.dart';
+import 'package:dllni_resturant_owner_app/features/products/domain/usecases/update_product_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
@@ -47,15 +50,32 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
   final TextEditingController _preparationTimeController = TextEditingController();
   final TextEditingController _lowStockController = TextEditingController();
   int? _selectedCategoryId;
+  String? _existingPrimaryImageUrl;
 
   List<File> images = [];
   File? primaryImage;
 
+  bool get _isEditMode => widget.params.existingProduct != null;
+
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.params.title ?? '';
-    _descriptionController.text = widget.params.desc ?? '';
+    final existing = widget.params.existingProduct;
+    _nameController.text = widget.params.title ?? existing?.name ?? '';
+    _descriptionController.text = widget.params.desc ?? existing?.description ?? '';
+    _priceController.text = _formatNum(existing?.price);
+    _discountedPriceController.text = _formatNum(existing?.discountedPrice);
+    _preparationTimeController.text = _formatNum(existing?.preparationTime);
+    _lowStockController.text = _formatNum(existing?.lowStockThreshold);
+    _selectedCategoryId = existing?.categoryId;
+    _existingPrimaryImageUrl = widget.params.existingImageUrl ?? existing?.primaryImage;
+  }
+
+  String _formatNum(num? value) {
+    if (value == null) return '';
+    final asDouble = value.toDouble();
+    if (asDouble == asDouble.toInt()) return asDouble.toInt().toString();
+    return asDouble.toString();
   }
 
   @override
@@ -106,12 +126,14 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
 
                               final items = categories.map((item) => DropdownMenuItem<int>(value: item.id!, child: Text(item.name ?? ''))).toList();
                               final canSelect = items.isNotEmpty;
+                              final selectedCategoryValue = items.any((item) => item.value == _selectedCategoryId) ? _selectedCategoryId : null;
 
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   ProductMenuField<int>(
                                     title: 'التصنيف',
+                                    value: selectedCategoryValue,
                                     hintText: isLoading
                                         ? 'جاري تحميل التصنيفات...'
                                         : isEmpty
@@ -119,7 +141,9 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                                         : 'اختر تصنيف...',
                                     onChanged: canSelect
                                         ? (value) {
-                                            _selectedCategoryId = value;
+                                            setState(() {
+                                              _selectedCategoryId = value;
+                                            });
                                           }
                                         : null,
                                     items: canSelect
@@ -157,8 +181,10 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                           ProductPickMainImage(
                             onPickImage: (imagePath) {
                               primaryImage = File(imagePath);
+                              _existingPrimaryImageUrl = null;
                             },
                             image64: widget.params.image,
+                            existingImageUrl: _existingPrimaryImageUrl,
                           ),
                           const SizedBox(height: 12),
                           ProductPickAdditionalImages(
@@ -273,7 +299,8 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                         Expanded(
                           child: BlocConsumer<ProductsBloc, ProductsState>(
                             listener: (context, state) {
-                              switch (state.newProductStatus) {
+                              final activeStatus = _isEditMode ? state.updateProductStatus : state.newProductStatus;
+                              switch (activeStatus) {
                                 case null:
                                   Loading.close();
                                   break;
@@ -281,13 +308,17 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                                   Loading.close();
                                   AppToast.showToast(
                                     context: context,
-                                    message: state.errorMessage ?? 'خطا في اضافة المنتج',
+                                    message: state.errorMessage ?? (_isEditMode ? 'خطا في تحديث المنتج' : 'خطا في اضافة المنتج'),
                                     type: ToastificationType.error,
                                   );
                                   break;
                                 case BlocStatus.success:
                                   Loading.close();
-                                  context.pushRouteAndRemoveUntil('/main', arguments: 2);
+                                  if (_isEditMode) {
+                                    context.pop(true);
+                                  } else {
+                                    context.pushRouteAndRemoveUntil('/main', arguments: 2);
+                                  }
                                   break;
                                 case BlocStatus.loading:
                                   Loading.show(context);
@@ -299,10 +330,11 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                             },
                             builder: (context, state) {
                               return AppButton(
-                                title: 'نشر المنتج',
+                                title: _isEditMode ? 'تحديث المنتج' : 'نشر المنتج',
                                 withShadow: false,
                                 onTap: () {
                                   final categories = context.read<ProductsBloc>().state.categories?.list ?? const [];
+                                  final hasPrimaryImage = primaryImage != null || ((_existingPrimaryImageUrl ?? '').trim().isNotEmpty);
                                   int? effectiveCategoryId = _selectedCategoryId;
                                   if (effectiveCategoryId == null) {
                                     for (final item in categories) {
@@ -316,8 +348,39 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار تصنيف المنتج')));
                                     return;
                                   }
-                                  if (primaryImage == null) {
+                                  if (!hasPrimaryImage) {
                                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار الصورة الرئيسية')));
+                                    return;
+                                  }
+                                  if (_isEditMode) {
+                                    final existing = widget.params.existingProduct;
+                                    if (existing?.id == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تعذر تحديد المنتج المراد تحديثه')));
+                                      return;
+                                    }
+                                    context.read<ProductsBloc>().add(
+                                      UpdateProductEvent(
+                                        params: UpdateProductParams(
+                                          id: existing!.id!,
+                                          categoryId: effectiveCategoryId,
+                                          name: _nameController.text.trim(),
+                                          description: _descriptionController.text,
+                                          price: _priceController.text.trim(),
+                                          discountedPrice: _discountedPriceController.text,
+                                          isAvailable: existing.isAvailable,
+                                          stockQuantity: existing.stockQuantity?.toString(),
+                                          lowStockThreshold: _lowStockController.text,
+                                          preparationTime: _preparationTimeController.text,
+                                          isFeatured: existing.isFeatured,
+                                          primaryImage: primaryImage,
+                                          images: images,
+                                        ),
+                                        refreshParams: FetchProductsParams(
+                                          categoryId: effectiveCategoryId,
+                                          page: 1,
+                                        ),
+                                      ),
+                                    );
                                     return;
                                   }
                                   context.read<ProductsBloc>().add(
@@ -402,6 +465,25 @@ class AddProductDetailsScreenParams {
   final String? image;
   final String? title;
   final String? desc;
+  final String? existingImageUrl;
+  final FetchProductsModelDataItem? existingProduct;
 
-  AddProductDetailsScreenParams({this.image, this.title, this.desc});
+  AddProductDetailsScreenParams({
+    this.image,
+    this.title,
+    this.desc,
+    this.existingImageUrl,
+    this.existingProduct,
+  });
+
+  factory AddProductDetailsScreenParams.fromProduct(
+    FetchProductsModelDataItem product,
+  ) {
+    return AddProductDetailsScreenParams(
+      title: product.name,
+      desc: product.description,
+      existingImageUrl: product.primaryImage,
+      existingProduct: product,
+    );
+  }
 }

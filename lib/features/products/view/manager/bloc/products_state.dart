@@ -3,6 +3,10 @@ part of 'products_bloc.dart';
 class ProductsState {
   BlocStatus? newProductStatus;
   PostNewProductModel? newProduct;
+  BlocStatus? updateProductStatus;
+  PostNewProductModel? updatedProduct;
+  BlocStatus? deleteProductStatus;
+  DeleteProductModel? deletedProduct;
   BlocStatus? generateAiProductDataFromMenuStatus;
   GenerateAiProductDataFromMenuModel? generateAiProductDataFromMenu;
   BlocStatus? generateAiProductDataFromImageStatus;
@@ -25,6 +29,10 @@ class ProductsState {
     this.generateAiProductDataFromMenuStatus,
     this.newProduct,
     this.newProductStatus,
+    this.updateProductStatus,
+    this.updatedProduct,
+    this.deleteProductStatus,
+    this.deletedProduct,
   });
 
   ProductsState copyWith({
@@ -39,6 +47,10 @@ class ProductsState {
     BlocStatus? generateAiProductDataFromMenuStatus,
     PostNewProductModel? newProduct,
     BlocStatus? newProductStatus,
+    PostNewProductModel? updatedProduct,
+    BlocStatus? updateProductStatus,
+    DeleteProductModel? deletedProduct,
+    BlocStatus? deleteProductStatus,
   }) => ProductsState(
     errorMessage: errorMessage ?? this.errorMessage,
     categories: categories ?? this.categories,
@@ -51,5 +63,9 @@ class ProductsState {
     generateAiProductDataFromMenuStatus: generateAiProductDataFromMenuStatus ?? this.generateAiProductDataFromMenuStatus,
     newProduct: newProduct ?? this.newProduct,
     newProductStatus: newProductStatus ?? this.newProductStatus,
+    updatedProduct: updatedProduct ?? this.updatedProduct,
+    updateProductStatus: updateProductStatus ?? this.updateProductStatus,
+    deletedProduct: deletedProduct ?? this.deletedProduct,
+    deleteProductStatus: deleteProductStatus ?? this.deleteProductStatus,
   );
 }

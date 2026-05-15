@@ -9,11 +9,17 @@ import 'package:image_picker/image_picker.dart';
 import 'products_style_tokens.dart';
 
 class ProductPickMainImage extends StatefulWidget {
-  const ProductPickMainImage({super.key, required this.onPickImage, this.image64});
+  const ProductPickMainImage({
+    super.key,
+    required this.onPickImage,
+    this.image64,
+    this.existingImageUrl,
+  });
 
   final void Function(String imagePath) onPickImage;
 
   final String? image64;
+  final String? existingImageUrl;
 
   @override
   State<ProductPickMainImage> createState() => _ProductPickMainImageState();
@@ -23,11 +29,13 @@ class _ProductPickMainImageState extends State<ProductPickMainImage> {
   String? imagePath;
 
   String? image64;
+  String? existingImageUrl;
 
   @override
   void initState() {
     super.initState();
     image64 = widget.image64;
+    existingImageUrl = widget.existingImageUrl;
   }
 
   @override
@@ -41,7 +49,7 @@ class _ProductPickMainImageState extends State<ProductPickMainImage> {
           style: TextStyle(color: ProductsStyleTokens.textMid, fontSize: 14, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
-        if (image64 == null) ...{
+        if (image64 == null && existingImageUrl == null) ...{
           if (imagePath != null)
             InkWell(
               onTap: _pickImage,
@@ -85,7 +93,20 @@ class _ProductPickMainImageState extends State<ProductPickMainImage> {
             onTap: _pickImage,
             child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(16)),
-              child: Image.memory(base64Decode(image64!), width: double.infinity, height: 188, fit: BoxFit.cover),
+              child: image64 != null
+                  ? Image.memory(
+                      base64Decode(image64!),
+                      width: double.infinity,
+                      height: 188,
+                      fit: BoxFit.cover,
+                    )
+                  : AppImage.network(
+                      existingImageUrl!,
+                      width: double.infinity,
+                      height: 188,
+                      fit: BoxFit.cover,
+                      errorWidget: const _MainImageErrorPlaceholder(),
+                    ),
             ),
           ),
         },
@@ -98,8 +119,27 @@ class _ProductPickMainImageState extends State<ProductPickMainImage> {
     if (pickedImage == null) return;
     setState(() {
       imagePath = pickedImage.path;
+      existingImageUrl = null;
     });
     widget.onPickImage(pickedImage.path);
+  }
+}
+
+class _MainImageErrorPlaceholder extends StatelessWidget {
+  const _MainImageErrorPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return const ColoredBox(
+      color: Color(0xFFECEFF3),
+      child: Center(
+        child: Icon(
+          Icons.broken_image_outlined,
+          color: Color(0xFF9CA3AF),
+          size: 32,
+        ),
+      ),
+    );
   }
 }
 

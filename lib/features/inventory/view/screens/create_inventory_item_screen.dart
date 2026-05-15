@@ -133,76 +133,73 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: BlocBuilder<ProductsBloc, ProductsState>(
-          builder: (context, productsState) {
-            final allProducts = productsState.products?.list ?? [];
-            final selectedProducts = _getSelectedProducts(allProducts);
-
-            return Column(
-              children: [
-                const CreateInventoryItemAppBar(),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        InventoryStepCard(
-                          number: 1,
-                          title: 'المعلومات الأساسية',
-                          child: Column(
+        child: Column(
+          children: [
+            const CreateInventoryItemAppBar(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    InventoryStepCard(
+                      number: 1,
+                      title: 'المعلومات الأساسية',
+                      child: Column(
+                        children: [
+                          InventoryTextField(title: 'اسم المادة', hintText: 'مثال: برجر دجاج كلاسيك', controller: _nameController),
+                          const SizedBox(height: 14),
+                          InventoryUnitSelector(
+                            selectedUnit: _selectedUnit,
+                            onUnitChanged: (value) => setState(() {
+                              _selectedUnit = value;
+                            }),
+                            customUnitController: _customUnitController,
+                          ),
+                          const SizedBox(height: 14),
+                          Row(
                             children: [
-                              InventoryTextField(title: 'اسم المادة', hintText: 'مثال: برجر دجاج كلاسيك', controller: _nameController),
-                              const SizedBox(height: 14),
-                              InventoryUnitSelector(
-                                selectedUnit: _selectedUnit,
-                                onUnitChanged: (value) => setState(() {
-                                  _selectedUnit = value;
-                                }),
-                                customUnitController: _customUnitController,
+                              Expanded(
+                                child: InventoryTextField(
+                                  title: 'الكمية الأولية',
+                                  hintText: '0',
+                                  controller: _initialQuantityController,
+                                  keyboardType: TextInputType.number,
+                                ),
                               ),
-                              const SizedBox(height: 14),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: InventoryTextField(
-                                      title: 'الكمية الأولية',
-                                      hintText: '0',
-                                      controller: _initialQuantityController,
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: InventoryTextField(
-                                      title: 'الحد الأدنى',
-                                      hintText: '0',
-                                      controller: _minimumQuantityController,
-                                      keyboardType: TextInputType.number,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 14),
-                              InventoryTextField(
-                                title: 'تكلفة الوحدة',
-                                hintText: '0',
-                                controller: _unitCostController,
-                                keyboardType: TextInputType.number,
-                                suffix: const Text(
-                                  'ل.س',
-                                  style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14, fontWeight: FontWeight.w600),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: InventoryTextField(
+                                  title: 'الحد الأدنى',
+                                  hintText: '0',
+                                  controller: _minimumQuantityController,
+                                  keyboardType: TextInputType.number,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        InventoryStepCard(
-                          number: 2,
-                          title: 'الربط بالمنتجات',
-                          trailing: AppText.labelLarge('(اختياري)', color: const Color(0xFF6B7280), fontWeight: FontWeight.w500),
-                          child: InventoryLinkProductsSection(
+                          const SizedBox(height: 14),
+                          InventoryTextField(
+                            title: 'تكلفة الوحدة',
+                            hintText: '0',
+                            controller: _unitCostController,
+                            keyboardType: TextInputType.number,
+                            suffix: const Text(
+                              'ل.س',
+                              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    InventoryStepCard(
+                      number: 2,
+                      title: 'الربط بالمنتجات',
+                      trailing: AppText.labelLarge('(اختياري)', color: const Color(0xFF6B7280), fontWeight: FontWeight.w500),
+                      child: BlocBuilder<ProductsBloc, ProductsState>(
+                        builder: (context, state) {
+                          return InventoryLinkProductsSection(
                             selectedProductIds: _selectedProductIds,
                             searchController: _searchController,
                             onSearchChanged: (value) {
@@ -220,97 +217,105 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                             onShowAll: () => setState(() {
                               _searchController.clear();
                             }),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    BlocBuilder<ProductsBloc, ProductsState>(
+                      builder: (context, state) {
+                        final allProducts = state.products?.list ?? [];
+                        final selectedProducts = _getSelectedProducts(allProducts);
+                        return InventorySelectedProductsCard(selectedProducts: selectedProducts);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
+              child: BlocConsumer<InventoryBloc, InventoryState>(
+                bloc: widget.params!.bloc,
+                listener: (context, state) {
+                  final isCreateLoading = state.createInventoryItemStatus == BlocStatus.loading;
+                  final isUpdateLoading = state.updateInventoryItemStatus == BlocStatus.loading;
+                  if (isCreateLoading || isUpdateLoading) {
+                    Loading.show(context);
+                    return;
+                  }
+                  if (state.createInventoryItemStatus == BlocStatus.failed || state.updateInventoryItemStatus == BlocStatus.failed) {
+                    Loading.close();
+                    AppToast.showToast(context: context, message: state.errorMessage ?? 'خطا في حفظ المادة', type: ToastificationType.error);
+                    return;
+                  }
+                  if (state.updateInventoryItemStatus == BlocStatus.success) {
+                    Loading.close();
+                    context.pop();
+                    return;
+                  }
+                  if (state.createInventoryItemStatus == BlocStatus.success) {
+                    Loading.close();
+                  }
+                },
+                buildWhen: (prev, curr) =>
+                    curr.createInventoryItemStatus != prev.createInventoryItemStatus ||
+                    curr.updateInventoryItemStatus != prev.updateInventoryItemStatus,
+                builder: (context, invState) {
+                  final isLoading =
+                      invState.createInventoryItemStatus == BlocStatus.loading || invState.updateInventoryItemStatus == BlocStatus.loading;
+                  final isEditMode = _editingItem != null;
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: InkWell(
+                          onTap: isLoading
+                              ? null
+                              : () {
+                                  _onSave(widget.params!.bloc);
+                                },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
+                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
+                            child: AppText.labelLarge(
+                              isEditMode ? 'حفظ التعديلات' : 'حفظ المادة',
+                              color: context.onPrimary,
+                              fontWeight: FontWeight.w500,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        InventorySelectedProductsCard(selectedProducts: selectedProducts),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-                  child: BlocConsumer<InventoryBloc, InventoryState>(
-                    bloc: widget.params!.bloc,
-                    listener: (context, state) {
-                      final isCreateLoading = state.createInventoryItemStatus == BlocStatus.loading;
-                      final isUpdateLoading = state.updateInventoryItemStatus == BlocStatus.loading;
-                      if (isCreateLoading || isUpdateLoading) {
-                        Loading.show(context);
-                        return;
-                      }
-                      if (state.createInventoryItemStatus == BlocStatus.failed || state.updateInventoryItemStatus == BlocStatus.failed) {
-                        Loading.close();
-                        AppToast.showToast(context: context, message: state.errorMessage ?? 'خطا في حفظ المادة', type: ToastificationType.error);
-                        return;
-                      }
-                      if (state.updateInventoryItemStatus == BlocStatus.success) {
-                        Loading.close();
-                        context.pop();
-                        return;
-                      }
-                      if (state.createInventoryItemStatus == BlocStatus.success) {
-                        Loading.close();
-                      }
-                    },
-                    buildWhen: (prev, curr) =>
-                        curr.createInventoryItemStatus != prev.createInventoryItemStatus ||
-                        curr.updateInventoryItemStatus != prev.updateInventoryItemStatus,
-                    builder: (context, invState) {
-                      final isLoading =
-                          invState.createInventoryItemStatus == BlocStatus.loading || invState.updateInventoryItemStatus == BlocStatus.loading;
-                      final isEditMode = _editingItem != null;
-                      return Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: InkWell(
-                              onTap: isLoading ? null : (){
-                                _onSave(widget.params!.bloc);
-                              },
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: isLoading
+                              ? null
+                              : () {
+                                  context.pop();
+                                },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
-                                padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
-                                child: AppText.labelLarge(
-                                  isEditMode ? 'حفظ التعديلات' : 'حفظ المادة',
-                                  color: context.onPrimary,
-                                  fontWeight: FontWeight.w500,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
+                              color: context.error.withAlpha(20),
+                              border: Border.all(color: context.error),
                             ),
+                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
+                            child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: InkWell(
-                              onTap: isLoading
-                                  ? null
-                                  : () {
-                                      context.pop();
-                                    },
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: context.error.withAlpha(20),
-                                  border: Border.all(color: context.error),
-                                ),
-                                padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
-                                child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            );
-          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
         ),
       ),
     );

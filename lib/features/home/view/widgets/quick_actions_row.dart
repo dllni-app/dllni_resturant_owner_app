@@ -1,7 +1,11 @@
 ﻿import 'package:common_package/common_package.dart';
+import 'package:dllni_resturant_owner_app/core/di/injection.dart';
+import 'package:dllni_resturant_owner_app/features/inventory/view/manager/bloc/inventory_bloc.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../generated/assets.dart';
+import '../../../inventory/view/screens/create_inventory_item_screen.dart';
+import '../../../products/view/screens/add_product_details_screen.dart';
 
 class QuickActionsRow extends StatelessWidget {
   const QuickActionsRow({super.key});
@@ -20,12 +24,18 @@ class QuickActionsRow extends StatelessWidget {
             onTap: () {
               if (i == 3) {
                 context.pushRoute('/performance-reports');
-              }if (i == 2) {
-                context.pushRoute('/inventory/new');
-              }if (i == 1) {
+              }
+              if (i == 2) {
+                context.pushRoute('/inventory/new', arguments: CreateInventoryItemScreenParams(bloc: getIt<InventoryBloc>()));
+              }
+              if (i == 1) {
                 context.pushRoute('/offersmanagement/new');
-              }if (i == 0) {
-                context.pushRoute('/products/new_product/details');
+              }
+              if (i == 0) {
+                context.pushRoute(
+                  '/products/new_product/details',
+                  arguments: AddProductDetailsScreenParams(),
+                );
               }
             },
             borderRadius: BorderRadius.circular(24),

@@ -40,8 +40,8 @@ class OrderDetailsScreen extends StatelessWidget {
                     SizedBox(height: 16),
                     OrderDetailsItemCard(order: params.order,),
                     SizedBox(height: 16),
-                    OrderDetailsEditCard(),
-                    SizedBox(height: 16),
+                   /* OrderDetailsEditCard(),
+                    SizedBox(height: 16),*/
                     OrderDetailsSummaryCard(order: params.order,),
                     SizedBox(height: 16),
                     OrderDetailsNotesCard(order: params.order,),

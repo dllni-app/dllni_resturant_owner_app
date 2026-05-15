@@ -1,4 +1,5 @@
 import 'package:common_package/common_package.dart';
+import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
 import '../models/fetch_categories_model.dart';
 import '../../domain/usecases/fetch_categories_use_case.dart';
@@ -12,11 +13,16 @@ import '../models/generate_ai_product_data_from_menu_model.dart';
 import '../../domain/usecases/generate_ai_product_data_from_menu_use_case.dart';
 import '../models/post_new_product_model.dart';
 import '../../domain/usecases/post_new_product_use_case.dart';
+import '../models/delete_product_model.dart';
+import '../../domain/usecases/delete_product_use_case.dart';
+import '../../domain/usecases/update_product_use_case.dart';
 
 @lazySingleton
 class ProductsRemoteDataSource with HandlingApiManager {
   final DioNetwork dioNetwork;
   static const Duration _aiRequestTimeout = Duration(seconds: 60);
+  static const _baseProductsEndpoint = '/api/v1/products';
+  static const _ownerProductsEndpoint = '/api/v1/restaurant-owner/products';
 
   ProductsRemoteDataSource({required this.dioNetwork});
 
@@ -96,5 +102,45 @@ class ProductsRemoteDataSource with HandlingApiManager {
       ),
       jsonConvert: postNewProductModelFromJson,
     );
+  }
+
+  Future<PostNewProductModel> updateProduct(UpdateProductParams params) {
+    return wrapHandlingApi(
+      tryCall: () => _withProductEndpointFallback(
+        (endpoint) => dioNetwork.putData(
+          endPoint: '$endpoint/${params.id}',
+          data: params.getBody(),
+          params: params.getParams(),
+        ),
+      ),
+      jsonConvert: postNewProductModelFromJson,
+    );
+  }
+
+  Future<DeleteProductModel> deleteProduct(DeleteProductParams params) {
+    return wrapHandlingApi(
+      tryCall: () => _withProductEndpointFallback(
+        (endpoint) => dioNetwork.deleteData(
+          endPoint: '$endpoint/${params.id}',
+          data: params.getBody(),
+          params: params.getParams(),
+        ),
+      ),
+      jsonConvert: deleteProductModelFromJson,
+    );
+  }
+
+  Future<Response> _withProductEndpointFallback(
+    Future<Response> Function(String endpoint) request,
+  ) async {
+    try {
+      return await request(_baseProductsEndpoint);
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      final shouldRetryWithOwnerEndpoint =
+          statusCode == 403 || statusCode == 404 || statusCode == 405;
+      if (!shouldRetryWithOwnerEndpoint) rethrow;
+      return request(_ownerProductsEndpoint);
+    }
   }
 }

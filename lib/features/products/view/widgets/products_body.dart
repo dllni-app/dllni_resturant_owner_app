@@ -9,6 +9,7 @@ import 'big_button_with_icon.dart';
 import 'product_card.dart';
 import 'products_tab_bar.dart';
 import 'state_pointer.dart';
+import '../screens/add_new_product_screen.dart';
 
 class ProductsBody extends StatefulWidget {
   const ProductsBody({super.key});
@@ -30,7 +31,10 @@ class _ProductsBodyState extends State<ProductsBody> {
             title: 'إضافة منتج جديد',
             icon: const Icon(Icons.add),
             onPressed: () {
-              context.pushRoute('/products/new_product');
+              context.pushRoute(
+                '/products/new_product',
+                arguments: const AddNewProductScreenParams(),
+              );
             },
           ),
         ),

@@ -16,6 +16,9 @@ import '../../domain/usecases/generate_ai_product_data_from_menu_use_case.dart';
 import '../models/generate_ai_product_data_from_menu_model.dart';
 import '../../domain/usecases/post_new_product_use_case.dart';
 import '../models/post_new_product_model.dart';
+import '../../domain/usecases/update_product_use_case.dart';
+import '../../domain/usecases/delete_product_use_case.dart';
+import '../models/delete_product_model.dart';
 
 @LazySingleton(as: ProductsRepo)
 class ProductsRepoImpl with HandlingException implements ProductsRepo {
@@ -63,5 +66,20 @@ class ProductsRepoImpl with HandlingException implements ProductsRepo {
     return wrapHandlingException(
       tryCall: () => productsRemoteDataSource.postNewProduct(params),
     );
-  }}
+  }
+
+  @override
+  DataResponse<PostNewProductModel> updateProduct(UpdateProductParams params) {
+    return wrapHandlingException(
+      tryCall: () => productsRemoteDataSource.updateProduct(params),
+    );
+  }
+
+  @override
+  DataResponse<DeleteProductModel> deleteProduct(DeleteProductParams params) {
+    return wrapHandlingException(
+      tryCall: () => productsRemoteDataSource.deleteProduct(params),
+    );
+  }
+}
 

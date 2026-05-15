@@ -274,6 +274,8 @@ class FetchProductsModelDataItem {
   FetchProductsModelDataItemCategory? category;
   List<FetchProductsModelDataItemModifierGroupsItem>? modifierGroups;
   List<FetchProductsModelDataItemSubstitutionsItem>? substitutions;
+  /// Main image URL from the API (`primaryImage`).
+  String? primaryImage;
   String? createdAt;
   String? updatedAt;
 
@@ -300,6 +302,7 @@ class FetchProductsModelDataItem {
     this.category,
     this.modifierGroups,
     this.substitutions,
+    this.primaryImage,
     this.createdAt,
     this.updatedAt,
   });
@@ -328,6 +331,7 @@ class FetchProductsModelDataItem {
       category: json['category'] is Map ? FetchProductsModelDataItemCategory.fromJson(Map<String, dynamic>.from(json['category'] as Map)) : null,
       modifierGroups: json['modifierGroups'] is List ? (json['modifierGroups'] as List).whereType<Map>().map((item) => FetchProductsModelDataItemModifierGroupsItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
       substitutions: json['substitutions'] is List ? (json['substitutions'] as List).whereType<Map>().map((item) => FetchProductsModelDataItemSubstitutionsItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
+      primaryImage: _asString(json['primaryImage']),
       createdAt: _asString(json['createdAt']),
       updatedAt: _asString(json['updatedAt']),
     );
@@ -357,6 +361,7 @@ class FetchProductsModelDataItem {
       'category': category?.toJson(),
       'modifierGroups': modifierGroups?.map((item) => item.toJson()).toList(),
       'substitutions': substitutions?.map((item) => item.toJson()).toList(),
+      'primaryImage': primaryImage,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
     };

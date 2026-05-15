@@ -15,6 +15,9 @@ import '../../../domain/usecases/generate_ai_product_data_from_menu_use_case.dar
 import '../../../data/models/generate_ai_product_data_from_menu_model.dart';
 import '../../../domain/usecases/post_new_product_use_case.dart';
 import '../../../data/models/post_new_product_model.dart';
+import '../../../domain/usecases/update_product_use_case.dart';
+import '../../../domain/usecases/delete_product_use_case.dart';
+import '../../../data/models/delete_product_model.dart';
 
 part 'products_event.dart';
 
@@ -22,6 +25,8 @@ part 'products_state.dart';
 
 @injectable
 class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
+  final DeleteProductUseCase deleteProductUseCase;
+  final UpdateProductUseCase updateProductUseCase;
   final PostNewProductUseCase postNewProductUseCase;
   final GenerateAiProductDataFromMenuUseCase generateAiProductDataFromMenuUseCase;
   final GenerateAiProductDataFromImageUseCase generateAiProductDataFromImageUseCase;
@@ -33,6 +38,8 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     this.generateAiProductImageUseCase,
     this.generateAiProductDataFromImageUseCase,
     this.generateAiProductDataFromMenuUseCase,
+    this.updateProductUseCase,
+    this.deleteProductUseCase,
     this.postNewProductUseCase,) : super(ProductsState()) {
     on<FetchCategoriesEvent>(_fetchCategories, transformer: droppableProMax());
     on<FetchProductsEvent>(_fetchProducts, transformer: droppableProMax());
@@ -40,7 +47,10 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     on<GenerateAiProductImageEvent>(_generateAiProductImage);
     on<GenerateAiProductDataFromImageEvent>(_generateAiProductDataFromImage);
     on<GenerateAiProductDataFromMenuEvent>(_generateAiProductDataFromMenu);
-    on<PostNewProductEvent>(_postNewProduct);}
+    on<PostNewProductEvent>(_postNewProduct);
+    on<UpdateProductEvent>(_updateProduct);
+    on<DeleteProductEvent>(_deleteProduct);
+  }
 
   EventTransformer<T> droppableProMax<T extends EventWithReload>() {
     return (events, mapper) {
@@ -152,4 +162,45 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         newProduct: r,
       ));
     });
-  }}
+  }
+
+  FutureOr<void> _updateProduct(UpdateProductEvent event, Emitter<ProductsState> emit) async {
+    emit(state.copyWith(updateProductStatus: BlocStatus.loading));
+    final res = await updateProductUseCase(event.params);
+    res.fold((l) {
+      emit(state.copyWith(
+        updateProductStatus: BlocStatus.failed,
+        errorMessage: l.message,
+      ));
+    }, (r) {
+      emit(state.copyWith(
+        updateProductStatus: BlocStatus.success,
+        updatedProduct: r,
+      ));
+      add(FetchProductsEvent(
+        params: event.refreshParams,
+        isReload: true,
+      ));
+    });
+  }
+
+  FutureOr<void> _deleteProduct(DeleteProductEvent event, Emitter<ProductsState> emit) async {
+    emit(state.copyWith(deleteProductStatus: BlocStatus.loading));
+    final res = await deleteProductUseCase(event.params);
+    res.fold((l) {
+      emit(state.copyWith(
+        deleteProductStatus: BlocStatus.failed,
+        errorMessage: l.message,
+      ));
+    }, (r) {
+      emit(state.copyWith(
+        deleteProductStatus: BlocStatus.success,
+        deletedProduct: r,
+      ));
+      add(FetchProductsEvent(
+        params: event.refreshParams,
+        isReload: true,
+      ));
+    });
+  }
+}

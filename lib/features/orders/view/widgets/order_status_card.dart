@@ -53,7 +53,7 @@ class OrderStatusCard extends StatelessWidget {
                 Row(
                   spacing: 8,
                   children: [
-                    Expanded(child: _buildStatusInfoBox('منذ', '${DateTime.parse(order.acceptedAt!).difference(DateTime.now()).inMinutes} دقيقة', context)),
+                    Expanded(child: _buildStatusInfoBox('منذ', '${DateTime.parse(order.acceptedAt ?? DateTime.now().toString()).difference(DateTime.now()).inMinutes} دقيقة', context)),
                     Expanded(child: _buildStatusInfoBox('الوقت المتوقع', '199', context)),
                     Expanded(
                       child: _buildStatusInfoBox(

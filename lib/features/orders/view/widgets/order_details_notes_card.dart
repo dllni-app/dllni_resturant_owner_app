@@ -32,7 +32,13 @@ class OrderDetailsNotesCard extends StatelessWidget {
                     children: [
                       AppText.labelSmall('ملاحظات الزبون', color: Color(0xffD97706), fontWeight: FontWeight.bold),
                       SizedBox(height: 4),
-                      AppText.bodySmall(order.orderItems?.map((e) => e.specialInstructions).join(', ') ?? '-', color: Color(0xff92400E), textAlign: TextAlign.start),
+                      AppText.bodySmall(
+                        order.orderItems == null || order.orderItems!.every((o) => o.specialInstructions == null)
+                            ? 'لا يوجد ملاحظات'
+                            : order.orderItems!.map((e) => e.specialInstructions ?? '').join(', '),
+                        color: Color(0xff92400E),
+                        textAlign: TextAlign.start,
+                      ),
                     ],
                   ),
                 ),
@@ -54,7 +60,7 @@ class OrderDetailsNotesCard extends StatelessWidget {
                     children: [
                       AppText.labelSmall('ملاحظات المطبخ', color: Color(0xff6B7280), fontWeight: FontWeight.bold),
                       SizedBox(height: 4),
-                      AppText.bodySmall(order.kitchenNotes ?? '-', color: Color(0xff374151), textAlign: TextAlign.start),
+                      AppText.bodySmall(order.kitchenNotes ?? 'لا يوجد ملاحطات للمطبخ', color: Color(0xff374151), textAlign: TextAlign.start),
                     ],
                   ),
                 ),
