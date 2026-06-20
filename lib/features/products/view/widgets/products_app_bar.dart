@@ -1,12 +1,30 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../manager/bloc/products_bloc.dart';
+import '../manager/products_notifier.dart';
 import 'filter_button.dart';
 import 'products_style_tokens.dart';
 import 'search_field.dart';
 
 class ProductsAppBar extends StatelessWidget {
-  const ProductsAppBar({super.key});
+  const ProductsAppBar({super.key, required this.productsNotifier});
+
+  final ProductsNotifier productsNotifier;
+
+  void _reload(BuildContext context) {
+    context.read<ProductsBloc>().add(FetchProductsEvent(params: productsNotifier.fetchParams(page: 1), isReload: true));
+  }
+
+  void _toggleFilter(BuildContext context) {
+    final current = productsNotifier.availabilityFilter.value;
+    final next = current == null ? true : (current == true ? false : null);
+    productsNotifier.changeFilters(availability: next, lowStock: false, discounted: false);
+    _reload(context);
+    final label = next == null ? 'الكل' : (next ? 'المتوفر فقط' : 'غير المتوفر فقط');
+    AppToast.showToast(context: context, message: 'تم تطبيق فلتر: $label');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +54,16 @@ class ProductsAppBar extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: SearchField(hintText: 'ابحث عن وجبة، مشروب...', onChanged: (value) {}),
+                child: SearchField(
+                  hintText: 'ابحث عن وجبة، مشروب...',
+                  onChanged: (value) {
+                    productsNotifier.changeSearchQuery(value);
+                    _reload(context);
+                  },
+                ),
               ),
               const SizedBox(width: 10),
-              const FilterButton(),
+              FilterButton(onTap: () => _toggleFilter(context)),
             ],
           ),
         ],
