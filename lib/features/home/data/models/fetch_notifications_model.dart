@@ -17,21 +17,6 @@ int? _asInt(dynamic value) {
   return null;
 }
 
-double? _asDouble(dynamic value) {
-  if (value == null) return null;
-  if (value is double) return value;
-  if (value is num) return value.toDouble();
-  if (value is String) return double.tryParse(value);
-  return null;
-}
-
-num? _asNum(dynamic value) {
-  if (value == null) return null;
-  if (value is num) return value;
-  if (value is String) return num.tryParse(value);
-  return null;
-}
-
 bool? _asBool(dynamic value) {
   if (value == null) return null;
   if (value is bool) return value;
@@ -47,16 +32,9 @@ bool? _asBool(dynamic value) {
   return null;
 }
 
-List<dynamic>? _asDynamicList(dynamic value) {
-  if (value is! List) return null;
-  return value.map(_asDynamic).toList();
-}
-
 dynamic _asDynamic(dynamic value) {
   if (value == null) return null;
-  if (value is List) {
-    return value.map(_asDynamic).toList();
-  }
+  if (value is List) return value.map(_asDynamic).toList();
   if (value is Map) {
     final map = <String, dynamic>{};
     value.forEach((key, nestedValue) {
@@ -64,9 +42,7 @@ dynamic _asDynamic(dynamic value) {
     });
     return map;
   }
-  if (value is String || value is num || value is bool) {
-    return value;
-  }
+  if (value is String || value is num || value is bool) return value;
   return value.toString();
 }
 
@@ -80,8 +56,6 @@ String fetchNotificationsModelDataItemToJson(FetchNotificationsModelDataItem dat
 
 class FetchNotificationsModel {
   List<FetchNotificationsModelDataItem>? data;
-
-  // ✅ NEW
   FetchNotificationsModelMeta? meta;
 
   FetchNotificationsModel({this.data, this.meta});
@@ -91,19 +65,15 @@ class FetchNotificationsModel {
       data: json['data'] is List
           ? (json['data'] as List).whereType<Map>().map((item) => FetchNotificationsModelDataItem.fromJson(Map<String, dynamic>.from(item))).toList()
           : null,
-
-      // ✅ NEW
       meta: json['meta'] is Map ? FetchNotificationsModelMeta.fromJson(Map<String, dynamic>.from(json['meta'])) : null,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {'data': data?.map((item) => item.toJson()).toList(), 'meta': meta?.toJson()};
-  }
+  Map<String, dynamic> toJson() => {'data': data?.map((item) => item.toJson()).toList(), 'meta': meta?.toJson()};
 }
 
 class FetchNotificationsModelDataItem {
-  String? id; // ✅ FIXED (was int)
+  String? id;
   String? source;
   String? category;
   String? title;
@@ -111,9 +81,7 @@ class FetchNotificationsModelDataItem {
   String? type;
   bool? isRead;
   String? createdAt;
-
-  // ✅ NEW
-  FetchNotificationsModelMeta? meta;
+  Map<String, dynamic>? meta;
 
   FetchNotificationsModelDataItem({this.id, this.source, this.category, this.title, this.body, this.type, this.isRead, this.createdAt, this.meta});
 
@@ -127,25 +95,21 @@ class FetchNotificationsModelDataItem {
       type: _asString(json['type']),
       isRead: _asBool(json['isRead']),
       createdAt: _asString(json['createdAt']),
-
-      // ✅ NEW
-      meta: json['meta'] is Map ? FetchNotificationsModelMeta.fromJson(Map<String, dynamic>.from(json['meta'])) : null,
+      meta: json['meta'] is Map ? Map<String, dynamic>.from(_asDynamic(json['meta']) as Map) : null,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'source': source,
-      'category': category,
-      'title': title,
-      'body': body,
-      'type': type,
-      'isRead': isRead,
-      'createdAt': createdAt,
-      'meta': meta?.toJson(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'source': source,
+        'category': category,
+        'title': title,
+        'body': body,
+        'type': type,
+        'isRead': isRead,
+        'createdAt': createdAt,
+        'meta': meta,
+      };
 }
 
 class FetchNotificationsModelMeta {
@@ -154,8 +118,6 @@ class FetchNotificationsModelMeta {
   int? total;
   int? lastPage;
   int? unreadTotal;
-
-  // ✅ NEW
   Map<String, dynamic>? tabCounts;
 
   FetchNotificationsModelMeta({this.page, this.perPage, this.total, this.lastPage, this.unreadTotal, this.tabCounts});
@@ -171,7 +133,5 @@ class FetchNotificationsModelMeta {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {'page': page, 'perPage': perPage, 'total': total, 'lastPage': lastPage, 'unreadTotal': unreadTotal, 'tabCounts': tabCounts};
-  }
+  Map<String, dynamic> toJson() => {'page': page, 'perPage': perPage, 'total': total, 'lastPage': lastPage, 'unreadTotal': unreadTotal, 'tabCounts': tabCounts};
 }
