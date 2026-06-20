@@ -22,8 +22,6 @@ class ProductsAppBar extends StatelessWidget {
     final next = current == null ? true : (current == true ? false : null);
     productsNotifier.changeFilters(availability: next, lowStock: false, discounted: false);
     _reload(context);
-    final label = next == null ? 'الكل' : (next ? 'المتوفر فقط' : 'غير المتوفر فقط');
-    AppToast.showToast(context: context, message: 'تم تطبيق فلتر: $label');
   }
 
   @override
