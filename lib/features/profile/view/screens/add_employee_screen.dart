@@ -96,9 +96,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                         phoneController: _phoneController,
                         pickedImagePath: _pickedImagePath,
                         passwordController: _passwordController,
-                        onPickImageTap: (image) {
-                          setState(() => _pickedImagePath = image);
-                        },
+                        onPickImageTap: (image) => setState(() => _pickedImagePath = image),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -124,10 +122,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                       number: 3,
                       title: 'حالة الحساب',
                       trailing: _squareIcon(const Color(0x1A10B981), Icons.toggle_on, const Color(0xFF10B981)),
-                      child: AddEmployeeAccountStatusCard(
-                        isEnabled: _isAccountEnabled,
-                        onToggle: (value) => setState(() => _isAccountEnabled = value),
-                      ),
+                      child: AddEmployeeAccountStatusCard(isEnabled: _isAccountEnabled, onToggle: (value) => setState(() => _isAccountEnabled = value)),
                     ),
                     const SizedBox(height: 20),
                   ],
@@ -168,6 +163,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                               ? null
                               : () {
                                   if (!_validate(context)) return;
+                                  final employee = widget.params.employee;
                                   context.read<ProfileBloc>().add(
                                         AddEmployeeEvent(
                                           context: context,
@@ -178,8 +174,8 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                                             permissions: _selectedPermissions.toList(),
                                             password: _passwordController.text.trim().isEmpty ? null : _passwordController.text.trim(),
                                             isActive: _isAccountEnabled,
-                                            isAddNew: widget.params.employee == null,
-                                            id: widget.params.employee?.id,
+                                            isAddNew: employee == null,
+                                            id: employee?.userId ?? employee?.id,
                                           ),
                                         ),
                                       );
