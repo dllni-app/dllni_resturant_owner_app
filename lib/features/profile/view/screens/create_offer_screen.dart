@@ -4,6 +4,7 @@ import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/creat
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 import '../manager/bloc/profile_bloc.dart';
 import '../widgets/create_offer_app_bar.dart';
@@ -53,93 +54,107 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     }
   }
 
+  bool _validate(BuildContext context) {
+    if (nameController.text.trim().isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل اسم العرض', type: ToastificationType.error);
+      return false;
+    }
+    if (double.tryParse(offerValueController.text.trim()) == null) {
+      AppToast.showToast(context: context, message: 'أدخل قيمة خصم صحيحة', type: ToastificationType.error);
+      return false;
+    }
+    if (!isImmediate && startsAtController.text.trim().isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل تاريخ بداية العرض', type: ToastificationType.error);
+      return false;
+    }
+    if (endsAtController.text.trim().isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل تاريخ نهاية العرض', type: ToastificationType.error);
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Column(
-            children: [
-              const CreateOfferAppBar(),
-              const SizedBox(height: 16),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      CreateOfferStepCard(
-                        number: 1,
-                        title: 'المعلومات الأساسية',
-                        child: CreateOfferBasicInfoCard(nameController: nameController),
+        child: Column(
+          children: [
+            const CreateOfferAppBar(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    CreateOfferStepCard(number: 1, title: 'المعلومات الأساسية', child: CreateOfferBasicInfoCard(nameController: nameController)),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 2,
+                      title: 'نوع الخصم',
+                      child: CreateOfferDiscountCard(
+                        offerType: offerType,
+                        offerTypeChanges: (value) => setState(() => offerType = value),
+                        offerValueController: offerValueController,
                       ),
-                      SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 2,
-                        title: 'نوع الخصم',
-                        child: CreateOfferDiscountCard(
-                          offerType: offerType,
-                          offerTypeChanges: (value) => setState(() {
-                            offerType = value;
-                          }),
-                          offerValueController: offerValueController,
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 3,
+                      title: 'مدة العرض',
+                      child: CreateOfferDurationCard(
+                        changeIsImmediate: (val) => setState(() => isImmediate = val),
+                        endsAtController: endsAtController,
+                        isImmediate: isImmediate,
+                        startsAtController: startsAtController,
                       ),
-                      SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 3,
-                        title: 'مدة العرض',
-                        child: CreateOfferDurationCard(
-                          changeIsImmediate: (val) => setState(() {
-                            isImmediate = val;
-                          }),
-                          endsAtController: endsAtController,
-                          isImmediate: isImmediate,
-                          startsAtController: startsAtController,
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 4,
+                      title: 'ربط المنتجات',
+                      trailing: Container(
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: const Color(0xFFECFDF5)),
+                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 4),
+                        child: AppText.labelLarge('منتج', color: const Color(0xFF065F46), fontWeight: FontWeight.w700),
                       ),
-                      SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 4,
-                        title: 'ربط المنتجات',
-                        trailing: Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Color(0xFFECFDF5)),
-                          padding: EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 4),
-                          child: AppText.labelLarge('منتج', color: Color(0xFF065F46), fontWeight: FontWeight.w700),
-                        ),
-                        child: CreateOfferProductsSection(),
-                      ),
-                      SizedBox(height: 16),
-                      CreateOfferSelectedProductsCard(),
-                      SizedBox(height: 20),
-                    ],
-                  ),
+                      child: const CreateOfferProductsSection(),
+                    ),
+                    const SizedBox(height: 16),
+                    const CreateOfferSelectedProductsCard(),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
-              BlocListener<ProfileBloc, ProfileState>(
-                listener: (context, state) {},
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-                  child: BlocBuilder<ProfileBloc, ProfileState>(
-                    builder: (context, state) {
-                      final isLoading = state.createOfferStatus == BlocStatus.loading;
-                      final productIds = state.selectedProducts.where((p) => p.id != null).map((p) => p.id!).toList();
-                      return Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: InkWell(
-                              onTap: isLoading
-                                  ? null
-                                  : () {
-                                      final editingOffer = widget.params?.offer;
-                                      context.read<ProfileBloc>().add(
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
+              child: BlocBuilder<ProfileBloc, ProfileState>(
+                builder: (context, state) {
+                  final isLoading = state.createOfferStatus == BlocStatus.loading;
+                  final productIds = state.selectedProducts.where((p) => p.id != null).map((p) => p.id!).toList();
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: InkWell(
+                          onTap: isLoading
+                              ? null
+                              : () {
+                                  if (!_validate(context)) return;
+                                  final editingOffer = widget.params?.offer;
+                                  final startDate = isImmediate
+                                      ? (startsAtController.text.trim().isEmpty ? DateFormat('yyyy-MM-dd').format(DateTime.now()) : startsAtController.text.trim())
+                                      : startsAtController.text.trim();
+                                  context.read<ProfileBloc>().add(
                                         CreateOfferSubmitEvent(
                                           context: context,
                                           params: CreateOfferParams(
-                                            name: nameController.text,
+                                            name: nameController.text.trim(),
                                             discountType: offerType,
-                                            discountValue: double.parse(offerValueController.text),
-                                            startsAt: isImmediate ? DateFormat('yyyy-MM-dd').format(DateTime.now()) : startsAtController.text,
-                                            endsAt: endsAtController.text,
+                                            discountValue: double.parse(offerValueController.text.trim()),
+                                            startsAt: startDate,
+                                            endsAt: endsAtController.text.trim(),
                                             isActive: isImmediate,
                                             productIds: productIds,
                                             isAddNew: editingOffer == null,
@@ -147,45 +162,40 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                                           ),
                                         ),
                                       );
-                                    },
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
-                                padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
-                                child: AppText.labelLarge('حفظ وتفعيل', color: context.onPrimary, fontWeight: FontWeight.w500),
-                              ),
-                            ),
+                                },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
+                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
+                            child: AppText.labelLarge('حفظ وتفعيل', color: context.onPrimary, fontWeight: FontWeight.w500),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: InkWell(
-                              onTap: isLoading
-                                  ? null
-                                  : () {
-                                      context.pop();
-                                    },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: isLoading ? null : () => context.pop(),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: context.error.withAlpha(20),
-                                  border: Border.all(color: context.error),
-                                ),
-                                padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
-                                child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
-                              ),
+                              color: context.error.withAlpha(20),
+                              border: Border.all(color: context.error),
                             ),
+                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
+                            child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-              const SizedBox(height: 10),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+          ],
         ),
+      ),
     );
   }
 }
