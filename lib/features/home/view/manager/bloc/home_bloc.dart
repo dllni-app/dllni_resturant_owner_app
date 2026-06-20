@@ -11,7 +11,6 @@ import '../../../domain/usecases/home_overview_performance_use_case.dart';
 import '../../../data/models/home_overview_performance_model.dart';
 
 part 'home_event.dart';
-
 part 'home_state.dart';
 
 @injectable
@@ -25,7 +24,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       : super(HomeState()) {
     on<FetchNotificationsEvent>(_fetchNotifications);
     on<HomeOverviewEvent>(_homeOverview);
-
     on<HomeOverviewPerformanceEvent>(_homeOverviewPerformance);
   }
 
@@ -39,7 +37,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (r) async {
         emit(state.copyWith(notificationsStatus: BlocStatus.success, notifications: r));
         final readRes = await readAllNotificationsUseCase(ReadAllNotificationsParams(tab: event.params.status));
-        readRes.fold((_) {}, (_) {});
+        readRes.fold((_) {}, (_) {
+          for (final item in r.data ?? <FetchNotificationsModelDataItem>[]) {
+            item.isRead = true;
+          }
+          r.meta?.unreadTotal = 0;
+          emit(state.copyWith(notificationsStatus: BlocStatus.success, notifications: r));
+        });
       },
     );
   }

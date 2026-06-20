@@ -52,40 +52,65 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
   final TextEditingController _searchController = TextEditingController();
 
   final Set<int> _selectedProductIds = {};
+  final Map<int, FetchProductsModelDataItem> _initialLinkedProducts = {};
   String _selectedUnit = 'كغ';
 
   FetchInventoryItemsModelDataItem? get _editingItem => widget.params?.item;
 
+  String _formatNumber(num? value) {
+    final number = value ?? 0;
+    if (number % 1 == 0) return number.toInt().toString();
+    return number.toString();
+  }
+
+  int _parseWholeNumber(String value) {
+    return (double.tryParse(value.trim()) ?? 0).toInt();
+  }
+
   List<FetchProductsModelDataItem> _getSelectedProducts(List<FetchProductsModelDataItem> allProducts) {
-    return allProducts.where((p) => _selectedProductIds.contains(p.id)).toList();
+    final map = <int, FetchProductsModelDataItem>{..._initialLinkedProducts};
+    for (final product in allProducts) {
+      final id = product.id;
+      if (id != null) map[id] = product;
+    }
+    return _selectedProductIds.map((id) => map[id]).whereType<FetchProductsModelDataItem>().toList();
   }
 
   @override
   void initState() {
     super.initState();
     final item = _editingItem;
-    if (item == null) {
-      return;
-    }
+    if (item == null) return;
+
     _nameController.text = item.name ?? '';
-    _initialQuantityController.text = '${item.quantity ?? 0}';
-    _minimumQuantityController.text = '${item.minimumLimit ?? 0}';
-    _unitCostController.text = '${item.unitCost ?? 0}';
+    _initialQuantityController.text = _formatNumber(item.quantity);
+    _minimumQuantityController.text = _formatNumber(item.minimumLimit);
+    _unitCostController.text = _formatNumber(item.unitCost);
     if (_defaultUnits.contains(item.unit)) {
       _selectedUnit = item.unit!;
     } else if ((item.unit ?? '').isNotEmpty) {
       _customUnitController.text = item.unit!;
     }
+
+    for (final linkedProduct in item.products ?? <InventoryLinkedProduct>[]) {
+      final id = linkedProduct.id;
+      if (id == null) continue;
+      _selectedProductIds.add(id);
+      _initialLinkedProducts[id] = FetchProductsModelDataItem(id: id, name: linkedProduct.name);
+    }
   }
 
   void _onSave(InventoryBloc bloc) {
     final name = _nameController.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل اسم المادة', type: ToastificationType.error);
+      return;
+    }
 
     final customUnit = _customUnitController.text.trim();
     final unit = customUnit.isNotEmpty ? customUnit : _selectedUnit;
-    final quantity = int.tryParse(_initialQuantityController.text.trim()) ?? 0;
-    final minimumLimit = int.tryParse(_minimumQuantityController.text.trim()) ?? 0;
+    final quantity = _parseWholeNumber(_initialQuantityController.text);
+    final minimumLimit = _parseWholeNumber(_minimumQuantityController.text);
     final unitCost = double.tryParse(_unitCostController.text.trim()) ?? 0.0;
     final item = _editingItem;
     if (item != null) {
@@ -151,30 +176,18 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                           const SizedBox(height: 14),
                           InventoryUnitSelector(
                             selectedUnit: _selectedUnit,
-                            onUnitChanged: (value) => setState(() {
-                              _selectedUnit = value;
-                            }),
+                            onUnitChanged: (value) => setState(() => _selectedUnit = value),
                             customUnitController: _customUnitController,
                           ),
                           const SizedBox(height: 14),
                           Row(
                             children: [
                               Expanded(
-                                child: InventoryTextField(
-                                  title: 'الكمية الأولية',
-                                  hintText: '0',
-                                  controller: _initialQuantityController,
-                                  keyboardType: TextInputType.number,
-                                ),
+                                child: InventoryTextField(title: 'الكمية الأولية', hintText: '0', controller: _initialQuantityController, keyboardType: TextInputType.number),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: InventoryTextField(
-                                  title: 'الحد الأدنى',
-                                  hintText: '0',
-                                  controller: _minimumQuantityController,
-                                  keyboardType: TextInputType.number,
-                                ),
+                                child: InventoryTextField(title: 'الحد الأدنى', hintText: '0', controller: _minimumQuantityController, keyboardType: TextInputType.number),
                               ),
                             ],
                           ),
@@ -184,10 +197,7 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                             hintText: '0',
                             controller: _unitCostController,
                             keyboardType: TextInputType.number,
-                            suffix: const Text(
-                              'ل.س',
-                              style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14, fontWeight: FontWeight.w600),
-                            ),
+                            suffix: const Text('ل.س', style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14, fontWeight: FontWeight.w600)),
                           ),
                         ],
                       ),
@@ -203,9 +213,7 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                             selectedProductIds: _selectedProductIds,
                             searchController: _searchController,
                             onSearchChanged: (value) {
-                              context.read<ProductsBloc>().add(
-                                FetchProductsEvent(params: FetchProductsParams(search: value, page: 1), isReload: true),
-                              );
+                              context.read<ProductsBloc>().add(FetchProductsEvent(params: FetchProductsParams(search: value, page: 1), isReload: true));
                             },
                             onProductToggle: (productId) => setState(() {
                               if (_selectedProductIds.contains(productId)) {
@@ -214,9 +222,10 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                                 _selectedProductIds.add(productId);
                               }
                             }),
-                            onShowAll: () => setState(() {
-                              _searchController.clear();
-                            }),
+                            onShowAll: () {
+                              setState(() => _searchController.clear());
+                              context.read<ProductsBloc>().add(FetchProductsEvent(params: FetchProductsParams(page: 1), isReload: true));
+                            },
                           );
                         },
                       ),
@@ -250,60 +259,37 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                     AppToast.showToast(context: context, message: state.errorMessage ?? 'خطا في حفظ المادة', type: ToastificationType.error);
                     return;
                   }
-                  if (state.updateInventoryItemStatus == BlocStatus.success) {
+                  if (state.updateInventoryItemStatus == BlocStatus.success || state.createInventoryItemStatus == BlocStatus.success) {
                     Loading.close();
                     context.pop();
                     return;
                   }
-                  if (state.createInventoryItemStatus == BlocStatus.success) {
-                    Loading.close();
-                  }
                 },
-                buildWhen: (prev, curr) =>
-                    curr.createInventoryItemStatus != prev.createInventoryItemStatus ||
-                    curr.updateInventoryItemStatus != prev.updateInventoryItemStatus,
+                buildWhen: (prev, curr) => curr.createInventoryItemStatus != prev.createInventoryItemStatus || curr.updateInventoryItemStatus != prev.updateInventoryItemStatus,
                 builder: (context, invState) {
-                  final isLoading =
-                      invState.createInventoryItemStatus == BlocStatus.loading || invState.updateInventoryItemStatus == BlocStatus.loading;
+                  final isLoading = invState.createInventoryItemStatus == BlocStatus.loading || invState.updateInventoryItemStatus == BlocStatus.loading;
                   final isEditMode = _editingItem != null;
                   return Row(
                     children: [
                       Expanded(
                         flex: 5,
                         child: InkWell(
-                          onTap: isLoading
-                              ? null
-                              : () {
-                                  _onSave(widget.params!.bloc);
-                                },
+                          onTap: isLoading ? null : () => _onSave(widget.params!.bloc),
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
                             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
                             padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
-                            child: AppText.labelLarge(
-                              isEditMode ? 'حفظ التعديلات' : 'حفظ المادة',
-                              color: context.onPrimary,
-                              fontWeight: FontWeight.w500,
-                              textAlign: TextAlign.center,
-                            ),
+                            child: AppText.labelLarge(isEditMode ? 'حفظ التعديلات' : 'حفظ المادة', color: context.onPrimary, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
                           ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: InkWell(
-                          onTap: isLoading
-                              ? null
-                              : () {
-                                  context.pop();
-                                },
+                          onTap: isLoading ? null : () => context.pop(),
                           borderRadius: BorderRadius.circular(8),
                           child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: context.error.withAlpha(20),
-                              border: Border.all(color: context.error),
-                            ),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.error.withAlpha(20), border: Border.all(color: context.error)),
                             padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
                             child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
                           ),
@@ -324,7 +310,6 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
 
 class CreateInventoryItemScreenParams {
   final FetchInventoryItemsModelDataItem? item;
-
   final InventoryBloc bloc;
 
   CreateInventoryItemScreenParams({this.item, required this.bloc});

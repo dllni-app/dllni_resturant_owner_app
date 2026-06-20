@@ -25,49 +25,16 @@ double? _asDouble(dynamic value) {
   return null;
 }
 
-num? _asNum(dynamic value) {
-  if (value == null) return null;
-  if (value is num) return value;
-  if (value is String) return num.tryParse(value);
-  return null;
-}
-
 bool? _asBool(dynamic value) {
   if (value == null) return null;
   if (value is bool) return value;
-  if (value is num) {
-    if (value == 1) return true;
-    if (value == 0) return false;
-  }
+  if (value is num) return value == 1 ? true : value == 0 ? false : null;
   if (value is String) {
     final normalized = value.trim().toLowerCase();
     if (normalized == 'true' || normalized == '1') return true;
     if (normalized == 'false' || normalized == '0') return false;
   }
   return null;
-}
-
-List<dynamic>? _asDynamicList(dynamic value) {
-  if (value is! List) return null;
-  return value.map(_asDynamic).toList();
-}
-
-dynamic _asDynamic(dynamic value) {
-  if (value == null) return null;
-  if (value is List) {
-    return value.map(_asDynamic).toList();
-  }
-  if (value is Map) {
-    final map = <String, dynamic>{};
-    value.forEach((key, nestedValue) {
-      map['$key'] = _asDynamic(nestedValue);
-    });
-    return map;
-  }
-  if (value is String || value is num || value is bool) {
-    return value;
-  }
-  return value.toString();
 }
 
 FetchCouponsModel fetchCouponsModelFromJson(str) => FetchCouponsModel.fromJson(str);
@@ -86,10 +53,8 @@ class FetchCouponsModel {
 
   factory FetchCouponsModel.fromJson(Map<String, dynamic> json) {
     return FetchCouponsModel(
-      data: json['data'] is List
-          ? (json['data'] as List).map((item) => FetchCouponsModelDataItem.fromJson(Map<String, dynamic>.from(item))).toList()
-          : null,
-      meta: json['meta'] != null ? FetchCouponsMeta.fromJson(Map<String, dynamic>.from(json['meta'])) : null,
+      data: json['data'] is List ? (json['data'] as List).whereType<Map>().map((item) => FetchCouponsModelDataItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
+      meta: json['meta'] is Map ? FetchCouponsMeta.fromJson(Map<String, dynamic>.from(json['meta'] as Map)) : null,
     );
   }
 
@@ -101,8 +66,8 @@ class FetchCouponsModelDataItem {
   int? restaurantId;
   String? code;
   String? discountType;
-  int? discountValue;
-  int? minOrderAmount;
+  double? discountValue;
+  double? minOrderAmount;
   int? usageLimit;
   int? usageCount;
   String? startsAt;
@@ -131,50 +96,53 @@ class FetchCouponsModelDataItem {
 
   factory FetchCouponsModelDataItem.fromJson(Map<String, dynamic> json) {
     return FetchCouponsModelDataItem(
-      id: json['id'] as int?,
-      restaurantId: json['restaurantId'] as int?,
-      code: json['code'] as String?,
-      discountType: json['discountType'] as String?,
-      discountValue: json['discountValue'] as int?,
-      minOrderAmount: json['minOrderAmount'] as int?,
-      usageLimit: json['usageLimit'] as int?,
-      usageCount: json['usageCount'] as int?,
-      startsAt: json['startsAt'] as String?,
-      endsAt: json['endsAt'] as String?,
-      isActive: json['isActive'] as bool?,
-      performance: json['performance'] != null ? Performance.fromJson(Map<String, dynamic>.from(json['performance'])) : null,
-      createdAt: json['createdAt'] as String?,
-      updatedAt: json['updatedAt'] as String?,
+      id: _asInt(json['id']),
+      restaurantId: _asInt(json['restaurantId']),
+      code: _asString(json['code']),
+      discountType: _asString(json['discountType']),
+      discountValue: _asDouble(json['discountValue']),
+      minOrderAmount: _asDouble(json['minOrderAmount']),
+      usageLimit: _asInt(json['usageLimit']),
+      usageCount: _asInt(json['usageCount']),
+      startsAt: _asString(json['startsAt']),
+      endsAt: _asString(json['endsAt']),
+      isActive: _asBool(json['isActive']),
+      performance: json['performance'] is Map ? Performance.fromJson(Map<String, dynamic>.from(json['performance'] as Map)) : null,
+      createdAt: _asString(json['createdAt']),
+      updatedAt: _asString(json['updatedAt']),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'restaurantId': restaurantId,
-    'code': code,
-    'discountType': discountType,
-    'discountValue': discountValue,
-    'minOrderAmount': minOrderAmount,
-    'usageLimit': usageLimit,
-    'usageCount': usageCount,
-    'startsAt': startsAt,
-    'endsAt': endsAt,
-    'isActive': isActive,
-    'performance': performance?.toJson(),
-    'createdAt': createdAt,
-    'updatedAt': updatedAt,
-  };
+        'id': id,
+        'restaurantId': restaurantId,
+        'code': code,
+        'discountType': discountType,
+        'discountValue': discountValue,
+        'minOrderAmount': minOrderAmount,
+        'usageLimit': usageLimit,
+        'usageCount': usageCount,
+        'startsAt': startsAt,
+        'endsAt': endsAt,
+        'isActive': isActive,
+        'performance': performance?.toJson(),
+        'createdAt': createdAt,
+        'updatedAt': updatedAt,
+      };
 }
 
 class Performance {
   int? ordersCount;
-  int? totalSavings;
-  int? revenueImpact;
+  double? totalSavings;
+  double? revenueImpact;
 
   Performance({this.ordersCount, this.totalSavings, this.revenueImpact});
 
-  factory Performance.fromJson(Map<String, dynamic> json) =>
-      Performance(ordersCount: json['ordersCount'] as int?, totalSavings: json['totalSavings'] as int?, revenueImpact: json['revenueImpact'] as int?);
+  factory Performance.fromJson(Map<String, dynamic> json) => Performance(
+        ordersCount: _asInt(json['ordersCount']),
+        totalSavings: _asDouble(json['totalSavings']),
+        revenueImpact: _asDouble(json['revenueImpact']),
+      );
 
   Map<String, dynamic> toJson() => {'ordersCount': ordersCount, 'totalSavings': totalSavings, 'revenueImpact': revenueImpact};
 }
@@ -188,11 +156,11 @@ class FetchCouponsMeta {
   FetchCouponsMeta({this.currentPage, this.lastPage, this.perPage, this.total});
 
   factory FetchCouponsMeta.fromJson(Map<String, dynamic> json) => FetchCouponsMeta(
-    currentPage: json['currentPage'] as int?,
-    lastPage: json['lastPage'] as int?,
-    perPage: json['perPage'] as int?,
-    total: json['total'] as int?,
-  );
+        currentPage: _asInt(json['currentPage']),
+        lastPage: _asInt(json['lastPage']),
+        perPage: _asInt(json['perPage']),
+        total: _asInt(json['total']),
+      );
 
   Map<String, dynamic> toJson() => {'currentPage': currentPage, 'lastPage': lastPage, 'perPage': perPage, 'total': total};
 }

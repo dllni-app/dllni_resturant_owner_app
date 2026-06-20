@@ -5,6 +5,7 @@ import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/features/products/view/widgets/app_buttons.dart';
 import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/add_employee_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/fetch_employees_permissions_use_case.dart';
+import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/fetch_employees_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/widgets/add_employee_account_status_card.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/widgets/add_employee_app_bar.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/widgets/add_employee_basic_info_card.dart';
@@ -39,11 +40,12 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.params.employee != null) {
-      _nameController.text = widget.params.employee!.user!.name!;
-      _phoneController.text = widget.params.employee!.user!.phone!;
-      _isAccountEnabled = widget.params.employee!.isActive ?? false;
-      _selectedPermissions.addAll(widget.params.employee!.permissionIds!.map((e) => e));
+    final employee = widget.params.employee;
+    if (employee != null) {
+      _nameController.text = employee.user?.name ?? '';
+      _phoneController.text = employee.user?.phone ?? '';
+      _isAccountEnabled = employee.isActive ?? false;
+      _selectedPermissions.addAll((employee.permissionIds ?? []).map((e) => int.tryParse('$e')).whereType<int>());
     }
     getIt<ProfileBloc>().add(FetchEmployeesPermissionsEvent(params: FetchEmployeesPermissionsParams()));
   }
@@ -52,143 +54,145 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  bool _validate(BuildContext context) {
+    if (_nameController.text.trim().isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل اسم الموظف', type: ToastificationType.error);
+      return false;
+    }
+    if (_phoneController.text.trim().isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل رقم الموظف', type: ToastificationType.error);
+      return false;
+    }
+    if (widget.params.employee == null && _passwordController.text.trim().isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل كلمة مرور الموظف', type: ToastificationType.error);
+      return false;
+    }
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Column(
-            children: [
-              AddEmployeeAppBar(),
-              const SizedBox(height: 16),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      CreateOfferStepCard(
-                        number: 1,
-                        title: 'البيانات الأساسية',
-                        trailing: _squareIcon(const Color(0x1A065F46), Icons.person, const Color(0xFF065F46)),
-                        child: AddEmployeeBasicInfoCard(
-                          nameController: _nameController,
-                          phoneController: _phoneController,
-                          pickedImagePath: _pickedImagePath,
-                          passwordController: _passwordController,
-                          onPickImageTap: (image) {
-                            _pickedImagePath = image;
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 2,
-                        title: 'تحديد صلاحيات الموظف',
-                        trailing: _squareIcon(const Color(0x1AF59E0B), Icons.shield_outlined, const Color(0xFFD97706)),
-                        child: AddEmployeePermissionsCard(
-                          selectedPermissionIds: _selectedPermissions,
-                          onPermissionToggle: (id, isSelected) {
-                            setState(() {
-                              if (isSelected) {
-                                _selectedPermissions.add(id);
-                              } else {
-                                _selectedPermissions.remove(id);
-                              }
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 3,
-                        title: 'حالة الحساب',
-                        trailing: _squareIcon(const Color(0x1A10B981), Icons.toggle_on, const Color(0xFF10B981)),
-                        child: AddEmployeeAccountStatusCard(
-                          isEnabled: _isAccountEnabled,
-                          onToggle: (value) {
-                            setState(() {
-                              _isAccountEnabled = value;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-                child: Row(
+        child: Column(
+          children: [
+            const AddEmployeeAppBar(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: BlocConsumer<ProfileBloc, ProfileState>(
-                        listener: (context, state) {
-                          switch (state.addEmployeeStatus) {
-                            case null:
-                              Loading.close();
-                              break;
-                            case BlocStatus.failed:
-                              Loading.close();
-                              AppToast.showToast(
-                                context: context,
-                                message: state.errorMessage ?? 'خطا في حفظ الموظف',
-                                type: ToastificationType.error,
-                              );
-                              break;
-                            case BlocStatus.success:
-                              Loading.close();
-                              context.pushRouteAndRemoveUntil('/main', arguments: 4);
-                              break;
-                            case BlocStatus.loading:
-                              Loading.show(context);
-                              break;
-                            case BlocStatus.init:
-                              Loading.close();
-                              break;
-                          }
-                        },
-                        builder: (context, state) {
-                          return AppButton(
-                            title: 'حفظ وتفعيل',
-                            onTap: () {
-                              context.read<ProfileBloc>().add(
-                                AddEmployeeEvent(
-                                  context: context,
-                                  params: AddEmployeeParams(
-                                    name: _nameController.text,
-                                    phone: _phoneController.text,
-                                    image: _pickedImagePath!,
-                                    permissions: _selectedPermissions.toList(),
-                                    password: _passwordController.text,
-                                    isActive: _isAccountEnabled,
-                                    isAddNew: widget.params.employee == null,
-                                    id: widget.params.employee?.id,
-                                  ),
-                                ),
-                              );
-                            },
-                          );
+                    CreateOfferStepCard(
+                      number: 1,
+                      title: 'البيانات الأساسية',
+                      trailing: _squareIcon(const Color(0x1A065F46), Icons.person, const Color(0xFF065F46)),
+                      child: AddEmployeeBasicInfoCard(
+                        nameController: _nameController,
+                        phoneController: _phoneController,
+                        pickedImagePath: _pickedImagePath,
+                        passwordController: _passwordController,
+                        onPickImageTap: (image) => setState(() => _pickedImagePath = image),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 2,
+                      title: 'تحديد صلاحيات الموظف',
+                      trailing: _squareIcon(const Color(0x1AF59E0B), Icons.shield_outlined, const Color(0xFFD97706)),
+                      child: AddEmployeePermissionsCard(
+                        selectedPermissionIds: _selectedPermissions,
+                        onPermissionToggle: (id, isSelected) {
+                          setState(() {
+                            if (isSelected) {
+                              _selectedPermissions.add(id);
+                            } else {
+                              _selectedPermissions.remove(id);
+                            }
+                          });
                         },
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    AppOutlinedButton(
-                      title: 'إلغاء',
-                      color: const Color(0xFFFF4C51),
-                      onTap: () {
-                        context.pop();
-                      },
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 3,
+                      title: 'حالة الحساب',
+                      trailing: _squareIcon(const Color(0x1A10B981), Icons.toggle_on, const Color(0xFF10B981)),
+                      child: AddEmployeeAccountStatusCard(isEnabled: _isAccountEnabled, onToggle: (value) => setState(() => _isAccountEnabled = value)),
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: BlocConsumer<ProfileBloc, ProfileState>(
+                      listener: (context, state) {
+                        switch (state.addEmployeeStatus) {
+                          case BlocStatus.failed:
+                            Loading.close();
+                            AppToast.showToast(context: context, message: state.errorMessage ?? 'خطأ في حفظ الموظف', type: ToastificationType.error);
+                            break;
+                          case BlocStatus.success:
+                            Loading.close();
+                            context.read<ProfileBloc>().add(FetchEmployeesEvent(params: FetchEmployeesParams()));
+                            context.pop();
+                            break;
+                          case BlocStatus.loading:
+                            Loading.show(context);
+                            break;
+                          case BlocStatus.init:
+                          case null:
+                            Loading.close();
+                            break;
+                        }
+                      },
+                      builder: (context, state) {
+                        final isLoading = state.addEmployeeStatus == BlocStatus.loading;
+                        return AppButton(
+                          title: 'حفظ وتفعيل',
+                          onTap: isLoading
+                              ? null
+                              : () {
+                                  if (!_validate(context)) return;
+                                  final employee = widget.params.employee;
+                                  context.read<ProfileBloc>().add(
+                                        AddEmployeeEvent(
+                                          context: context,
+                                          params: AddEmployeeParams(
+                                            name: _nameController.text.trim(),
+                                            phone: _phoneController.text.trim(),
+                                            image: _pickedImagePath,
+                                            permissions: _selectedPermissions.toList(),
+                                            password: _passwordController.text.trim().isEmpty ? null : _passwordController.text.trim(),
+                                            isActive: _isAccountEnabled,
+                                            isAddNew: employee == null,
+                                            id: employee?.userId ?? employee?.id,
+                                          ),
+                                        ),
+                                      );
+                                },
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  AppOutlinedButton(title: 'إلغاء', color: const Color(0xFFFF4C51), onTap: () => context.pop()),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
         ),
+      ),
     );
   }
 

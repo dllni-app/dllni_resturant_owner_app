@@ -4,6 +4,7 @@ import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/creat
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:toastification/toastification.dart';
 
 import '../manager/bloc/profile_bloc.dart';
 import '../widgets/create_coupon_app_bar.dart';
@@ -31,12 +32,12 @@ class CreateCouponScreen extends StatefulWidget {
 }
 
 class _CreateCouponScreenState extends State<CreateCouponScreen> {
-  TextEditingController codeController = TextEditingController();
-  TextEditingController couponValueController = TextEditingController();
-  TextEditingController minAmountController = TextEditingController();
-  TextEditingController maxUseController = TextEditingController();
-  TextEditingController startsAtController = TextEditingController();
-  TextEditingController endsAtController = TextEditingController();
+  final TextEditingController codeController = TextEditingController();
+  final TextEditingController couponValueController = TextEditingController();
+  final TextEditingController minAmountController = TextEditingController();
+  final TextEditingController maxUseController = TextEditingController();
+  final TextEditingController startsAtController = TextEditingController();
+  final TextEditingController endsAtController = TextEditingController();
 
   String couponType = 'fixed_amount';
 
@@ -56,140 +57,148 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
   }
 
   @override
+  void dispose() {
+    codeController.dispose();
+    couponValueController.dispose();
+    minAmountController.dispose();
+    maxUseController.dispose();
+    startsAtController.dispose();
+    endsAtController.dispose();
+    super.dispose();
+  }
+
+  bool _validate(BuildContext context) {
+    final code = codeController.text.trim();
+    final value = double.tryParse(couponValueController.text.trim());
+    final maxUseText = maxUseController.text.trim();
+
+    if (code.isEmpty) {
+      AppToast.showToast(context: context, message: 'أدخل كود الكوبون', type: ToastificationType.error);
+      return false;
+    }
+    if (value == null || value <= 0) {
+      AppToast.showToast(context: context, message: 'أدخل قيمة خصم صحيحة', type: ToastificationType.error);
+      return false;
+    }
+    if (couponType == 'percentage' && value >= 100) {
+      AppToast.showToast(context: context, message: 'نسبة الخصم يجب أن تكون أقل من 100%', type: ToastificationType.error);
+      return false;
+    }
+    if (maxUseText.isNotEmpty && int.tryParse(maxUseText) == null) {
+      AppToast.showToast(context: context, message: 'أدخل حد استخدام صحيح', type: ToastificationType.error);
+      return false;
+    }
+    return true;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Column(
-            children: [
-              const CreateCouponAppBar(),
-              const SizedBox(height: 16),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      CreateOfferStepCard(
-                        number: 1,
-                        title: 'كود الكوبون',
-                        child: CreateCouponCodeCard(codeController: codeController),
+        child: Column(
+          children: [
+            const CreateCouponAppBar(),
+            const SizedBox(height: 16),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    CreateOfferStepCard(number: 1, title: 'كود الكوبون', child: CreateCouponCodeCard(codeController: codeController)),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 2,
+                      title: 'نوع الخصم',
+                      child: CreateCouponDiscountCard(
+                        couponType: couponType,
+                        couponTypeChanges: (value) => setState(() => couponType = value),
+                        couponValueController: couponValueController,
                       ),
-                      const SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 2,
-                        title: 'نوع الخصم',
-                        child: CreateCouponDiscountCard(
-                          couponType: couponType,
-                          couponTypeChanges: (value) => setState(() {
-                            couponType = value;
-                          }),
-                          couponValueController: couponValueController,
-                        ),
+                    ),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(number: 3, title: 'الحد الأدنى لمبلغ الشراء', child: CreateCouponMinAmountCard(minAmountController: minAmountController)),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(number: 4, title: 'الحد الأقصى لعدد الاستخدامات', child: CreateCouponMaxUseCard(maxUseController: maxUseController)),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 5,
+                      title: 'مدة الكوبون',
+                      trailing: Container(
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: const Color(0xFFF3F4F6)),
+                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 4),
+                        child: AppText.labelLarge('اختياري', color: const Color(0xFF6B7280), fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 3,
-                        title: 'الحد الأدنى لمبلغ الشراء',
-                        child: CreateCouponMinAmountCard(minAmountController: minAmountController),
-                      ),
-                      const SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 4,
-                        title: 'الحد الأقصى لعدد الاستخدامات',
-                        child: CreateCouponMaxUseCard(maxUseController: maxUseController),
-                      ),
-                      const SizedBox(height: 16),
-                      CreateOfferStepCard(
-                        number: 5,
-                        title: 'مدة الكوبون',
-                        trailing: Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: const Color(0xFFF3F4F6)),
-                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 4),
-                          child: AppText.labelLarge('اختياري', color: const Color(0xFF6B7280), fontWeight: FontWeight.w700),
-                        ),
-                        child: CreateCouponDurationCard(startsAtController: startsAtController, endsAtController: endsAtController),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                      child: CreateCouponDurationCard(startsAtController: startsAtController, endsAtController: endsAtController),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
-              BlocListener<ProfileBloc, ProfileState>(
-                listener: (context, state) {},
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-                  child: BlocBuilder<ProfileBloc, ProfileState>(
-                    builder: (context, state) {
-                      final isLoading = state.createCouponStatus == BlocStatus.loading;
-                      return Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: InkWell(
-                              onTap: isLoading
-                                  ? null
-                                  : () {
-                                      final editingCoupon = widget.params?.coupon;
-                                      context.read<ProfileBloc>().add(
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
+              child: BlocBuilder<ProfileBloc, ProfileState>(
+                builder: (context, state) {
+                  final isLoading = state.createCouponStatus == BlocStatus.loading;
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: InkWell(
+                          onTap: isLoading
+                              ? null
+                              : () {
+                                  if (!_validate(context)) return;
+                                  final editingCoupon = widget.params?.coupon;
+                                  context.read<ProfileBloc>().add(
                                         CreateCouponSubmitEvent(
                                           context: context,
                                           params: CreateCouponParams(
-                                            code: codeController.text,
+                                            code: codeController.text.trim().toUpperCase(),
                                             discountType: couponType,
-                                            discountValue: double.tryParse(couponValueController.text) ?? 0,
-                                            minOrderAmount: double.tryParse(minAmountController.text) ?? 0,
-                                            usageLimit: int.tryParse(maxUseController.text) ?? 0,
-                                            startsAt: startsAtController.text.isNotEmpty ? startsAtController.text : null,
-                                            endsAt: endsAtController.text.isNotEmpty ? endsAtController.text : null,
+                                            discountValue: double.parse(couponValueController.text.trim()),
+                                            minOrderAmount: double.tryParse(minAmountController.text.trim()),
+                                            usageLimit: int.tryParse(maxUseController.text.trim()),
+                                            startsAt: startsAtController.text.trim().isNotEmpty ? startsAtController.text.trim() : null,
+                                            endsAt: endsAtController.text.trim().isNotEmpty ? endsAtController.text.trim() : null,
                                             isActive: true,
                                             isAddNew: editingCoupon == null,
                                             id: editingCoupon?.id,
                                           ),
                                         ),
                                       );
-                                    },
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: isLoading ? context.primary.withAlpha(153) : context.primary,
-                                ),
-                                padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
-                                child: isLoading
-                                    ? const SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator(strokeWidth: 2)))
-                                    : AppText.labelLarge('حفظ وتفعيل', color: context.onPrimary, fontWeight: FontWeight.w500),
-                              ),
-                            ),
+                                },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: isLoading ? context.primary.withAlpha(153) : context.primary),
+                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
+                            child: isLoading
+                                ? const SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator(strokeWidth: 2)))
+                                : AppText.labelLarge('حفظ وتفعيل', color: context.onPrimary, fontWeight: FontWeight.w500),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: InkWell(
-                              onTap: isLoading
-                                  ? null
-                                  : () {
-                                      context.pop();
-                                    },
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: context.error.withAlpha(20),
-                                  border: Border.all(color: context.error),
-                                ),
-                                padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
-                                child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
-                              ),
-                            ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: isLoading ? null : () => context.pop(),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.error.withAlpha(20), border: Border.all(color: context.error)),
+                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
+                            child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-              const SizedBox(height: 10),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+          ],
         ),
+      ),
     );
   }
 }

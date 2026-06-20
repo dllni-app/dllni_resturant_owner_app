@@ -4,12 +4,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../manager/bloc/products_bloc.dart';
+import '../manager/products_notifier.dart';
 import '../widgets/products_app_bar.dart';
 import '../widgets/products_body.dart';
 import '../widgets/products_style_tokens.dart';
 
-class ProductsScreen extends StatelessWidget {
+class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
+
+  @override
+  State<ProductsScreen> createState() => _ProductsScreenState();
+}
+
+class _ProductsScreenState extends State<ProductsScreen> {
+  final ProductsNotifier productsNotifier = ProductsNotifier();
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +28,8 @@ class ProductsScreen extends StatelessWidget {
         backgroundColor: ProductsStyleTokens.pageBackground,
         body: Column(
           children: [
-            ProductsAppBar(),
-            Expanded(child: ProductsBody()),
+            ProductsAppBar(productsNotifier: productsNotifier),
+            Expanded(child: ProductsBody(productsNotifier: productsNotifier)),
           ],
         ),
       ),

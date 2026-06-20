@@ -11,13 +11,19 @@ class OrderStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final anchor = _parseDate(order.acceptedAt) ?? _parseDate(order.createdAt) ?? DateTime.now();
+    final elapsed = DateTime.now().difference(anchor);
+    final elapsedMinutes = elapsed.inMinutes < 0 ? 0 : elapsed.inMinutes;
+    final estimatedMinutes = order.estimatedPreparationMinutes ?? 0;
+    final pickupTime = _parseDate(order.readyForPickupAt) ?? (estimatedMinutes > 0 ? anchor.add(Duration(minutes: estimatedMinutes)) : null);
+
     return Container(
-      decoration: BoxDecoration(color: Color(0xffFF7A00), borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(color: const Color(0xffFF7A00), borderRadius: BorderRadius.circular(16)),
       child: Stack(
         children: [
           Positioned(top: -75, left: -75, child: CircleAvatar(backgroundColor: context.onPrimary.withAlpha(25), radius: 90)),
           Padding(
-            padding: EdgeInsetsDirectional.symmetric(horizontal: 20, vertical: 20),
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 20, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -27,41 +33,33 @@ class OrderStatusCard extends StatelessWidget {
                       backgroundColor: context.onPrimary.withAlpha(51),
                       child: Icon(Icons.access_time_filled, color: context.onPrimary, size: 20),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AppText.labelMedium('الحالة الحالية', color: context.onPrimary, fontWeight: FontWeight.w500),
-                          SizedBox(height: 8),
-                          AppText.headlineMedium(order.statusLabelAr!, color: context.onPrimary, fontWeight: FontWeight.bold),
+                          const SizedBox(height: 8),
+                          AppText.headlineMedium(order.statusLabelAr ?? order.status ?? '-', color: context.onPrimary, fontWeight: FontWeight.bold),
                         ],
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Container(
                       decoration: BoxDecoration(color: context.onPrimary.withAlpha(51), borderRadius: BorderRadius.circular(99)),
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 6),
-                      child: AppText.labelLarge(
-                        order.acceptedAt == null ? '0' : DateFormat('hh:mm a').format(DateTime.parse(order.acceptedAt!)).toString(),
-                        color: context.onPrimary,
-                      ),
+                      padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 6),
+                      child: AppText.labelLarge(_formatTime(anchor), color: context.onPrimary),
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
-                  spacing: 8,
                   children: [
-                    Expanded(child: _buildStatusInfoBox('منذ', '${DateTime.parse(order.acceptedAt ?? DateTime.now().toString()).difference(DateTime.now()).inMinutes} دقيقة', context)),
-                    Expanded(child: _buildStatusInfoBox('الوقت المتوقع', '199', context)),
-                    Expanded(
-                      child: _buildStatusInfoBox(
-                        'وقت الاستلام',
-                        order.acceptedAt == null ? '0' : DateFormat('hh:mm a').format(DateTime.parse(order.acceptedAt!)).toString(),
-                        context,
-                      ),
-                    ),
+                    Expanded(child: _buildStatusInfoBox('منذ', '$elapsedMinutes دقيقة', context)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildStatusInfoBox('الوقت المتوقع', estimatedMinutes > 0 ? '$estimatedMinutes د' : '-', context)),
+                    const SizedBox(width: 8),
+                    Expanded(child: _buildStatusInfoBox('وقت الاستلام', pickupTime == null ? '-' : _formatTime(pickupTime), context)),
                   ],
                 ),
               ],
@@ -72,16 +70,23 @@ class OrderStatusCard extends StatelessWidget {
     );
   }
 
+  DateTime? _parseDate(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    return DateTime.tryParse(value)?.toLocal();
+  }
+
+  String _formatTime(DateTime value) => DateFormat('hh:mm a', 'en').format(value);
+
   Widget _buildStatusInfoBox(String label, String value, BuildContext context) {
     return Container(
-      padding: EdgeInsetsDirectional.symmetric(vertical: 10),
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 10),
       decoration: BoxDecoration(color: context.onPrimary.withAlpha(51), borderRadius: BorderRadius.circular(8)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AppText.labelMedium(label, color: context.onPrimary, fontWeight: FontWeight.w400),
-          SizedBox(height: 4),
-          AppText.bodyMedium(value, color: context.onPrimary, fontWeight: FontWeight.bold),
+          const SizedBox(height: 4),
+          AppText.bodyMedium(value, color: context.onPrimary, fontWeight: FontWeight.bold, maxLines: 1),
         ],
       ),
     );
