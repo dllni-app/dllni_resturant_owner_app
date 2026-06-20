@@ -34,63 +34,42 @@ class ProfileRemoteDataSource with HandlingApiManager {
 
   Future<FetchOffersModel> fetchOffers(FetchOffersParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/offers',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/offers', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchOffersModelFromJson,
     );
   }
 
   Future<FetchOffersSummaryModel> fetchOffersSummary(FetchOffersSummaryParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/offers/summary',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/offers/summary', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchOffersSummaryModelFromJson,
     );
   }
 
   Future<FetchCouponsModel> fetchCoupons(FetchCouponsParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/coupons',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/coupons', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchCouponsModelFromJson,
     );
   }
 
   Future<FetchCouponsSummaryModel> fetchCouponsSummary(FetchCouponsSummaryParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/coupons/summary',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/coupons/summary', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchCouponsSummaryModelFromJson,
     );
   }
 
   Future<FetchWorkingTimeModel> fetchWorkingTime(FetchWorkingTimeParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/restaurant/operating-hours',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/restaurant/operating-hours', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchWorkingTimeModelFromJson,
     );
   }
 
   Future<FetchWorkingTimeDay> updateWorkingTime(UpdateWorkingTimeParams params) {
     return wrapHandlingApi(
-      tryCall: () =>
-          dioNetwork.putData(endPoint: '/api/v1/restaurant-owner/restaurant/operating-hours', data: params.getBody(), params: params.getParams()),
+      tryCall: () => dioNetwork.putData(endPoint: '/api/v1/restaurant-owner/restaurant/operating-hours', data: params.getBody(), params: params.getParams()),
       jsonConvert: fetchWorkingTimeDayFromJson,
     );
   }
@@ -100,8 +79,8 @@ class ProfileRemoteDataSource with HandlingApiManager {
       tryCall: () => params.isDelete
           ? dioNetwork.deleteData(endPoint: '/api/v1/restaurant-owner/offers/${params.id}', data: params.getBody(), params: params.getParams())
           : params.isAddNew
-          ? dioNetwork.postData(endPoint: '/api/v1/restaurant-owner/offers', data: params.getBody(), params: params.getParams())
-          : dioNetwork.putData(endPoint: '/api/v1/restaurant-owner/offers/${params.id}', data: params.getBody(), params: params.getParams()),
+              ? dioNetwork.postData(endPoint: '/api/v1/restaurant-owner/offers', data: params.getBody(), params: params.getParams())
+              : dioNetwork.putData(endPoint: '/api/v1/restaurant-owner/offers/${params.id}', data: params.getBody(), params: params.getParams()),
       jsonConvert: createOfferModelFromJson,
     );
   }
@@ -111,30 +90,22 @@ class ProfileRemoteDataSource with HandlingApiManager {
       tryCall: () => params.isDelete
           ? dioNetwork.deleteData(endPoint: '/api/v1/restaurant-owner/promo-codes/${params.id}', data: params.getBody(), params: params.getParams())
           : params.isAddNew
-          ? dioNetwork.postData(endPoint: '/api/v1/restaurant-owner/promo-codes', data: params.getBody(), params: params.getParams())
-          : dioNetwork.putData(endPoint: '/api/v1/restaurant-owner/promo-codes/${params.id}', data: params.getBody(), params: params.getParams()),
+              ? dioNetwork.postData(endPoint: '/api/v1/restaurant-owner/promo-codes', data: params.getBody(), params: params.getParams())
+              : dioNetwork.putData(endPoint: '/api/v1/restaurant-owner/promo-codes/${params.id}', data: params.getBody(), params: params.getParams()),
       jsonConvert: createCouponModelFromJson,
     );
   }
 
   Future<FetchEmployeesModel> fetchEmployees(FetchEmployeesParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/employees',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/employees', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchEmployeesModelFromJson,
     );
   }
 
   Future<FetchEmployeesPermissionsModel> fetchEmployeesPermissions(FetchEmployeesPermissionsParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/permissions',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/permissions', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchEmployeesPermissionsModelFromJson,
     );
   }
@@ -144,19 +115,15 @@ class ProfileRemoteDataSource with HandlingApiManager {
       tryCall: () => params.isDelete
           ? dioNetwork.deleteData(endPoint: '/api/v1/restaurant-owner/employees/${params.id}', data: params.getBody(), params: params.getParams())
           : params.isAddNew
-          ? dioNetwork.postData(endPoint: '/api/v1/restaurant-owner/employees', data: params.getBody(), params: params.getParams())
-          : dioNetwork.putData(endPoint: '/api/v1/restaurant-owner/employees/${params.id}', data: params.getBody(), params: params.getParams()),
+              ? dioNetwork.postData(endPoint: '/api/v1/restaurant-owner/employees', data: params.getBody(), params: params.getParams())
+              : dioNetwork.patchData(endPoint: '/api/v1/restaurant-owner/employees/${params.id}', data: params.getBody(), params: params.getParams()),
       jsonConvert: addEmployeeModelFromJson,
     );
   }
 
   Future<FetchResturantDataModel> fetchResturantData(FetchResturantDataParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(
-        endPoint: '/api/v1/restaurant-owner/restaurant',
-        params: params.getParams(),
-        data: params.getBody().isEmpty ? null : params.getBody(),
-      ),
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/restaurant', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchResturantDataModelFromJson,
     );
   }
