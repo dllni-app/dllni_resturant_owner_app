@@ -9,7 +9,6 @@ class CreateOfferDurationCard extends StatefulWidget {
 
   final TextEditingController startsAtController;
   final TextEditingController endsAtController;
-
   final bool isImmediate;
   final Function(bool val) changeIsImmediate;
 
@@ -18,6 +17,13 @@ class CreateOfferDurationCard extends StatefulWidget {
 }
 
 class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
+  Future<void> _pickDate(TextEditingController controller) async {
+    final value = await AppPickers.showAppDatePicker(context: context);
+    if (value.trim().isEmpty) return;
+    controller.text = value;
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -34,11 +40,15 @@ class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
               const Icon(Icons.bolt, color: Color(0xFF065F46), size: 18),
               const SizedBox(width: 6),
               AppText.bodyMedium('تفعيل فوري', fontWeight: FontWeight.w700, color: const Color(0xFF065F46)),
-              Spacer(),
+              const Spacer(),
               AppSwitch(
                 value: widget.isImmediate,
                 onChanged: (value) {
                   widget.changeIsImmediate(value);
+                  if (value && widget.startsAtController.text.trim().isEmpty) {
+                    widget.startsAtController.text = DateTime.now().toIso8601String().split('T').first;
+                  }
+                  setState(() {});
                 },
                 inactiveColor: const Color(0xFFD1D5DB),
               ),
@@ -49,21 +59,15 @@ class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
         _buildDateField(
           title: 'تاريخ البداية',
           controller: widget.startsAtController,
-          isEnabled: !widget.isImmediate,
-          onTap: () async {
-            widget.startsAtController.text = await AppPickers.showAppDatePicker(context: context);
-            setState(() {});
-          },
+          isEnabled: true,
+          onTap: () => _pickDate(widget.startsAtController),
         ),
         const SizedBox(height: 16),
         _buildDateField(
           title: 'تاريخ النهاية',
           controller: widget.endsAtController,
           isEnabled: true,
-          onTap: () async {
-            widget.endsAtController.text = await AppPickers.showAppDatePicker(context: context);
-            setState(() {});
-          },
+          onTap: () => _pickDate(widget.endsAtController),
         ),
       ],
     );
@@ -88,22 +92,10 @@ class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
             fillColor: Color(0xFFF9FAFB),
             hintText: 'yyyy / mm / dd',
             hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFE5E7EB)),
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFE5E7EB)),
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFE5E7EB)),
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFE5E7EB)),
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-            ),
+            border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
           ),
         ),
       ],
