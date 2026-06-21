@@ -1,10 +1,10 @@
-import 'package:clipboard/clipboard.dart';
 import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/create_coupon_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/manager/bloc/profile_bloc.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/screens/create_coupon_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
 
@@ -45,7 +45,7 @@ class CouponCard extends StatelessWidget {
                         SizedBox(width: 8),
                         InkWell(
                           onTap: () async {
-                            await FlutterClipboard.copy(coupon.code!);
+                            await Clipboard.setData(ClipboardData(text: coupon.code!));
                             if (context.mounted) {
                               AppToast.showToast(context: context, message: 'تم نسخ اسم الكوبون', type: ToastificationType.info);
                             }

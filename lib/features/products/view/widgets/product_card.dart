@@ -90,7 +90,7 @@ class _ProductCardState extends State<ProductCard> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                        const AppText(
+                         AppText(
                           'ل.س',
                           textAlign: TextAlign.start,
                           style: TextStyle(
