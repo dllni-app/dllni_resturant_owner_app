@@ -44,17 +44,30 @@ class CreateCouponParams with Params {
     this.id,
   });
 
+  String _formatDate(DateTime value) {
+    final year = value.year.toString().padLeft(4, '0');
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '$year-$month-$day';
+  }
+
   @override
-  BodyMap getBody() => {
-    'code': code,
-    'discountType': discountType,
-    'discountValue': discountValue,
-    'minOrderAmount': minOrderAmount,
-    'usageLimit': usageLimit,
-    'isActive': isActive,
-    'startsAt': startsAt,
-    'endsAt': endsAt,
-  }..removeWhere((key, val) => val == null);
+  BodyMap getBody() {
+    final now = DateTime.now();
+    final normalizedStartsAt = startsAt?.trim().isNotEmpty == true ? startsAt!.trim() : _formatDate(now);
+    final normalizedEndsAt = endsAt?.trim().isNotEmpty == true ? endsAt!.trim() : _formatDate(now.add(const Duration(days: 365)));
+
+    return {
+      'code': code,
+      'discountType': discountType,
+      'discountValue': discountValue,
+      'minOrderAmount': minOrderAmount,
+      'usageLimit': usageLimit,
+      'isActive': isActive,
+      'startsAt': normalizedStartsAt,
+      'endsAt': normalizedEndsAt,
+    }..removeWhere((key, val) => val == null);
+  }
 
   @override
   QueryParams getParams() => {};

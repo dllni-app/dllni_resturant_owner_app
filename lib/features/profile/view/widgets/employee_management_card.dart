@@ -15,8 +15,17 @@ class EmployeeManagementCard extends StatelessWidget {
 
   final FetchEmployeesModelDataItem item;
 
+  String _formatDate(String? value) {
+    if (value == null || value.isEmpty) return '-';
+    final parsed = DateTime.tryParse(value);
+    if (parsed == null) return '-';
+    return DateFormat('yyyy-MM-dd').format(parsed);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final permissionIds = item.permissionIds ?? [];
+
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xffF3F4F6), width: 1),
@@ -91,14 +100,16 @@ class EmployeeManagementCard extends StatelessWidget {
                   if (value == _EmployeeAction.update) {
                     context.pushRoute('/employeesmanagement/new', arguments: AddEmployeeScreenParams(employee: item));
                     return;
-                  } else {
-                    context.read<ProfileBloc>().add(
-                      AddEmployeeEvent(
-                        params: AddEmployeeParams(isDelete: true, id: item.id!),
-                        context: context,
-                      ),
-                    );
                   }
+
+                  final employeeId = item.id;
+                  if (employeeId == null) return;
+                  context.read<ProfileBloc>().add(
+                    AddEmployeeEvent(
+                      params: AddEmployeeParams(isDelete: true, id: employeeId),
+                      context: context,
+                    ),
+                  );
                 },
                 itemBuilder: (context) => [
                   PopupMenuItem<_EmployeeAction>(
@@ -138,7 +149,7 @@ class EmployeeManagementCard extends StatelessWidget {
                     AppText.labelLarge('تاريخ الانضمام', color: const Color(0xFF6B7280), fontWeight: FontWeight.w500),
                     const SizedBox(height: 4),
                     AppText.bodyMedium(
-                      item.createdAt == null ? '-' : DateFormat('yyyy-MM-dd').format(DateTime.parse(item.createdAt!)),
+                      _formatDate(item.createdAt),
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF111827),
                     ),
@@ -150,33 +161,17 @@ class EmployeeManagementCard extends StatelessWidget {
                   children: [
                     AppText.labelLarge('الصلاحيات', color: const Color(0xFF6B7280), fontWeight: FontWeight.w500),
                     const SizedBox(height: 4),
-                    ...item.permissionIds!.map(
-                      (permission) =>
-                          AppText.labelLarge('$permission', color: const Color(0xFF065F46), fontWeight: FontWeight.w700, textAlign: TextAlign.end),
-                    ),
+                    if (permissionIds.isEmpty)
+                      AppText.labelLarge('-', color: const Color(0xFF065F46), fontWeight: FontWeight.w700, textAlign: TextAlign.end)
+                    else
+                      ...permissionIds.map(
+                        (permission) => AppText.labelLarge('$permission', color: const Color(0xFF065F46), fontWeight: FontWeight.w700, textAlign: TextAlign.end),
+                      ),
                   ],
                 ),
               ],
             ),
           ),
-          /* const SizedBox(height: 14),
-          InkWell(
-            onTap: () {},
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: context.width,
-              decoration: BoxDecoration(color: const Color(0xFF065F46), borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsetsDirectional.symmetric(vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.visibility, size: 16, color: Colors.white),
-                  const SizedBox(width: 8),
-                  AppText.bodyMedium('عرض التفاصيل', color: Colors.white, fontWeight: FontWeight.bold),
-                ],
-              ),
-            ),
-          ),*/
         ],
       ),
     );

@@ -49,6 +49,6 @@ class AddEmployeeParams with Params {
     'password': password,
     if (isActive != null) 'isActive': isActive == true ? 1 : 0,
     'profileImage': image,
-    'permissionIds[]': permissions,
+    'permissionIds': permissions,
   }..removeWhere((key, val) => val == null);
 }
