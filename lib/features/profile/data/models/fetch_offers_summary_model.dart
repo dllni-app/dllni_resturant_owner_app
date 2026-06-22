@@ -17,14 +17,6 @@ int? _asInt(dynamic value) {
   return null;
 }
 
-double? _asDouble(dynamic value) {
-  if (value == null) return null;
-  if (value is double) return value;
-  if (value is num) return value.toDouble();
-  if (value is String) return double.tryParse(value);
-  return null;
-}
-
 num? _asNum(dynamic value) {
   if (value == null) return null;
   if (value is num) return value;
@@ -74,23 +66,18 @@ FetchOffersSummaryModel fetchOffersSummaryModelFromJson(str) => FetchOffersSumma
 
 String fetchOffersSummaryModelToJson(FetchOffersSummaryModel data) => json.encode(data.toJson());
 
-
 FetchOffersSummaryModelSummary fetchOffersSummaryModelSummaryFromJson(str) => FetchOffersSummaryModelSummary.fromJson(str);
 
 String fetchOffersSummaryModelSummaryToJson(FetchOffersSummaryModelSummary data) => json.encode(data.toJson());
-
 
 FetchOffersSummaryModelSummaryTopPerforming fetchOffersSummaryModelSummaryTopPerformingFromJson(str) => FetchOffersSummaryModelSummaryTopPerforming.fromJson(str);
 
 String fetchOffersSummaryModelSummaryTopPerformingToJson(FetchOffersSummaryModelSummaryTopPerforming data) => json.encode(data.toJson());
 
-
 class FetchOffersSummaryModel {
   FetchOffersSummaryModelSummary? summary;
 
-  FetchOffersSummaryModel({
-    this.summary,
-  });
+  FetchOffersSummaryModel({this.summary});
 
   factory FetchOffersSummaryModel.fromJson(Map<String, dynamic> json) {
     return FetchOffersSummaryModel(
@@ -98,19 +85,15 @@ class FetchOffersSummaryModel {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'summary': summary?.toJson(),
-    };
-  }
+  Map<String, dynamic> toJson() => {'summary': summary?.toJson()};
 }
 
 class FetchOffersSummaryModelSummary {
   int? activeCount;
   int? expiredCount;
   int? totalUsageOrders;
-  int? totalSavings;
-  int? revenueImpact;
+  num? totalSavings;
+  num? revenueImpact;
   FetchOffersSummaryModelSummaryTopPerforming? topPerforming;
 
   FetchOffersSummaryModelSummary({
@@ -127,8 +110,8 @@ class FetchOffersSummaryModelSummary {
       activeCount: _asInt(json['activeCount']),
       expiredCount: _asInt(json['expiredCount']),
       totalUsageOrders: _asInt(json['totalUsageOrders']),
-      totalSavings: _asInt(json['totalSavings']),
-      revenueImpact: _asInt(json['revenueImpact']),
+      totalSavings: _asNum(json['totalSavings']),
+      revenueImpact: _asNum(json['revenueImpact']),
       topPerforming: json['topPerforming'] is Map ? FetchOffersSummaryModelSummaryTopPerforming.fromJson(Map<String, dynamic>.from(json['topPerforming'] as Map)) : null,
     );
   }
@@ -149,7 +132,7 @@ class FetchOffersSummaryModelSummaryTopPerforming {
   int? id;
   String? name;
   int? usageCount;
-  int? generatedRevenue;
+  num? generatedRevenue;
 
   FetchOffersSummaryModelSummaryTopPerforming({
     this.id,
@@ -163,7 +146,7 @@ class FetchOffersSummaryModelSummaryTopPerforming {
       id: _asInt(json['id']),
       name: _asString(json['name']),
       usageCount: _asInt(json['usageCount']),
-      generatedRevenue: _asInt(json['generatedRevenue']),
+      generatedRevenue: _asNum(json['generatedRevenue']),
     );
   }
 
