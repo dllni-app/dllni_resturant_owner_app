@@ -44,12 +44,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? uploadImage;
   File? uploadImages;
 
-  String _buildSlug(String input) {
-    final normalized = input.trim().toLowerCase();
-    if (normalized.isEmpty) return '';
-    return normalized.replaceAll(RegExp(r'[^a-z0-9\s-]'), '').replaceAll(RegExp(r'\s+'), '-').replaceAll(RegExp(r'-+'), '-');
-  }
-
   @override
   void initState() {
     super.initState();
@@ -156,14 +150,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         flex: 5,
                         child: InkWell(
                           onTap: () {
-                            final name = nameController.text.trim();
-                            final slug = _buildSlug(name.isEmpty ? (widget.params.profile.name ?? '') : name);
-
                             getIt<ProfileBloc>().add(
                               UpdateResturantDataEvent(
                                 context: context,
                                 params: UpdateResturantDataParams(
-                                  name: name,
+                                  userId: widget.params.profile.userId,
+                                  name: nameController.text.trim(),
                                   description: descController.text.trim(),
                                   address: addressController.text.trim().isEmpty ? widget.params.profile.address : addressController.text.trim(),
                                   city: cityController.text.trim(),
