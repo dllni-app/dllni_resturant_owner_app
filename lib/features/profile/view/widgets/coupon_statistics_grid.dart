@@ -1,4 +1,4 @@
-﻿import 'package:common_package/common_package.dart';
+import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -154,12 +154,17 @@ class StatePointer extends StatelessWidget {
   });
 
   final String title;
-  final int value;
+  final num value;
   final dynamic icon;
   final Color containerColor;
   final Color containerBorderColor;
   final Color iconCardColor;
   final Color iconColor;
+
+  String _formatValue(num value) {
+    if (value % 1 == 0) return value.toInt().toString();
+    return value.toStringAsFixed(2);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,9 +189,9 @@ class StatePointer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                AppText.displaySmall(value.toString(), fontWeight: FontWeight.bold),
+                AppText.displaySmall(_formatValue(value), fontWeight: FontWeight.bold),
                 SizedBox(height: 2),
-                AppText.labelMedium(title, color: Color(0xff4B5563), fontWeight: FontWeight.w500, scrollText: true,),
+                AppText.labelMedium(title, color: Color(0xff4B5563), fontWeight: FontWeight.w500, scrollText: true),
               ],
             ),
           ),
