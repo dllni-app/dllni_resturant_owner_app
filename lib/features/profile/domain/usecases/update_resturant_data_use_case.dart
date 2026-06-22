@@ -19,6 +19,7 @@ class UpdateResturantDataUseCase implements UseCase<FetchResturantDataModel, Upd
 }
 
 class UpdateResturantDataParams with Params {
+  final int? userId;
   final String? name;
   final String? description;
   final String? address;
@@ -34,6 +35,7 @@ class UpdateResturantDataParams with Params {
   final double? lat;
 
   UpdateResturantDataParams({
+    this.userId,
     this.name,
     this.description,
     this.address,
@@ -51,6 +53,7 @@ class UpdateResturantDataParams with Params {
 
   @override
   BodyMap getBody() => {
+    'user_id': userId,
     'name': name,
     'description': description,
     'address': address,
