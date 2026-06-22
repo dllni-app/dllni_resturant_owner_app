@@ -175,7 +175,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                                             password: _passwordController.text.trim().isEmpty ? null : _passwordController.text.trim(),
                                             isActive: _isAccountEnabled,
                                             isAddNew: employee == null,
-                                            id: employee?.userId ?? employee?.id,
+                                            id: employee?.id,
                                           ),
                                         ),
                                       );
