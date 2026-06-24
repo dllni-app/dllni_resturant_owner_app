@@ -17,7 +17,9 @@ class ProductsScreen extends StatefulWidget {
 }
 
 class _ProductsScreenState extends State<ProductsScreen> {
-  final ProductsNotifier productsNotifier = ProductsNotifier();
+  final ProductsNotifier productsNotifier = ProductsNotifier(
+
+  );
 
   @override
   Widget build(BuildContext context) {

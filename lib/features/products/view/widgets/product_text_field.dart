@@ -13,6 +13,8 @@ class ProductTextField extends StatelessWidget {
     this.maxLines = 1,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
+    this.validator,
+
   });
 
   final String title;
@@ -22,6 +24,7 @@ class ProductTextField extends StatelessWidget {
   final TextEditingController? controller;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
+  final  String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +41,20 @@ class ProductTextField extends StatelessWidget {
             height: 1.42,
           ),
         ),
-        TextField(
+        TextFormField(
           maxLines: maxLines,
           readOnly: readOnly,
           controller: controller,
           keyboardType: keyboardType,
+          validator:
+              validator ??
+              (String? value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'هذا الحقل مطلوب';
+                }
+                return null;
+              },
+
           textAlign: TextAlign.start,
           onTapOutside: (_) => FocusScope.of(context).unfocus(),
           style: const TextStyle(
@@ -52,6 +64,7 @@ class ProductTextField extends StatelessWidget {
           ),
           decoration: InputDecoration(
             suffixIcon: suffixIcon,
+
             filled: true,
             fillColor: ProductsStyleTokens.fieldBackground,
             hintText: hintText,

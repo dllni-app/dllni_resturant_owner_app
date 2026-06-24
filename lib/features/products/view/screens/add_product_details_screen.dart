@@ -27,7 +27,13 @@ class AddProductDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductsBloc>(
-      create: (context) => getIt<ProductsBloc>()..add(FetchCategoriesEvent(params: FetchCategoriesParams(page: 1), isReload: true)),
+      create: (context) => getIt<ProductsBloc>()
+        ..add(
+          FetchCategoriesEvent(
+            params: FetchCategoriesParams(page: 1),
+            isReload: true,
+          ),
+        ),
       child: _AddProductDetailsBody(params: params),
     );
   }
@@ -45,12 +51,15 @@ class _AddProductDetailsBody extends StatefulWidget {
 class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _discountedPriceController = TextEditingController();
+  final TextEditingController _discountedPriceController =
+      TextEditingController();
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _preparationTimeController = TextEditingController();
+  final TextEditingController _preparationTimeController =
+      TextEditingController();
   final TextEditingController _lowStockController = TextEditingController();
   int? _selectedCategoryId;
   String? _existingPrimaryImageUrl;
+  final _formKey = GlobalKey<FormState>();
 
   List<File> images = [];
   File? primaryImage;
@@ -62,13 +71,15 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
     super.initState();
     final existing = widget.params.existingProduct;
     _nameController.text = widget.params.title ?? existing?.name ?? '';
-    _descriptionController.text = widget.params.desc ?? existing?.description ?? '';
+    _descriptionController.text =
+        widget.params.desc ?? existing?.description ?? '';
     _priceController.text = _formatNum(existing?.price);
     _discountedPriceController.text = _formatNum(existing?.discountedPrice);
     _preparationTimeController.text = _formatNum(existing?.preparationTime);
     _lowStockController.text = _formatNum(existing?.lowStockThreshold);
     _selectedCategoryId = existing?.categoryId;
-    _existingPrimaryImageUrl = widget.params.existingImageUrl ?? existing?.primaryImage;
+    _existingPrimaryImageUrl =
+        widget.params.existingImageUrl ?? existing?.primaryImage;
   }
 
   String _formatNum(num? value) {
@@ -91,325 +102,408 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ProductsStyleTokens.pageBackground,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const AddNewProductAppBar(),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 24),
-                child: Column(
-                  children: [
-                    _ProductStepDetails(
-                      number: 1,
-                      title: 'المعلومات الأساسية',
-                      child: Column(
-                        children: [
-                          ProductTextField(title: 'اسم المنتج', hintText: 'مثال: برجر دجاج كلاسيك', controller: _nameController),
-                          const SizedBox(height: 16),
-                          ProductTextField(
-                            title: 'وصف المنتج',
-                            hintText: 'وصف مكونات المنتج ومميزاته...',
-                            maxLines: 4,
-                            controller: _descriptionController,
-                          ),
-                          const SizedBox(height: 16),
-                          BlocBuilder<ProductsBloc, ProductsState>(
-                            builder: (context, state) {
-                              final categoriesState = state.categories!;
-                              final categories = categoriesState.list.where((item) => item.id != null).toList();
-                              final isLoading = categoriesState.isLoading;
-                              final isFailed = categoriesState.isFailed;
-                              final isEmpty = categoriesState.isEmpty;
+    return Form(
+        key: _formKey,
+      child: Scaffold(
+        backgroundColor: ProductsStyleTokens.pageBackground,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const AddNewProductAppBar(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 24),
+                  child: Column(
+                    children: [
+                      _ProductStepDetails(
+                        number: 1,
+                        title: 'المعلومات الأساسية',
+                        child: Column(
+                          children: [
+                            ProductTextField(
+                              title: 'اسم المنتج',
+                              hintText: 'مثال: برجر دجاج كلاسيك',
+                              controller: _nameController,
+                            ),
+                            const SizedBox(height: 16),
+                            ProductTextField(
+                              title: 'وصف المنتج',
+                              hintText: 'وصف مكونات المنتج ومميزاته...',
+                              maxLines: 4,
+                              controller: _descriptionController,
+                            ),
+                            const SizedBox(height: 16),
+                            BlocBuilder<ProductsBloc, ProductsState>(
+                              builder: (context, state) {
+                                final categoriesState = state.categories!;
+                                final categories = categoriesState.list
+                                    .where((item) => item.id != null)
+                                    .toList();
+                                final isLoading = categoriesState.isLoading;
+                                final isFailed = categoriesState.isFailed;
+                                final isEmpty = categoriesState.isEmpty;
 
-                              final items = categories.map((item) => DropdownMenuItem<int>(value: item.id!, child: Text(item.name ?? ''))).toList();
-                              final canSelect = items.isNotEmpty;
-                              final selectedCategoryValue = items.any((item) => item.value == _selectedCategoryId) ? _selectedCategoryId : null;
-
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ProductMenuField<int>(
-                                    title: 'التصنيف',
-                                    value: selectedCategoryValue,
-                                    hintText: isLoading
-                                        ? 'جاري تحميل التصنيفات...'
-                                        : isEmpty
-                                        ? 'لا توجد تصنيفات'
-                                        : 'اختر تصنيف...',
-                                    onChanged: canSelect
-                                        ? (value) {
-                                            setState(() {
-                                              _selectedCategoryId = value;
-                                            });
-                                          }
-                                        : null,
-                                    items: canSelect
-                                        ? items
-                                        : [
-                                            DropdownMenuItem<int>(
-                                              enabled: false,
-                                              child: Text(
-                                                isLoading
-                                                    ? 'جاري التحميل...'
-                                                    : isFailed
-                                                    ? 'تعذر تحميل التصنيفات'
-                                                    : 'لا توجد تصنيفات حالياً',
-                                              ),
-                                            ),
-                                          ],
-                                  ),
-                                  if (isFailed)
-                                    Align(
-                                      alignment: AlignmentDirectional.centerStart,
-                                      child: TextButton(
-                                        onPressed: () {
-                                          context.read<ProductsBloc>().add(
-                                            FetchCategoriesEvent(params: FetchCategoriesParams(page: 1), isReload: true),
-                                          );
-                                        },
-                                        child: const Text('إعادة المحاولة'),
+                                final items = categories
+                                    .map(
+                                      (item) => DropdownMenuItem<int>(
+                                        value: item.id!,
+                                        child: Text(item.name ?? ''),
                                       ),
+                                    )
+                                    .toList();
+                                final canSelect = items.isNotEmpty;
+                                final selectedCategoryValue =
+                                    items.any(
+                                      (item) => item.value == _selectedCategoryId,
+                                    )
+                                    ? _selectedCategoryId
+                                    : null;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ProductMenuField<int>(
+                                      title: 'التصنيف',
+                                      value: selectedCategoryValue,
+                                      hintText: isLoading
+                                          ? 'جاري تحميل التصنيفات...'
+                                          : isEmpty
+                                          ? 'لا توجد تصنيفات'
+                                          : 'اختر تصنيف...',
+                                      onChanged: canSelect
+                                          ? (value) {
+                                              setState(() {
+                                                _selectedCategoryId = value;
+                                              });
+                                            }
+                                          : null,
+                                      items: canSelect
+                                          ? items
+                                          : [
+                                              DropdownMenuItem<int>(
+                                                enabled: false,
+                                                child: Text(
+                                                  isLoading
+                                                      ? 'جاري التحميل...'
+                                                      : isFailed
+                                                      ? 'تعذر تحميل التصنيفات'
+                                                      : 'لا توجد تصنيفات حالياً',
+                                                ),
+                                              ),
+                                            ],
                                     ),
-                                ],
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          ProductPickMainImage(
-                            onPickImage: (imagePath) {
-                              primaryImage = File(imagePath);
-                              _existingPrimaryImageUrl = null;
-                            },
-                            image64: widget.params.image,
-                            existingImageUrl: _existingPrimaryImageUrl,
-                          ),
-                          const SizedBox(height: 12),
-                          ProductPickAdditionalImages(
-                            numOfImages: 6,
-                            onPickImage: (imagesPath) {
-                              images = List.from(imagesPath.map((e) => File(e)));
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _ProductStepDetails(
-                      number: 2,
-                      title: 'التسعير',
-                      child: Column(
-                        children: [
-                          ProductTextField(
-                            title: 'السعر الأساسي',
-                            hintText: '0.00',
-                            controller: _priceController,
-                            keyboardType: TextInputType.number,
-                            suffixIcon: const Padding(
-                              padding: EdgeInsetsDirectional.only(end: 12, top: 14),
-                              child: Text(
-                                'ل.س',
-                                style: TextStyle(color: ProductsStyleTokens.textHint, fontSize: 14, fontWeight: FontWeight.w600),
-                              ),
+                                    if (isFailed)
+                                      Align(
+                                        alignment:
+                                            AlignmentDirectional.centerStart,
+                                        child: TextButton(
+                                          onPressed: () {
+                                            context.read<ProductsBloc>().add(
+                                              FetchCategoriesEvent(
+                                                params: FetchCategoriesParams(
+                                                  page: 1,
+                                                ),
+                                                isReload: true,
+                                              ),
+                                            );
+                                          },
+                                          child: const Text('إعادة المحاولة'),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
                             ),
-                          ),
-                          SizedBox(height: 16),
-                          ProductTextField(
-                            title: 'السعر بعد الحسم',
-                            hintText: '0.00',
-                            controller: _discountedPriceController,
-                            keyboardType: TextInputType.number,
-                            suffixIcon: const Padding(
-                              padding: EdgeInsetsDirectional.only(end: 12, top: 14),
-                              child: Text(
-                                'ل.س',
-                                style: TextStyle(color: ProductsStyleTokens.textHint, fontSize: 14, fontWeight: FontWeight.w600),
-                              ),
+                            const SizedBox(height: 16),
+                            ProductPickMainImage(
+                              onPickImage: (imagePath) {
+                                primaryImage = File(imagePath);
+                                _existingPrimaryImageUrl = null;
+                              },
+                              image64: widget.params.image,
+                              existingImageUrl: _existingPrimaryImageUrl,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    /*_ProductStepDetails(
-                      number: 3,
-                      title: 'الربط بالمخزون',
-                      child: Column(
-                        children: const [
-                          ProductTextField(
-                            title: 'اسم الصنف',
-                            hintText: 'ابحث في المخزون...',
-                            suffixIcon: Icon(Icons.search_rounded, color: ProductsStyleTokens.textHint, size: 20),
-                          ),
-                          SizedBox(height: 16),
-                          _InfoAlert(),
-                          SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ProductTextField(title: 'الكمية المخصومة', hintText: '1', keyboardType: TextInputType.number),
-                              ),
-                              SizedBox(width: 10),
-                              Expanded(
-                                child: ProductTextField(title: 'الوحدة', hintText: 'قطعة'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),*/
-                    _ProductStepDetails(
-                      number: 3,
-                      title: 'تفاصيل أخرى',
-                      child: Column(
-                        children: [
-                          ProductTextField(
-                            title: 'الوقت المتوقع للتحضير',
-                            hintText: '15',
-                            controller: _preparationTimeController,
-                            keyboardType: TextInputType.number,
-                            suffixIcon: const Padding(
-                              padding: EdgeInsetsDirectional.only(end: 12, top: 14),
-                              child: Text(
-                                'دقيقة',
-                                style: TextStyle(color: ProductsStyleTokens.textHint, fontSize: 14, fontWeight: FontWeight.w600),
-                              ),
+                            const SizedBox(height: 12),
+                            ProductPickAdditionalImages(
+                              numOfImages: 6,
+                              onPickImage: (imagesPath) {
+                                images = List.from(
+                                  imagesPath.map((e) => File(e)),
+                                );
+                              },
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          ProductTextField(
-                            title: 'الحد الأدنى للطلب',
-                            hintText: '1',
-                            controller: _lowStockController,
-                            keyboardType: TextInputType.number,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppOutlinedButton(title: 'إلغاء', color: ProductsStyleTokens.warning, onTap: () => context.pop()),
+                          ],
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: BlocConsumer<ProductsBloc, ProductsState>(
-                            listener: (context, state) {
-                              final activeStatus = _isEditMode ? state.updateProductStatus : state.newProductStatus;
-                              switch (activeStatus) {
-                                case null:
-                                  Loading.close();
-                                  break;
-                                case BlocStatus.failed:
-                                  Loading.close();
-                                  AppToast.showToast(
-                                    context: context,
-                                    message: state.errorMessage ?? (_isEditMode ? 'خطا في تحديث المنتج' : 'خطا في اضافة المنتج'),
-                                    type: ToastificationType.error,
-                                  );
-                                  break;
-                                case BlocStatus.success:
-                                  Loading.close();
-                                  if (_isEditMode) {
-                                    context.pop(true);
-                                  } else {
-                                    context.pushRouteAndRemoveUntil('/main', arguments: 2);
-                                  }
-                                  break;
-                                case BlocStatus.loading:
-                                  Loading.show(context);
-                                  break;
-                                case BlocStatus.init:
-                                  Loading.close();
-                                  break;
-                              }
-                            },
-                            builder: (context, state) {
-                              return AppButton(
-                                title: _isEditMode ? 'تحديث المنتج' : 'نشر المنتج',
-                                withShadow: false,
-                                onTap: () {
-                                  final categories = context.read<ProductsBloc>().state.categories?.list ?? const [];
-                                  final hasPrimaryImage = primaryImage != null || ((_existingPrimaryImageUrl ?? '').trim().isNotEmpty);
-                                  int? effectiveCategoryId = _selectedCategoryId;
-                                  if (effectiveCategoryId == null) {
-                                    for (final item in categories) {
-                                      if (item.id != null) {
-                                        effectiveCategoryId = item.id;
-                                        break;
+                      ),
+                      const SizedBox(height: 16),
+                      _ProductStepDetails(
+                        number: 2,
+                        title: 'التسعير',
+                        child: Column(
+                          children: [
+                            ProductTextField(
+                              title: 'السعر الأساسي',
+                              hintText: '0.00',
+                              controller: _priceController,
+                              keyboardType: TextInputType.number,
+                              suffixIcon: const Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  end: 12,
+                                  top: 14,
+                                ),
+                                child: Text(
+                                  'ل.س',
+                                  style: TextStyle(
+                                    color: ProductsStyleTokens.textHint,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            ProductTextField(
+                              title: 'السعر بعد الحسم',
+                              hintText: '0.00',
+                              controller: _discountedPriceController,
+                              validator: (value) => maxValueValidator(
+                                value,
+                                _priceController.text,
+                              ),
+                              keyboardType: TextInputType.number,
+                              suffixIcon: const Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  end: 12,
+                                  top: 14,
+                                ),
+                                child: Text(
+                                  'ل.س',
+                                  style: TextStyle(
+                                    color: ProductsStyleTokens.textHint,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      _ProductStepDetails(
+                        number: 3,
+                        title: 'تفاصيل أخرى',
+                        child: Column(
+                          children: [
+                            ProductTextField(
+                              title: 'الوقت المتوقع للتحضير',
+                              hintText: '15',
+                              controller: _preparationTimeController,
+                              keyboardType: TextInputType.number,
+                              suffixIcon: const Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  end: 12,
+                                  top: 14,
+                                ),
+                                child: Text(
+                                  'دقيقة',
+                                  style: TextStyle(
+                                    color: ProductsStyleTokens.textHint,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ProductTextField(
+                              title: 'الحد الأدنى للطلب',
+                              hintText: '1',
+                              controller: _lowStockController,
+                              keyboardType: TextInputType.number,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppOutlinedButton(
+                              title: 'إلغاء',
+                              color: ProductsStyleTokens.warning,
+                              onTap: () => context.pop(),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: BlocConsumer<ProductsBloc, ProductsState>(
+                              listener: (context, state) {
+                                final activeStatus = _isEditMode
+                                    ? state.updateProductStatus
+                                    : state.newProductStatus;
+                                switch (activeStatus) {
+                                  case null:
+                                    Loading.close();
+                                    break;
+                                  case BlocStatus.failed:
+                                    Loading.close();
+                                    AppToast.showToast(
+                                      context: context,
+                                      message:
+                                          state.errorMessage ??
+                                          (_isEditMode
+                                              ? 'خطا في تحديث المنتج'
+                                              : 'خطا في اضافة المنتج'),
+                                      type: ToastificationType.error,
+                                    );
+                                    break;
+                                  case BlocStatus.success:
+                                    Loading.close();
+                                    if (_isEditMode) {
+                                      context.pop(true);
+                                    } else {
+                                      context.pushRouteAndRemoveUntil(
+                                        '/main',
+                                        arguments: 2,
+                                      );
+                                    }
+                                    break;
+                                  case BlocStatus.loading:
+                                    Loading.show(context);
+                                    break;
+                                  case BlocStatus.init:
+                                    Loading.close();
+                                    break;
+                                }
+                              },
+                              builder: (context, state) {
+                                return AppButton(
+                                  title: _isEditMode
+                                      ? 'تحديث المنتج'
+                                      : 'نشر المنتج',
+                                  withShadow: false,
+                                  onTap: () {
+                                    if (!(_formKey.currentState?.validate() ?? false)) return;
+
+                                    final categories =
+                                        context
+                                            .read<ProductsBloc>()
+                                            .state
+                                            .categories
+                                            ?.list ??
+                                        const [];
+                                    final hasPrimaryImage =
+                                        primaryImage != null ||
+                                        ((_existingPrimaryImageUrl ?? '')
+                                            .trim()
+                                            .isNotEmpty);
+                                    int? effectiveCategoryId =
+                                        _selectedCategoryId;
+                                    if (effectiveCategoryId == null) {
+                                      for (final item in categories) {
+                                        if (item.id != null) {
+                                          effectiveCategoryId = item.id;
+                                          break;
+                                        }
                                       }
                                     }
-                                  }
-                                  if (effectiveCategoryId == null) {
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار تصنيف المنتج')));
-                                    return;
-                                  }
-                                  if (!hasPrimaryImage) {
-                                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى اختيار الصورة الرئيسية')));
-                                    return;
-                                  }
-                                  if (_isEditMode) {
-                                    final existing = widget.params.existingProduct;
-                                    if (existing?.id == null) {
-                                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تعذر تحديد المنتج المراد تحديثه')));
+                                    if (effectiveCategoryId == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'يرجى اختيار تصنيف المنتج',
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    if (!hasPrimaryImage) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'يرجى اختيار الصورة الرئيسية',
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
+                                    if (_isEditMode) {
+                                      final existing =
+                                          widget.params.existingProduct;
+                                      if (existing?.id == null) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              'تعذر تحديد المنتج المراد تحديثه',
+                                            ),
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      context.read<ProductsBloc>().add(
+                                        UpdateProductEvent(
+                                          params: UpdateProductParams(
+                                            id: existing!.id!,
+                                            categoryId: effectiveCategoryId,
+                                            name: _nameController.text.trim(),
+                                            description:
+                                                _descriptionController.text,
+                                            price: _priceController.text.trim(),
+                                            discountedPrice:
+                                                _discountedPriceController.text,
+                                            isAvailable: existing.isAvailable,
+                                            stockQuantity: existing.stockQuantity
+                                                ?.toString(),
+                                            lowStockThreshold:
+                                                _lowStockController.text,
+                                            preparationTime:
+                                                _preparationTimeController.text,
+                                            isFeatured: existing.isFeatured,
+                                            primaryImage: primaryImage,
+                                            images: images,
+                                          ),
+                                          refreshParams: FetchProductsParams(
+                                            categoryId: effectiveCategoryId,
+                                            page: 1,
+                                          ),
+                                        ),
+                                      );
                                       return;
                                     }
                                     context.read<ProductsBloc>().add(
-                                      UpdateProductEvent(
-                                        params: UpdateProductParams(
-                                          id: existing!.id!,
-                                          categoryId: effectiveCategoryId,
-                                          name: _nameController.text.trim(),
-                                          description: _descriptionController.text,
-                                          price: _priceController.text.trim(),
-                                          discountedPrice: _discountedPriceController.text,
-                                          isAvailable: existing.isAvailable,
-                                          stockQuantity: existing.stockQuantity?.toString(),
-                                          lowStockThreshold: _lowStockController.text,
-                                          preparationTime: _preparationTimeController.text,
-                                          isFeatured: existing.isFeatured,
-                                          primaryImage: primaryImage,
+                                      PostNewProductEvent(
+                                        params: PostNewProductParams(
+                                          name: _nameController.text,
+                                          desc: _descriptionController.text,
+                                          discountedPrice:
+                                              _discountedPriceController.text,
+                                          price: _priceController.text,
+                                          preparationTime:
+                                              _preparationTimeController.text,
+                                          lowStock: _lowStockController.text,
+                                          primaryImage: primaryImage!,
                                           images: images,
-                                        ),
-                                        refreshParams: FetchProductsParams(
                                           categoryId: effectiveCategoryId,
-                                          page: 1,
                                         ),
                                       ),
                                     );
-                                    return;
-                                  }
-                                  context.read<ProductsBloc>().add(
-                                    PostNewProductEvent(
-                                      params: PostNewProductParams(
-                                        name: _nameController.text,
-                                        desc: _descriptionController.text,
-                                        discountedPrice: _discountedPriceController.text,
-                                        price: _priceController.text,
-                                        preparationTime: _preparationTimeController.text,
-                                        lowStock: _lowStockController.text,
-                                        primaryImage: primaryImage!,
-                                        images: images,
-                                        categoryId: effectiveCategoryId,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
+                                  },
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -417,7 +511,11 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
 }
 
 class _ProductStepDetails extends StatelessWidget {
-  const _ProductStepDetails({required this.number, required this.title, required this.child});
+  const _ProductStepDetails({
+    required this.number,
+    required this.title,
+    required this.child,
+  });
 
   final int number;
   final String title;
@@ -430,7 +528,9 @@ class _ProductStepDetails extends StatelessWidget {
       decoration: const BoxDecoration(
         color: ProductsStyleTokens.cardBackground,
         borderRadius: BorderRadius.all(Radius.circular(18)),
-        border: Border.fromBorderSide(BorderSide(color: ProductsStyleTokens.lineCard)),
+        border: Border.fromBorderSide(
+          BorderSide(color: ProductsStyleTokens.lineCard),
+        ),
         boxShadow: [ProductsStyleTokens.softShadow],
       ),
       child: Column(
@@ -443,13 +543,21 @@ class _ProductStepDetails extends StatelessWidget {
                 backgroundColor: ProductsStyleTokens.primaryAction,
                 child: Text(
                   '$number',
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(color: ProductsStyleTokens.primaryAction, fontSize: 16, fontWeight: FontWeight.w700),
+                style: const TextStyle(
+                  color: ProductsStyleTokens.primaryAction,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ],
           ),
@@ -486,4 +594,23 @@ class AddProductDetailsScreenParams {
       existingProduct: product,
     );
   }
+}
+
+String? maxValueValidator(String? value, String? maxValue) {
+  if (value == null || value.trim().isEmpty) {
+    return 'هذا الحقل مطلوب';
+  }
+
+  final current = int.tryParse(value);
+  final max = int.tryParse(maxValue ?? '');
+
+  if (current == null || max == null) {
+    return 'قيمة غير صالحة';
+  }
+
+  if (current > max) {
+    return 'يجب أن تكون القيمة أصغر من أو تساوي $max';
+  }
+
+  return null;
 }

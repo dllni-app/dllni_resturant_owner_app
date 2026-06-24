@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,20 +10,27 @@ import 'filter_button.dart';
 import 'products_style_tokens.dart';
 import 'search_field.dart';
 
-class ProductsAppBar extends StatelessWidget {
+class ProductsAppBar extends StatefulWidget {
   const ProductsAppBar({super.key, required this.productsNotifier});
 
   final ProductsNotifier productsNotifier;
 
+  @override
+  State<ProductsAppBar> createState() => _ProductsAppBarState();
+}
+
+class _ProductsAppBarState extends State<ProductsAppBar> {
   void _reload(BuildContext context) {
-    context.read<ProductsBloc>().add(FetchProductsEvent(params: productsNotifier.fetchParams(page: 1), isReload: true));
+    context.read<ProductsBloc>().add(FetchProductsEvent(params: widget.productsNotifier.fetchParams(page: 1), isReload: true));
   }
 
-  void _toggleFilter(BuildContext context) {
-    final current = productsNotifier.availabilityFilter.value;
-    final next = current == null ? true : (current == true ? false : null);
-    productsNotifier.changeFilters(availability: next, lowStock: false, discounted: false);
-    _reload(context);
+  Timer? _searchDebounce;
+
+  // void _toggleFilter(BuildContext context) {
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -55,17 +64,151 @@ class ProductsAppBar extends StatelessWidget {
                 child: SearchField(
                   hintText: 'ابحث عن وجبة، مشروب...',
                   onChanged: (value) {
-                    productsNotifier.changeSearchQuery(value);
-                    _reload(context);
+                    _searchDebounce?.cancel();
+
+                    _searchDebounce = Timer(
+                      const Duration(milliseconds: 500),
+                          () {
+                        widget.productsNotifier.changeSearchQuery(value);
+                        _reload(context);
+                      },
+                    );
                   },
                 ),
               ),
               const SizedBox(width: 10),
-              FilterButton(onTap: () => _toggleFilter(context)),
+              FilterButton(onTap: () => _showFilters(context)
+              ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  void _showFilters(BuildContext parentContext) {
+    showModalBottomSheet(
+      context: parentContext,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            bool? availability = widget.productsNotifier.availabilityFilter.value;
+            bool lowStock = widget.productsNotifier.lowStockOnly.value;
+            bool discounted = widget.productsNotifier.discountedOnly.value;
+
+            return Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: context.onPrimary,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    AppText.titleMedium(
+                      'الفلترة',
+                      fontWeight: FontWeight.bold,
+                      color: context.primary,
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    SwitchListTile(
+                      value: availability ?? false,
+                      title: const Text('المتوفرة فقط'),
+                      subtitle: Text(
+                        availability == null
+                            ? 'الكل'
+                            : availability
+                            ? 'متوفر'
+                            : 'غير متوفر',
+                      ),
+                      onChanged: (value) {
+                        setModalState(() {
+                          availability = value;
+                        });
+
+                        widget.productsNotifier.changeFilters(
+                          availability: value,
+                          lowStock: lowStock,
+                          discounted: discounted,
+                        );
+                      },
+                    ),
+
+                    SwitchListTile(
+                      value: lowStock,
+                      title: const Text('المخزون المنخفض'),
+                      onChanged: (value) {
+                        setModalState(() {
+                          lowStock = value;
+                        });
+
+                        widget.productsNotifier.changeFilters(
+                          availability: availability,
+                          lowStock: value,
+                          discounted: discounted,
+                        );
+                      },
+                    ),
+
+                    SwitchListTile(
+                      value: discounted,
+                      title: const Text('العروض والخصومات'),
+                      onChanged: (value) {
+                        setModalState(() {
+                          discounted = value;
+                        });
+
+                        widget.productsNotifier.changeFilters(
+                          availability: availability,
+                          lowStock: lowStock,
+                          discounted: value,
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _reload(parentContext);
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: context.primary
+                        ),
+                        child: const Text('تطبيق',style:  TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color:  Colors.white ,
+                        ),),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

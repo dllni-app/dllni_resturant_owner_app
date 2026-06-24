@@ -53,14 +53,16 @@ class OrderStatusCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(child: _buildStatusInfoBox('منذ', '$elapsedMinutes دقيقة', context)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildStatusInfoBox('الوقت المتوقع', estimatedMinutes > 0 ? '$estimatedMinutes د' : '-', context)),
-                    const SizedBox(width: 8),
-                    Expanded(child: _buildStatusInfoBox('وقت الاستلام', pickupTime == null ? '-' : _formatTime(pickupTime), context)),
-                  ],
+                IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildStatusInfoBox('منذ', formatMinutesAgo(elapsedMinutes), context)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildStatusInfoBox('الوقت المتوقع', estimatedMinutes > 0 ? '$estimatedMinutes د' : '-', context)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildStatusInfoBox('وقت الاستلام', pickupTime == null ? '-' : _formatTime(pickupTime), context)),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -91,4 +93,56 @@ class OrderStatusCard extends StatelessWidget {
       ),
     );
   }
+}
+String formatMinutesAgo(int minutes) {
+  if (minutes < 1) {
+    return 'الآن';
+  }
+
+  if (minutes < 60) {
+    return 'منذ $minutes ${minutes == 1 ? 'دقيقة' : 'دقائق'}';
+  }
+
+  final hours = minutes ~/ 60;
+  if (hours < 24) {
+    return hours == 1
+        ? 'منذ ساعة'
+        : 'منذ $hours ساعات';
+  }
+
+  final days = hours ~/ 24;
+
+  if (days == 1) {
+    return 'أمس';
+  }
+
+  if (days < 7) {
+    return 'منذ $days أيام';
+  }
+
+  final weeks = days ~/ 7;
+
+  if (weeks == 1) {
+    return 'منذ أسبوع';
+  }
+
+  if (weeks < 4) {
+    return 'منذ $weeks أسابيع';
+  }
+
+  final months = days ~/ 30;
+
+  if (months == 1) {
+    return 'منذ شهر';
+  }
+
+  if (months < 12) {
+    return 'منذ $months أشهر';
+  }
+
+  final years = days ~/ 365;
+
+  return years == 1
+      ? 'منذ سنة'
+      : 'منذ $years سنوات';
 }

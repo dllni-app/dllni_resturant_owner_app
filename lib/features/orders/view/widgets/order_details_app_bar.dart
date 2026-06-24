@@ -37,10 +37,12 @@ class OrderDetailsAppBar extends StatelessWidget {
           const SizedBox(width: 12),
           AppText.headlineLarge('تفاصيل الطلب', fontWeight: FontWeight.w700, textAlign: TextAlign.start),
           const SizedBox(width: 12),
-          Container(
-            decoration: BoxDecoration(color: Color(0xff6C63FF), borderRadius: BorderRadius.circular(99)),
-            padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
-            child: AppText.labelMedium('#$id', color: context.onPrimary, fontWeight: FontWeight.bold),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(color: Color(0xff6C63FF), borderRadius: BorderRadius.circular(99)),
+              padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
+              child: AppText.labelMedium('#$id', color: context.onPrimary, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),

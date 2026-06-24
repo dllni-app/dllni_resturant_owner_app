@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
 
+import '../../../../core/widgets/phone_number_widget/my_phone_number_field_widget.dart';
 import '../../domain/usecases/login_use_case.dart';
 import '../manager/bloc/auth_bloc.dart';
 
@@ -17,16 +18,32 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  late final ValueNotifier<String> phoneValue;
+
+  late final FocusNode phoneFocusNode;
+  late final FocusNode passwordFocus;
+
+  @override
+  void initState() {
+    phoneValue = ValueNotifier('');
+    phoneFocusNode=FocusNode();
+    passwordFocus=FocusNode();
+    // TODO: implement initState
+    super.initState();
+  }
+
+
   @override
   void dispose() {
-    _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,42 +108,27 @@ class _LoginScreenState extends State<LoginScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AppText.bodyMedium('رقم الجوال', fontWeight: FontWeight.bold, color: Color(0xff111827), textAlign: TextAlign.start),
+                              Row(
+                                children: [
+                                  AppText.bodyMedium('رقم الجوال', fontWeight: FontWeight.bold, color: Color(0xff111827), textAlign: TextAlign.start),
+
+                                  AppText.bodyMedium(
+                                    '*',
+                                    color: context.error,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ],
+                              ),
+
                               SizedBox(height: 8),
-                              TextFormField(
-                                controller: _phoneController,
-                                keyboardType: TextInputType.phone,
-                                textDirection: TextDirection.ltr,
-                                style: TextStyle(color: Colors.black),
-                                decoration: InputDecoration(
-                                  hintText: 'أدخل رقم الجوال',
-                                  hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                                  filled: true,
-                                  fillColor: context.onPrimary,
-                                  contentPadding: EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 16),
-                                  prefixIcon: Icon(Icons.person_outline, color: Colors.grey.shade400, size: 20),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: Colors.grey.shade300),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: context.secondary),
-                                  ),
-                                  errorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: context.error),
-                                  ),
-                                  focusedErrorBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(color: context.error),
-                                  ),
-                                ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'الرجاء إدخال رقم الجوال';
-                                  }
-                                  return null;
+                              MyPhoneNumberField(
+                                internationalPhoneValue: phoneValue,
+                                hintText: 'رقم الجوال',
+                                isMargin: false,
+                                textInputAction: TextInputAction.next,
+                                focusNode: phoneFocusNode,
+                                onSubmitted: (_) {
+                                  FocusScope.of(context).requestFocus(passwordFocus);
                                 },
                               ),
                             ],
@@ -135,9 +137,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AppText.bodyMedium('كلمة المرور', fontWeight: FontWeight.bold, color: Color(0xff111827), textAlign: TextAlign.start),
+
+                              Row(
+                                children: [
+                                  AppText.bodyMedium('كلمة المرور', fontWeight: FontWeight.bold, color: Color(0xff111827), textAlign: TextAlign.start),
+
+                                  AppText.bodyMedium(
+                                    '*',
+                                    color: context.error,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ],
+                              ),
+
                               SizedBox(height: 8),
                               TextFormField(
+                                focusNode: passwordFocus,
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) {
+                                  passwordFocus.unfocus();
+                                },
                                 controller: _passwordController,
                                 obscureText: _obscurePassword,
                                 textDirection: TextDirection.ltr,
@@ -184,28 +203,41 @@ class _LoginScreenState extends State<LoginScreen> {
                                   }
                                   return null;
                                 },
+
                               ),
                             ],
                           ),
                           SizedBox(height: 24),
                           BlocBuilder<AuthBloc, AuthState>(
+
                             builder: (context, state) {
+                              final loading = state.loginStatus == BlocStatus.loading;
+
                               return InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () {
-                                  context.read<AuthBloc>().add(
-                                    LoginEvent(
-                                      params: LoginParams(phone: _phoneController.text, password: _passwordController.text),
-                                    ),
-                                  );
-                                },
+                                onTap:
+                                loading
+                                    ? null
+                                    :
+                                    ()  async {
+                                      if (!(_formKey.currentState?.validate() ?? false)) return;
+
+
+
+
+                                      context.read<AuthBloc>().add(
+                                        LoginEvent(
+                                          params: LoginParams(phone: phoneValue.value, password: _passwordController.text),
+                                        ),
+                                      );
+                              },
                                 child: Container(
                                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), color: Color(0xff1E2A78)),
                                   padding: EdgeInsetsDirectional.symmetric(vertical: 16),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      AppText.bodyLarge('تسجيل الدخول', color: context.onPrimary, fontWeight: FontWeight.bold),
+                                      AppText.bodyLarge(loading ? 'جاري التحميل...' : 'تسجيل الدخول', color: context.onPrimary, fontWeight: FontWeight.bold),
                                       Icon(Icons.arrow_forward, color: context.onPrimary, size: 20),
                                     ],
                                   ),

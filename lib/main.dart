@@ -1,6 +1,5 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
-
 import 'app.dart';
 import 'core/di/injection.dart';
 import 'core/session/session_expired_handler.dart';
