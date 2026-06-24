@@ -25,20 +25,8 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   final RejectOrderUseCase rejectOrderUseCase;
   final AcceptOrderUseCase acceptOrderUseCase;
   final GetOrdersUseCase getOrdersUseCase;
-  final GetOrderDetailsUseCase getOrderDetailsUseCase;
-  final AddOrderItemUseCase addOrderItemUseCase;
-  final UpdateOrderItemUseCase updateOrderItemUseCase;
-  final DeleteOrderItemUseCase deleteOrderItemUseCase;
 
-  OrdersBloc(
-    this.getOrdersUseCase,
-    this.acceptOrderUseCase,
-    this.rejectOrderUseCase,
-    this.getOrderDetailsUseCase,
-    this.addOrderItemUseCase,
-    this.updateOrderItemUseCase,
-    this.deleteOrderItemUseCase,
-  ) : super(OrdersState()) {
+  OrdersBloc(this.getOrdersUseCase, this.acceptOrderUseCase, this.rejectOrderUseCase) : super(OrdersState()) {
     on<GetOrdersEvent>(_getOrders, transformer: droppableProMax());
     on<GetHomePreparingOrdersEvent>(_getHomePreparingOrders);
     on<GetOrderDetailsEvent>(_getOrderDetails);
@@ -49,55 +37,34 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<DeleteOrderItemEvent>(_deleteOrderItem);
   }
 
-  EventTransformer<T> droppableProMax<T extends EventWithReload>() {
-    return (events, mapper) => events.transform(ExhaustMapStreamTransformer(mapper));
-  }
+  EventTransformer<T> droppableProMax<T extends EventWithReload>() => (events, mapper) => events.transform(ExhaustMapStreamTransformer(mapper));
 
   FutureOr<void> _getOrders(GetOrdersEvent event, Emitter<OrdersState> emit) async {
-    if (!state.orders!.isEndPage || event.isReload) {
-      if (state.orders!.status == BlocStatus.loading && !event.isReload) return;
-      emit(state.copyWith(orders: state.orders!.setLoading(isReload: event.isReload), currentStatus: event.params.status, setCurrentStatus: true));
-      final res = await getOrdersUseCase(event.params);
-      res.fold(
-        (l) {
-          if (isClosed) return;
-          emit(state.copyWith(orders: state.orders!.setFaild(errorMessage: l.message), errorMessage: l.message));
-        },
-        (r) {
-          if (isClosed) return;
-          emit(state.copyWith(orders: state.orders!.setSuccess(data: r.data ?? [])));
-        },
-      );
-    }
+    if (state.orders!.isEndPage && !event.isReload) return;
+    if (state.orders!.status == BlocStatus.loading && !event.isReload) return;
+    emit(state.copyWith(orders: state.orders!.setLoading(isReload: event.isReload), currentStatus: event.params.status, setCurrentStatus: true));
+    final res = await getOrdersUseCase(event.params);
+    res.fold(
+      (l) => emit(state.copyWith(orders: state.orders!.setFaild(errorMessage: l.message), errorMessage: l.message)),
+      (r) => emit(state.copyWith(orders: state.orders!.setSuccess(data: r.data ?? []))),
+    );
   }
 
   FutureOr<void> _getHomePreparingOrders(GetHomePreparingOrdersEvent event, Emitter<OrdersState> emit) async {
     emit(state.copyWith(homePreparingOrdersStatus: BlocStatus.loading));
     final res = await getOrdersUseCase(event.params);
     res.fold(
-      (l) {
-        if (isClosed) return;
-        emit(state.copyWith(homePreparingOrdersStatus: BlocStatus.failed, errorMessage: l.message));
-      },
-      (r) {
-        if (isClosed) return;
-        emit(state.copyWith(homePreparingOrdersStatus: BlocStatus.success, homePreparingOrders: r));
-      },
+      (l) => emit(state.copyWith(homePreparingOrdersStatus: BlocStatus.failed, errorMessage: l.message)),
+      (r) => emit(state.copyWith(homePreparingOrdersStatus: BlocStatus.success, homePreparingOrders: r)),
     );
   }
 
   FutureOr<void> _getOrderDetails(GetOrderDetailsEvent event, Emitter<OrdersState> emit) async {
     emit(state.copyWith(orderDetailsStatus: BlocStatus.loading));
-    final res = await getOrderDetailsUseCase(event.params);
+    final res = await getOrdersUseCase.orders.getOrderDetails(event.params);
     res.fold(
-      (l) {
-        if (isClosed) return;
-        emit(state.copyWith(orderDetailsStatus: BlocStatus.failed, errorMessage: l.message));
-      },
-      (r) {
-        if (isClosed) return;
-        emit(state.copyWith(orderDetailsStatus: BlocStatus.success, orderDetails: r));
-      },
+      (l) => emit(state.copyWith(orderDetailsStatus: BlocStatus.failed, errorMessage: l.message)),
+      (r) => emit(state.copyWith(orderDetailsStatus: BlocStatus.success, orderDetails: r)),
     );
   }
 
@@ -105,12 +72,8 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     emit(state.copyWith(acceptOrderStatus: BlocStatus.loading));
     final res = await acceptOrderUseCase(event.params);
     res.fold(
-      (l) {
-        if (isClosed) return;
-        emit(state.copyWith(acceptOrderStatus: BlocStatus.failed, errorMessage: l.message));
-      },
+      (l) => emit(state.copyWith(acceptOrderStatus: BlocStatus.failed, errorMessage: l.message)),
       (r) {
-        if (isClosed) return;
         add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: state.currentStatus), isReload: true));
         emit(state.copyWith(acceptOrderStatus: BlocStatus.success, acceptOrder: r));
       },
@@ -121,40 +84,24 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     emit(state.copyWith(rejectOrderStatus: BlocStatus.loading));
     final res = await rejectOrderUseCase(event.params);
     res.fold(
-      (l) {
-        if (isClosed) return;
-        emit(state.copyWith(rejectOrderStatus: BlocStatus.failed, errorMessage: l.message));
-      },
+      (l) => emit(state.copyWith(rejectOrderStatus: BlocStatus.failed, errorMessage: l.message)),
       (r) {
-        if (isClosed) return;
         add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: state.currentStatus), isReload: true));
         emit(state.copyWith(rejectOrderStatus: BlocStatus.success, rejectOrder: r));
       },
     );
   }
 
-  FutureOr<void> _addOrderItem(AddOrderItemEvent event, Emitter<OrdersState> emit) async {
-    await _mutateOrderItem(emit, () => addOrderItemUseCase(event.params), event.params.orderId);
-  }
-
-  FutureOr<void> _updateOrderItem(UpdateOrderItemEvent event, Emitter<OrdersState> emit) async {
-    await _mutateOrderItem(emit, () => updateOrderItemUseCase(event.params), event.params.orderId);
-  }
-
-  FutureOr<void> _deleteOrderItem(DeleteOrderItemEvent event, Emitter<OrdersState> emit) async {
-    await _mutateOrderItem(emit, () => deleteOrderItemUseCase(event.params), event.params.orderId);
-  }
+  FutureOr<void> _addOrderItem(AddOrderItemEvent event, Emitter<OrdersState> emit) => _mutateOrderItem(emit, () => getOrdersUseCase.orders.addOrderItem(event.params), event.params.orderId);
+  FutureOr<void> _updateOrderItem(UpdateOrderItemEvent event, Emitter<OrdersState> emit) => _mutateOrderItem(emit, () => getOrdersUseCase.orders.updateOrderItem(event.params), event.params.orderId);
+  FutureOr<void> _deleteOrderItem(DeleteOrderItemEvent event, Emitter<OrdersState> emit) => _mutateOrderItem(emit, () => getOrdersUseCase.orders.deleteOrderItem(event.params), event.params.orderId);
 
   Future<void> _mutateOrderItem(Emitter<OrdersState> emit, Future<dynamic> Function() call, int orderId) async {
     emit(state.copyWith(orderItemMutationStatus: BlocStatus.loading));
     final res = await call();
     res.fold(
-      (l) {
-        if (isClosed) return;
-        emit(state.copyWith(orderItemMutationStatus: BlocStatus.failed, errorMessage: l.message));
-      },
+      (l) => emit(state.copyWith(orderItemMutationStatus: BlocStatus.failed, errorMessage: l.message)),
       (r) {
-        if (isClosed) return;
         emit(state.copyWith(orderItemMutationStatus: BlocStatus.success, orderDetails: r));
         add(GetOrderDetailsEvent(params: GetOrderDetailsParams(orderId: orderId)));
       },
