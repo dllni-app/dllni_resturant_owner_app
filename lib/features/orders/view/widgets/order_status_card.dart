@@ -2,12 +2,12 @@ import 'package:common_package/common_package.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
-import '../../data/models/get_orders_model.dart';
+import '../../data/models/owner_order_details_model.dart';
 
 class OrderStatusCard extends StatelessWidget {
   const OrderStatusCard({super.key, required this.order});
 
-  final GetOrdersModelDataItem order;
+  final OwnerOrderDetailsData order;
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +29,7 @@ class OrderStatusCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: context.onPrimary.withAlpha(51),
-                      child: Icon(Icons.access_time_filled, color: context.onPrimary, size: 20),
-                    ),
+                    CircleAvatar(backgroundColor: context.onPrimary.withAlpha(51), child: Icon(Icons.access_time_filled, color: context.onPrimary, size: 20)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -94,55 +91,21 @@ class OrderStatusCard extends StatelessWidget {
     );
   }
 }
+
 String formatMinutesAgo(int minutes) {
-  if (minutes < 1) {
-    return 'الآن';
-  }
-
-  if (minutes < 60) {
-    return 'منذ $minutes ${minutes == 1 ? 'دقيقة' : 'دقائق'}';
-  }
-
+  if (minutes < 1) return 'الآن';
+  if (minutes < 60) return 'منذ $minutes ${minutes == 1 ? 'دقيقة' : 'دقائق'}';
   final hours = minutes ~/ 60;
-  if (hours < 24) {
-    return hours == 1
-        ? 'منذ ساعة'
-        : 'منذ $hours ساعات';
-  }
-
+  if (hours < 24) return hours == 1 ? 'منذ ساعة' : 'منذ $hours ساعات';
   final days = hours ~/ 24;
-
-  if (days == 1) {
-    return 'أمس';
-  }
-
-  if (days < 7) {
-    return 'منذ $days أيام';
-  }
-
+  if (days == 1) return 'أمس';
+  if (days < 7) return 'منذ $days أيام';
   final weeks = days ~/ 7;
-
-  if (weeks == 1) {
-    return 'منذ أسبوع';
-  }
-
-  if (weeks < 4) {
-    return 'منذ $weeks أسابيع';
-  }
-
+  if (weeks == 1) return 'منذ أسبوع';
+  if (weeks < 4) return 'منذ $weeks أسابيع';
   final months = days ~/ 30;
-
-  if (months == 1) {
-    return 'منذ شهر';
-  }
-
-  if (months < 12) {
-    return 'منذ $months أشهر';
-  }
-
+  if (months == 1) return 'منذ شهر';
+  if (months < 12) return 'منذ $months أشهر';
   final years = days ~/ 365;
-
-  return years == 1
-      ? 'منذ سنة'
-      : 'منذ $years سنوات';
+  return years == 1 ? 'منذ سنة' : 'منذ $years سنوات';
 }
