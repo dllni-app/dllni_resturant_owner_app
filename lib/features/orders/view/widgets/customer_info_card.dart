@@ -1,32 +1,17 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
-import 'package:toastification/toastification.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-import '../../data/models/get_orders_model.dart';
+import '../../data/models/owner_order_details_model.dart';
 
 class CustomerInfoCard extends StatelessWidget {
   const CustomerInfoCard({super.key, required this.order});
 
-  final GetOrdersModelDataItem order;
-
-  String get _contactValue => (order.user?.email ?? '').trim();
-
-  Future<void> _callCustomer(BuildContext context) async {
-    final digits = _contactValue.replaceAll(RegExp(r'[^0-9+]'), '');
-    if (digits.length < 6) {
-      AppToast.showToast(context: context, message: 'رقم هاتف العميل غير متوفر لهذا الطلب', type: ToastificationType.error);
-      return;
-    }
-
-    final uri = Uri(scheme: 'tel', path: digits);
-    if (!await launchUrl(uri)) {
-      AppToast.showToast(context: context, message: 'تعذر فتح تطبيق الاتصال', type: ToastificationType.error);
-    }
-  }
+  final OwnerOrderDetailsData order;
 
   @override
   Widget build(BuildContext context) {
+    final customer = order.customer;
+    final phone = customer?.phone?.trim();
     return Container(
       padding: const EdgeInsetsDirectional.all(16),
       decoration: BoxDecoration(color: context.onPrimary, borderRadius: BorderRadius.circular(16)),
@@ -54,55 +39,28 @@ class CustomerInfoCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText.bodyLarge(order.user?.name ?? '-', fontWeight: FontWeight.bold),
+                    AppText.bodyLarge(customer?.name ?? '-', fontWeight: FontWeight.bold),
                     const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.phone, size: 18, color: Color(0xff6B7280)),
-                        const SizedBox(width: 8),
-                        Expanded(child: AppText.bodyMedium(_contactValue.isEmpty ? '-' : _contactValue, color: const Color(0xff6B7280), textAlign: TextAlign.start, scrollText: true)),
-                      ],
-                    ),
+                    _infoLine(Icons.phone, phone == null || phone.isEmpty ? '-' : phone),
                     const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.location_on, size: 18, color: Color(0xff6B7280)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: AppText.bodyMedium(
-                            'العنوان غير متوفر من بيانات الطلب الحالية',
-                            color: const Color(0xff6B7280),
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                      ],
-                    ),
+                    _infoLine(Icons.email, customer?.email ?? '-'),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          InkWell(
-            onTap: () => _callCustomer(context),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: context.width,
-              padding: const EdgeInsetsDirectional.symmetric(vertical: 12),
-              decoration: BoxDecoration(color: context.primary, borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.phone, color: context.onPrimary, size: 20),
-                  const SizedBox(width: 8),
-                  AppText.labelLarge('اتصال', color: context.onPrimary, fontWeight: FontWeight.bold),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
+    );
+  }
+
+  Widget _infoLine(IconData icon, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: const Color(0xff6B7280)),
+        const SizedBox(width: 8),
+        Expanded(child: AppText.bodyMedium(value, color: const Color(0xff6B7280), textAlign: TextAlign.start, scrollText: true)),
+      ],
     );
   }
 }
