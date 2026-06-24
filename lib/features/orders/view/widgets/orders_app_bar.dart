@@ -45,7 +45,7 @@ class _OrdersAppBarState extends State<OrdersAppBar> {
                   context.read<OrdersBloc>().add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: statuses[index]), isReload: true));
                 },
                 child: Container(
-                  decoration: BoxDecoration(border: Border.all(color: const Color(0xffE5E7EB)), borderRadius: BorderRadius.circular(24), color: context.onPrimary, gradient: selectedIndex == index ? LinearGradient(colors: [context.primary.withAlpha(127), context.primary], begin: AlignmentGeometry.centerRight, end: AlignmentGeometry.centerLeft) : null),
+                  decoration: BoxDecoration(border: Border.all(color: const Color(0xffE5E7EB)), borderRadius: BorderRadius.circular(24), color: context.onPrimary, gradient: selectedIndex == index ? LinearGradient(colors: [context.primary.withAlpha(127), context.primary], begin: Alignment.centerRight, end: Alignment.centerLeft) : null),
                   padding: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 9),
                   child: Row(children: [if (index != 0) CircleAvatar(radius: 4, backgroundColor: colors[index - 1]), if (index != 0) const SizedBox(width: 8), AppText.labelLarge(titles[index], color: selectedIndex == index ? context.onPrimary : const Color(0xff4B5563))]),
                 ),
