@@ -167,7 +167,7 @@ class _CouponsEmptyState extends StatelessWidget {
             const SizedBox(height: 12),
             AppText.titleMedium('لا توجد كوبونات حالياً', fontWeight: FontWeight.bold),
             const SizedBox(height: 6),
-            const AppText.bodyMedium('يمكنك إنشاء كوبون جديد لجذب العملاء وزيادة الطلبات.', color: Color(0xff6B7280), textAlign: TextAlign.center),
+            AppText.bodyMedium('يمكنك إنشاء كوبون جديد لجذب العملاء وزيادة الطلبات.', color: const Color(0xff6B7280), textAlign: TextAlign.center),
             const SizedBox(height: 16),
             InkWell(
               onTap: onCreate,
