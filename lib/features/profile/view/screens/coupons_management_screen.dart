@@ -35,39 +35,39 @@ class _CouponsManagementScreenState extends State<CouponsManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Column(
-            children: [
-              CouponManagementAppBar(),
-              SizedBox(height: 16),
-              Padding(
-                padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(24),
-                  onTap: () {
-                    context.pushRoute('/couponsmanagement/new');
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
-                    width: context.width,
-                    padding: EdgeInsetsDirectional.symmetric(vertical: 11),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_circle, color: context.onPrimaryContainer, size: 22),
-                        SizedBox(width: 8),
-                        AppText.labelLarge('إنشاء كوبون جديد', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
-                      ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                CouponManagementAppBar(),
+                SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: () {
+                      context.pushRoute('/couponsmanagement/new');
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
+                      width: context.width,
+                      padding: EdgeInsetsDirectional.symmetric(vertical: 11),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_circle, color: context.onPrimaryContainer, size: 22),
+                          SizedBox(width: 8),
+                          AppText.labelLarge('إنشاء كوبون جديد', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16),
-              CouponsStatisticsGrid(),
-              SizedBox(height: 16),
-              CouponsFilterCard(profileNotifier: profileNotifier),
-              SizedBox(height: 16),
-              Expanded(
-                child: BlocBuilder<ProfileBloc, ProfileState>(
+                SizedBox(height: 16),
+                CouponsStatisticsGrid(),
+                SizedBox(height: 16),
+                CouponsFilterCard(profileNotifier: profileNotifier),
+                SizedBox(height: 16),
+                BlocBuilder<ProfileBloc, ProfileState>(
                   builder: (context, state) {
                     return state.coupons!.builder(
                       loadingWidget: SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator.adaptive())),
@@ -79,6 +79,8 @@ class _CouponsManagementScreenState extends State<CouponsManagementScreen> {
                         return ValueListenableBuilder(
                           valueListenable: profileNotifier.couponStatus,
                           builder: (context, status, _) => ListView.separated(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
                             padding: EdgeInsetsDirectional.only(start: 24, end: 24, bottom: 20),
                             itemBuilder: (context, index) {
                               if (state.coupons!.list.length == index) {
@@ -97,8 +99,8 @@ class _CouponsManagementScreenState extends State<CouponsManagementScreen> {
                     );
                   },
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
     );

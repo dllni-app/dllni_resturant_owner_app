@@ -10,9 +10,19 @@ import '../widgets/notification_feed_item.dart';
 import '../widgets/notifications_app_bar.dart';
 import '../widgets/notifications_filter_bar.dart';
 
+class NotificationsScreenParams{
+  final HomeBloc homeBloc;
+  final String selectedKey;
+
+  NotificationsScreenParams({required this.homeBloc, required this.selectedKey});
+
+}
+
 @AutoRoutePage(path: '/notifications')
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({super.key});
+  final NotificationsScreenParams args;
+
+  const NotificationsScreen({super.key, required this.args});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -21,73 +31,82 @@ class NotificationsScreen extends StatefulWidget {
 enum NotificationCategory { all, orders, inventory, offers, system }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  String selectedKey = 'all';
+
+
+ late  String selectedKey ;
+
+  @override
+  void initState() {
+    selectedKey=widget.args.selectedKey;
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<HomeBloc>(
-      create: (context) => getIt<HomeBloc>()..add(FetchNotificationsEvent(params: FetchNotificationsParams(status: selectedKey))),
-      child: Scaffold(
-        backgroundColor: context.onPrimary,
-        body: SafeArea(
-          child: Column(
-            children: [
-              NotificationsAppBar(
-                onBackTap: () {
-                  context.pop();
-                },
-              ),
-              const SizedBox(height: 16),
-              BlocBuilder<HomeBloc, HomeState>(
-                builder: (context, state) {
-                  return NotificationsFilterBar(
-                    items: [
-                      NotificationFilterItem(title: 'الكل', key: 'all', icon: null),
-                      NotificationFilterItem(title: 'طلبات', key: 'orders', icon: Assets.images.notificationsOrdersIcon.path),
-                      NotificationFilterItem(title: 'مخزون', key: 'inventory', icon: Assets.images.notificationsInventoryIcon.path),
-                      NotificationFilterItem(title: 'عروض', key: 'offers', icon: Assets.images.notificationsOffersIcon.path),
-                      NotificationFilterItem(title: 'نظام', key: 'system', icon: Assets.images.notificationsSettingsIcon.path),
-                    ],
-                    selectedKey: selectedKey,
-                    onChanged: (val) {
-                      setState(() {
-                        selectedKey = val;
-                      });
-                      context.read<HomeBloc>().add(FetchNotificationsEvent(params: FetchNotificationsParams(status: val)));
-                    },
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    switch (state.notificationsStatus) {
-                      case null:
-                        return SizedBox.shrink();
-                      case BlocStatus.failed:
-                        return Center(
-                          child: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error, fontWeight: FontWeight.bold),
-                        );
-                      case BlocStatus.success:
-                        return ListView.separated(
-                          padding: EdgeInsetsDirectional.only(bottom: 16),
-                          itemBuilder: (context, index) {
-                            return NotificationFeedItem(notification: state.notifications!.data![index]);
-                          },
-                          separatorBuilder: (context, index) => const Divider(color: Color(0xFFE5E7EB), height: 1),
-                          itemCount: state.notifications!.data!.length,
-                        );
-                      case BlocStatus.loading:
-                        return Center(child: CircularProgressIndicator.adaptive());
-                      case BlocStatus.init:
-                        return Center(child: CircularProgressIndicator.adaptive());
-                    }
+    return Scaffold(
+      backgroundColor: context.onPrimary,
+      body: SafeArea(
+        child: Column(
+          children: [
+            NotificationsAppBar(
+              onBackTap: () {
+                context.pop();
+              },
+              homeBloc:widget.args.homeBloc
+            ),
+            const SizedBox(height: 16),
+            BlocBuilder<HomeBloc, HomeState>(
+              bloc: widget.args.homeBloc,
+              builder: (context, state) {
+                return NotificationsFilterBar(
+                  items: [
+                    NotificationFilterItem(title: 'الكل', key: 'all', icon: null),
+                    NotificationFilterItem(title: 'طلبات', key: 'orders', icon: Assets.images.notificationsOrdersIcon.path),
+                    NotificationFilterItem(title: 'مخزون', key: 'inventory', icon: Assets.images.notificationsInventoryIcon.path),
+                    NotificationFilterItem(title: 'عروض', key: 'offers', icon: Assets.images.notificationsOffersIcon.path),
+                    NotificationFilterItem(title: 'نظام', key: 'system', icon: Assets.images.notificationsSettingsIcon.path),
+                  ],
+                  selectedKey:selectedKey,
+                  onChanged: (val) {
+                    setState(() {
+                      selectedKey = val;
+                    });
+                    widget.args.homeBloc.add(FetchNotificationsEvent(params: FetchNotificationsParams(status: val)));
                   },
-                ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: BlocBuilder<HomeBloc, HomeState>(
+                bloc: widget.args.homeBloc,
+                builder: (context, state) {
+                  switch (state.notificationsStatus) {
+                    case null:
+                      return SizedBox.shrink();
+                    case BlocStatus.failed:
+                      return Center(
+                        child: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error, fontWeight: FontWeight.bold),
+                      );
+                    case BlocStatus.success:
+                      return ListView.separated(
+                        padding: EdgeInsetsDirectional.only(bottom: 16),
+                        itemBuilder: (context, index) {
+                          return NotificationFeedItem(notification: state.notifications!.data![index]);
+                        },
+                        separatorBuilder: (context, index) => const Divider(color: Color(0xFFE5E7EB), height: 1),
+                        itemCount: state.notifications!.data!.length,
+                      );
+                    case BlocStatus.loading:
+                      return Center(child: CircularProgressIndicator.adaptive());
+                    case BlocStatus.init:
+                      return Center(child: CircularProgressIndicator.adaptive());
+                  }
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,13 +1,19 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../manager/bloc/home_bloc.dart';
 
 class NotificationsAppBar extends StatelessWidget {
   const NotificationsAppBar({
     super.key,
     required this.onBackTap,
+    required this.homeBloc,
   });
 
   final VoidCallback onBackTap;
+  final HomeBloc homeBloc;
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +65,49 @@ class NotificationsAppBar extends StatelessWidget {
               color: context.primary,
             ),
           ),
+
+          BlocBuilder<HomeBloc, HomeState>(
+            bloc: homeBloc,
+            builder: (context, state) {
+              return InkWell(
+                onTap:
+                    (state.unreadNumber==null||state.unreadNumber==0)?
+                        null
+                        :
+                    () {
+                  homeBloc.add(ReadAllNotificationsEvent());
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color:
+                    (state.unreadNumber==null||state.unreadNumber==0)?
+                    context.primary.withAlpha(32)
+
+                        : context.primary
+
+
+
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsetsDirectional.all(8),
+                  child:
+                  AppText.bodySmall(
+                  'قراءة الكل',
+                  fontWeight: FontWeight.w700,
+                  textAlign: TextAlign.start,
+                  color:
+                  (state.unreadNumber==null||state.unreadNumber==0)?
+                  Colors.grey:
+                    context.primary
+                    ,
+                ),
+                ),
+              );
+            },
+          ),
+
         ],
       ),
     );

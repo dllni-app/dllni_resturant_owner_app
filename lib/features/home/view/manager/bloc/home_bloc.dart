@@ -1,3 +1,4 @@
+import 'package:common_package/common_package.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'dart:async';
@@ -11,6 +12,7 @@ import '../../../domain/usecases/home_overview_performance_use_case.dart';
 import '../../../data/models/home_overview_performance_model.dart';
 
 part 'home_event.dart';
+
 part 'home_state.dart';
 
 @injectable
@@ -20,56 +22,135 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final FetchNotificationsUseCase fetchNotificationsUseCase;
   final ReadAllNotificationsUseCase readAllNotificationsUseCase;
 
-  HomeBloc(this.fetchNotificationsUseCase, this.readAllNotificationsUseCase, this.homeOverviewUseCase, this.homeOverviewPerformanceUseCase)
-      : super(HomeState()) {
+  HomeBloc(
+    this.fetchNotificationsUseCase,
+    this.readAllNotificationsUseCase,
+    this.homeOverviewUseCase,
+    this.homeOverviewPerformanceUseCase,
+  ) : super(HomeState()) {
     on<FetchNotificationsEvent>(_fetchNotifications);
     on<HomeOverviewEvent>(_homeOverview);
     on<HomeOverviewPerformanceEvent>(_homeOverviewPerformance);
+    on<ReadAllNotificationsEvent>(_readAllNotifications);
   }
 
-  FutureOr<void> _fetchNotifications(FetchNotificationsEvent event, Emitter<HomeState> emit) async {
+  FutureOr<void> _fetchNotifications(
+    FetchNotificationsEvent event,
+    Emitter<HomeState> emit,
+  ) async {
     emit(state.copyWith(notificationsStatus: BlocStatus.loading));
     final res = await fetchNotificationsUseCase(event.params);
     await res.fold(
       (l) async {
-        emit(state.copyWith(notificationsStatus: BlocStatus.failed, errorMessage: l.message));
+        emit(
+          state.copyWith(
+            notificationsStatus: BlocStatus.failed,
+            errorMessage: l.message,
+          ),
+        );
       },
       (r) async {
-        emit(state.copyWith(notificationsStatus: BlocStatus.success, notifications: r));
-        final readRes = await readAllNotificationsUseCase(ReadAllNotificationsParams(tab: event.params.status));
-        readRes.fold((_) {}, (_) {
-          for (final item in r.data ?? <FetchNotificationsModelDataItem>[]) {
-            item.isRead = true;
-          }
-          r.meta?.unreadTotal = 0;
-          emit(state.copyWith(notificationsStatus: BlocStatus.success, notifications: r));
-        });
+        emit(
+          state.copyWith(
+            notificationsStatus: BlocStatus.success,
+            notifications: r,
+          ),
+        );
+
       },
     );
   }
 
-  FutureOr<void> _homeOverview(HomeOverviewEvent event, Emitter<HomeState> emit) async {
+  FutureOr<void> _readAllNotifications(
+    ReadAllNotificationsEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(state.copyWith(readNotificationsStatus: BlocStatus.loading));
+    final res = await readAllNotificationsUseCase(
+     NoParams()
+    );
+    res.fold(
+      (l) {
+        emit(
+          state.copyWith(
+            readNotificationsStatus: BlocStatus.failed,
+            errorMessage: l.message,
+          ),
+        );
+      },
+      (r) {
+
+
+        final updatedNotifications = (state.notifications?.data ?? [])
+            .map(
+              (e) => e.copyWith(
+            isRead: true,
+          ),
+        )
+            .toList();
+
+        emit(
+          state.copyWith(
+            unreadNumber: 0,
+            readNotificationsStatus: BlocStatus.success,
+            notifications: FetchNotificationsModel(
+              data: updatedNotifications,
+              meta: state.notifications?.meta,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  FutureOr<void> _homeOverview(
+    HomeOverviewEvent event,
+    Emitter<HomeState> emit,
+  ) async {
     emit(state.copyWith(homeOverviewStatus: BlocStatus.loading));
     final res = await homeOverviewUseCase(event.params);
     res.fold(
       (l) {
-        emit(state.copyWith(homeOverviewStatus: BlocStatus.failed, errorMessage: l.message));
+        emit(
+          state.copyWith(
+            homeOverviewStatus: BlocStatus.failed,
+            errorMessage: l.message,
+          ),
+        );
       },
       (r) {
-        emit(state.copyWith(homeOverviewStatus: BlocStatus.success, homeOverview: r));
+        emit(
+          state.copyWith(
+            homeOverviewStatus: BlocStatus.success,
+            homeOverview: r,
+          ),
+        );
       },
     );
   }
 
-  FutureOr<void> _homeOverviewPerformance(HomeOverviewPerformanceEvent event, Emitter<HomeState> emit) async {
+  FutureOr<void> _homeOverviewPerformance(
+    HomeOverviewPerformanceEvent event,
+    Emitter<HomeState> emit,
+  ) async {
     emit(state.copyWith(homeOverviewPerformanceStatus: BlocStatus.loading));
     final res = await homeOverviewPerformanceUseCase(event.params);
     res.fold(
       (l) {
-        emit(state.copyWith(homeOverviewPerformanceStatus: BlocStatus.failed, errorMessage: l.message));
+        emit(
+          state.copyWith(
+            homeOverviewPerformanceStatus: BlocStatus.failed,
+            errorMessage: l.message,
+          ),
+        );
       },
       (r) {
-        emit(state.copyWith(homeOverviewPerformanceStatus: BlocStatus.success, homeOverviewPerformance: r));
+        emit(
+          state.copyWith(
+            homeOverviewPerformanceStatus: BlocStatus.success,
+            homeOverviewPerformance: r,
+          ),
+        );
       },
     );
   }

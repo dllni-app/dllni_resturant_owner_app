@@ -245,60 +245,150 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
             ),
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-              child: BlocConsumer<InventoryBloc, InventoryState>(
-                bloc: widget.params!.bloc,
-                listener: (context, state) {
-                  final isCreateLoading = state.createInventoryItemStatus == BlocStatus.loading;
-                  final isUpdateLoading = state.updateInventoryItemStatus == BlocStatus.loading;
-                  if (isCreateLoading || isUpdateLoading) {
-                    Loading.show(context);
-                    return;
-                  }
-                  if (state.createInventoryItemStatus == BlocStatus.failed || state.updateInventoryItemStatus == BlocStatus.failed) {
-                    Loading.close();
-                    AppToast.showToast(context: context, message: state.errorMessage ?? 'خطا في حفظ المادة', type: ToastificationType.error);
-                    return;
-                  }
-                  if (state.updateInventoryItemStatus == BlocStatus.success || state.createInventoryItemStatus == BlocStatus.success) {
-                    Loading.close();
-                    context.pop();
-                    return;
-                  }
-                },
-                buildWhen: (prev, curr) => curr.createInventoryItemStatus != prev.createInventoryItemStatus || curr.updateInventoryItemStatus != prev.updateInventoryItemStatus,
-                builder: (context, invState) {
-                  final isLoading = invState.createInventoryItemStatus == BlocStatus.loading || invState.updateInventoryItemStatus == BlocStatus.loading;
-                  final isEditMode = _editingItem != null;
-                  return Row(
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: InkWell(
-                          onTap: isLoading ? null : () => _onSave(widget.params!.bloc),
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.primary),
-                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
-                            child: AppText.labelLarge(isEditMode ? 'حفظ التعديلات' : 'حفظ المادة', color: context.onPrimary, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
+              child: MultiBlocListener(
+                listeners: [
+                  BlocListener<InventoryBloc, InventoryState>(
+                    bloc: widget.params!.bloc,
+                    listenWhen: (previous, current) =>
+                    previous.createInventoryItemStatus !=
+                        current.createInventoryItemStatus,
+                    listener: (context, state) {
+                      switch (state.createInventoryItemStatus) {
+                        case BlocStatus.loading:
+                          Loading.show(context);
+                          break;
+
+                        case BlocStatus.failed:
+                          Loading.close();
+                          AppToast.showToast(
+                            context: context,
+                            message: state.errorMessage ?? 'خطا في حفظ المادة',
+                            type: ToastificationType.error,
+                          );
+                          break;
+
+                        case BlocStatus.success:
+                          Loading.close();
+                          if (context.mounted) {
+                            context.pop();
+                          }
+                          break;
+
+                        default:
+                          break;
+                      }
+                    },
+                  ),
+
+                  BlocListener<InventoryBloc, InventoryState>(
+                    bloc: widget.params!.bloc,
+                    listenWhen: (previous, current) =>
+                    previous.updateInventoryItemStatus !=
+                        current.updateInventoryItemStatus,
+                    listener: (context, state) {
+                      switch (state.updateInventoryItemStatus) {
+                        case BlocStatus.loading:
+                          Loading.show(context);
+                          break;
+
+                        case BlocStatus.failed:
+                          Loading.close();
+                          AppToast.showToast(
+                            context: context,
+                            message: state.errorMessage ?? 'خطا في حفظ المادة',
+                            type: ToastificationType.error,
+                          );
+                          break;
+
+                        case BlocStatus.success:
+                          Loading.close();
+                          if (context.mounted) {
+                            context.pop();
+                          }
+                          break;
+
+                        default:
+                          break;
+                      }
+                    },
+                  ),
+                ],
+                child: BlocBuilder<InventoryBloc, InventoryState>(
+                  bloc: widget.params!.bloc,
+                  buildWhen: (prev, curr) =>
+                  curr.createInventoryItemStatus !=
+                      prev.createInventoryItemStatus ||
+                      curr.updateInventoryItemStatus !=
+                          prev.updateInventoryItemStatus,
+                  builder: (context, invState) {
+                    final isLoading =
+                        invState.createInventoryItemStatus == BlocStatus.loading ||
+                            invState.updateInventoryItemStatus == BlocStatus.loading;
+
+                    final isEditMode = _editingItem != null;
+
+                    return Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: InkWell(
+                            onTap: isLoading
+                                ? null
+                                : () => _onSave(widget.params!.bloc),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: context.primary,
+                              ),
+                              padding: const EdgeInsetsDirectional.symmetric(
+                                horizontal: 12,
+                                vertical: 16,
+                              ),
+                              child: AppText.labelLarge(
+                                isEditMode
+                                    ? 'حفظ التعديلات'
+                                    : 'حفظ المادة',
+                                color: context.onPrimary,
+                                fontWeight: FontWeight.w500,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: InkWell(
-                          onTap: isLoading ? null : () => context.pop(),
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: context.error.withAlpha(20), border: Border.all(color: context.error)),
-                            padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 16),
-                            child: AppText.labelLarge('إلغاء', color: context.error, fontWeight: FontWeight.w500, textAlign: TextAlign.center),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: InkWell(
+                            onTap: isLoading
+                                ? null
+                                : () => context.pop(),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: context.error.withAlpha(20),
+                                border: Border.all(
+                                  color: context.error,
+                                ),
+                              ),
+                              padding: const EdgeInsetsDirectional.symmetric(
+                                horizontal: 6,
+                                vertical: 16,
+                              ),
+                              child: AppText.labelLarge(
+                                'إلغاء',
+                                color: context.error,
+                                fontWeight: FontWeight.w500,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                      ],
+                    );
+                  },
+                ),
+              )
             ),
             const SizedBox(height: 10),
           ],

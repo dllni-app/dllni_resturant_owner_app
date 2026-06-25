@@ -110,6 +110,14 @@ class FetchNotificationsModelDataItem {
         'createdAt': createdAt,
         'meta': meta,
       };
+  FetchNotificationsModelDataItem copyWith({
+    bool? isRead,
+  }) {
+    return FetchNotificationsModelDataItem(
+      // باقي الحقول
+      isRead: isRead ?? this.isRead,
+    );
+  }
 }
 
 class FetchNotificationsModelMeta {
