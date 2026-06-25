@@ -11,6 +11,7 @@ import 'package:dllni_resturant_owner_app/features/products/view/screens/add_new
 import 'package:dllni_resturant_owner_app/features/products/view/screens/add_product_ai_screen.dart';
 import 'package:dllni_resturant_owner_app/features/products/view/screens/add_product_details_screen.dart';
 import 'package:dllni_resturant_owner_app/features/products/view/screens/add_product_menu_screen.dart';
+import 'package:dllni_resturant_owner_app/features/profile/view/screens/activity_logs_screen.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/screens/add_employee_screen.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/screens/coupons_management_screen.dart';
 import 'package:dllni_resturant_owner_app/features/profile/view/screens/create_coupon_screen.dart';
@@ -136,6 +137,14 @@ class GeneratedAppRoutes {
           builder: (_) => EmployeeActivityScreen(),
           settings: settings,
         );
+      case '/employees/activity/logs':
+        if (args is ActivityLogsScreenParams) {
+          return MaterialPageRoute(
+            builder: (_) => ActivityLogsScreen(params: args),
+            settings: settings,
+          );
+        }
+        return _errorRoute(settings);
       case '/offersmanagement':
         return MaterialPageRoute(
           builder: (_) => OffersManagementScreen(),

@@ -7,6 +7,8 @@ import '../usecases/fetch_coupons_use_case.dart';
 import '../../data/models/fetch_coupons_model.dart';
 import '../usecases/fetch_coupons_summary_use_case.dart';
 import '../../data/models/fetch_coupons_summary_model.dart';
+import '../usecases/fetch_activity_logs_use_case.dart';
+import '../../data/models/fetch_activity_logs_model.dart';
 import '../usecases/fetch_working_time_use_case.dart';
 import '../../data/models/fetch_working_time_model.dart';
 import '../usecases/update_working_time_use_case.dart';
@@ -31,6 +33,8 @@ abstract class ProfileRepo {
   DataResponse<FetchCouponsModel> fetchCoupons(FetchCouponsParams params);
 
   DataResponse<FetchCouponsSummaryModel> fetchCouponsSummary(FetchCouponsSummaryParams params);
+
+  DataResponse<FetchActivityLogsModel> fetchActivityLogs(FetchActivityLogsParams params);
 
   DataResponse<FetchWorkingTimeModel> fetchWorkingTime(FetchWorkingTimeParams params);
 

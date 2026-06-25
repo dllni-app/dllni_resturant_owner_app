@@ -8,6 +8,8 @@ import '../models/fetch_coupons_model.dart';
 import '../../domain/usecases/fetch_coupons_use_case.dart';
 import '../models/fetch_coupons_summary_model.dart';
 import '../../domain/usecases/fetch_coupons_summary_use_case.dart';
+import '../models/fetch_activity_logs_model.dart';
+import '../../domain/usecases/fetch_activity_logs_use_case.dart';
 import '../models/fetch_working_time_model.dart';
 import '../../domain/usecases/fetch_working_time_use_case.dart';
 import 'package:common_package/helpers/api_handler.dart';
@@ -57,6 +59,13 @@ class ProfileRemoteDataSource with HandlingApiManager {
     return wrapHandlingApi(
       tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/coupons/summary', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
       jsonConvert: fetchCouponsSummaryModelFromJson,
+    );
+  }
+
+  Future<FetchActivityLogsModel> fetchActivityLogs(FetchActivityLogsParams params) {
+    return wrapHandlingApi(
+      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/activity-logs', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
+      jsonConvert: fetchActivityLogsModelFromJson,
     );
   }
 

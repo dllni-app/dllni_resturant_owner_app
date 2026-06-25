@@ -12,6 +12,8 @@ import '../../domain/usecases/fetch_coupons_use_case.dart';
 import '../models/fetch_coupons_model.dart';
 import '../../domain/usecases/fetch_coupons_summary_use_case.dart';
 import '../models/fetch_coupons_summary_model.dart';
+import '../../domain/usecases/fetch_activity_logs_use_case.dart';
+import '../models/fetch_activity_logs_model.dart';
 import '../../domain/usecases/fetch_working_time_use_case.dart';
 import '../models/fetch_working_time_model.dart';
 import '../../domain/usecases/update_working_time_use_case.dart';
@@ -60,6 +62,13 @@ class ProfileRepoImpl with HandlingException implements ProfileRepo {
   DataResponse<FetchCouponsSummaryModel> fetchCouponsSummary(FetchCouponsSummaryParams params) {
     return wrapHandlingException(
       tryCall: () => profileRemoteDataSource.fetchCouponsSummary(params),
+    );
+  }
+
+  @override
+  DataResponse<FetchActivityLogsModel> fetchActivityLogs(FetchActivityLogsParams params) {
+    return wrapHandlingException(
+      tryCall: () => profileRemoteDataSource.fetchActivityLogs(params),
     );
   }
 
@@ -127,4 +136,3 @@ class ProfileRepoImpl with HandlingException implements ProfileRepo {
     );
   }
 }
-

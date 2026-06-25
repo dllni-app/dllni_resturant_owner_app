@@ -17,6 +17,7 @@ class ProfileState {
   BlocStatus? couponsSummaryStatus;
   FetchCouponsSummaryModel? couponsSummary;
   PaginationStateModel<FetchCouponsModelDataItem>? coupons;
+  PaginationStateModel<ActivityLogItem>? activityLogs;
   BlocStatus? offersSummaryStatus;
   FetchOffersSummaryModel? offersSummary;
   PaginationStateModel<FetchOffersModelDataItem>? offers;
@@ -36,6 +37,7 @@ class ProfileState {
     this.coupons = const PaginationStateModel(perPage: 10),
     this.couponsSummary,
     this.couponsSummaryStatus,
+    this.activityLogs = const PaginationStateModel(perPage: 15),
     this.workingTime,
     this.workingTimeStatus,
     this.updateWorkingTime,
@@ -65,6 +67,7 @@ class ProfileState {
     PaginationStateModel<FetchCouponsModelDataItem>? coupons,
     FetchCouponsSummaryModel? couponsSummary,
     BlocStatus? couponsSummaryStatus,
+    PaginationStateModel<ActivityLogItem>? activityLogs,
     FetchWorkingTimeModel? workingTime,
     BlocStatus? workingTimeStatus,
     BlocStatus? updateWorkingTimeStatus,
@@ -92,6 +95,7 @@ class ProfileState {
     coupons: coupons ?? this.coupons,
     couponsSummary: couponsSummary ?? this.couponsSummary,
     couponsSummaryStatus: couponsSummaryStatus ?? this.couponsSummaryStatus,
+    activityLogs: activityLogs ?? this.activityLogs,
     workingTime: workingTime ?? this.workingTime,
     workingTimeStatus: workingTimeStatus ?? this.workingTimeStatus,
     updateWorkingTime: updateWorkingTime ?? this.updateWorkingTime,
