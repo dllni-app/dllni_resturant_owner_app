@@ -24,43 +24,43 @@ class InventoryScreen extends StatelessWidget {
         ..add(FetchInventorySummaryEvent(params: FetchInventorySummaryParams()))
         ..add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams())),
       child: SafeArea(
-        child: Column(
-          children: [
-            InventoryAppBar(),
-            SizedBox(height: 16),
-            Padding(
-              padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
-              child: BlocBuilder<InventoryBloc, InventoryState>(
-                builder: (context, state) {
-                  return InkWell(
-                    onTap: () async {
-                      context.pushRoute('/inventory/new', arguments: CreateInventoryItemScreenParams(bloc: context.read<InventoryBloc>()));
-                    },
-                    borderRadius: BorderRadius.circular(24),
-                    child: Container(
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
-                      width: context.width,
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 11),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add_circle, color: context.onPrimaryContainer, size: 22),
-                          SizedBox(width: 8),
-                          AppText.labelLarge('إضافة مادة جديدة', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
-                        ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              InventoryAppBar(),
+              SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
+                child: BlocBuilder<InventoryBloc, InventoryState>(
+                  builder: (context, state) {
+                    return InkWell(
+                      onTap: () async {
+                        context.pushRoute('/inventory/new', arguments: CreateInventoryItemScreenParams(bloc: context.read<InventoryBloc>()));
+                      },
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
+                        width: context.width,
+                        padding: EdgeInsetsDirectional.symmetric(vertical: 11),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_circle, color: context.onPrimaryContainer, size: 22),
+                            SizedBox(width: 8),
+                            AppText.labelLarge('إضافة مادة جديدة', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 16),
-            InventoryStatisticsGrid(),
-            SizedBox(height: 16),
-            InventoryCategoriesList(),
-            SizedBox(height: 16),
-            Expanded(
-              child: BlocBuilder<InventoryBloc, InventoryState>(
+              SizedBox(height: 16),
+              InventoryStatisticsGrid(),
+              SizedBox(height: 16),
+              InventoryCategoriesList(),
+              SizedBox(height: 16),
+              BlocBuilder<InventoryBloc, InventoryState>(
                 builder: (context, state) {
                   return state.inventoryItems!.builder(
                     loadingWidget: SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator.adaptive())),
@@ -74,6 +74,8 @@ class InventoryScreen extends StatelessWidget {
                     ),
                     successWidget: () {
                       return ListView.separated(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
                         padding: EdgeInsetsDirectional.only(start: 24, end: 24, bottom: 10),
                         itemBuilder: (context, index) {
                           if (state.inventoryItems!.list.length == index) {
@@ -117,8 +119,8 @@ class InventoryScreen extends StatelessWidget {
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
