@@ -11,7 +11,9 @@ class CustomerInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final customer = order.customer;
-    final phone = customer?.phone?.trim();
+    final phone = (customer?.phone?.trim().isNotEmpty ?? false) ? customer!.phone!.trim() : (order.customerAddress?.mobile?.trim() ?? '');
+    final address = order.customerAddress?.displayText.trim() ?? '';
+
     return Container(
       padding: const EdgeInsetsDirectional.all(16),
       decoration: BoxDecoration(color: context.onPrimary, borderRadius: BorderRadius.circular(16)),
@@ -41,9 +43,11 @@ class CustomerInfoCard extends StatelessWidget {
                   children: [
                     AppText.bodyLarge(customer?.name ?? '-', fontWeight: FontWeight.bold),
                     const SizedBox(height: 8),
-                    _infoLine(Icons.phone, phone == null || phone.isEmpty ? '-' : phone),
+                    _infoLine(Icons.phone, phone.isEmpty ? '-' : phone),
                     const SizedBox(height: 8),
                     _infoLine(Icons.email, customer?.email ?? '-'),
+                    const SizedBox(height: 8),
+                    _infoLine(Icons.location_on, address.isEmpty ? 'العنوان غير متوفر من بيانات الطلب الحالية' : address),
                   ],
                 ),
               ),

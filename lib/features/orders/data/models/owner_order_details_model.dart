@@ -22,6 +22,8 @@ class OwnerOrderDetailsModel {
 
 class OwnerOrderDetailsData {
   final int id;
+  final int? userId;
+  final int? userAddressId;
   final int restaurantId;
   final String? orderNumber;
   final String? status;
@@ -38,6 +40,8 @@ class OwnerOrderDetailsData {
   final String? kitchenNotes;
   final String? cancellationReason;
   final OwnerOrderCustomer? customer;
+  final OwnerOrderAddress? customerAddress;
+  final OwnerOrderDeliveryInfo? delivery;
   final List<OwnerOrderDetailsItem> items;
   final OwnerOrderAmounts amounts;
   final bool canEditItems;
@@ -45,6 +49,8 @@ class OwnerOrderDetailsData {
 
   const OwnerOrderDetailsData({
     required this.id,
+    this.userId,
+    this.userAddressId,
     required this.restaurantId,
     this.orderNumber,
     this.status,
@@ -61,6 +67,8 @@ class OwnerOrderDetailsData {
     this.kitchenNotes,
     this.cancellationReason,
     this.customer,
+    this.customerAddress,
+    this.delivery,
     this.items = const [],
     required this.amounts,
     this.canEditItems = false,
@@ -72,11 +80,22 @@ class OwnerOrderDetailsData {
     final restaurantId = _i(json['restaurantId']);
     if (id == null) throw const FormatException('Owner order details response is missing id');
     if (restaurantId == null) throw const FormatException('Owner order details response is missing restaurantId');
+
     final rawItems = json['items'] is List ? json['items'] : json['orderItems'];
     final amounts = _m(json['amounts']);
     final paymentBreakdown = _m(json['paymentBreakdown']);
+    final addressMap = json['customerAddress'] is Map
+        ? _m(json['customerAddress'])
+        : json['userAddress'] is Map
+            ? _m(json['userAddress'])
+            : <String, dynamic>{};
+    final address = addressMap.isEmpty ? null : OwnerOrderAddress.fromJson(addressMap);
+    final deliveryMap = _m(json['delivery']);
+
     return OwnerOrderDetailsData(
       id: id,
+      userId: _i(json['userId']),
+      userAddressId: _i(json['userAddressId']),
       restaurantId: restaurantId,
       orderNumber: _s(json['orderNumber']),
       status: _s(json['status']),
@@ -93,13 +112,30 @@ class OwnerOrderDetailsData {
       kitchenNotes: _s(json['kitchenNotes']),
       cancellationReason: _s(json['cancellationReason']),
       customer: json['customer'] is Map ? OwnerOrderCustomer.fromJson(_m(json['customer'])) : json['user'] is Map ? OwnerOrderCustomer.fromJson(_m(json['user'])) : null,
+      customerAddress: address,
+      delivery: deliveryMap.isEmpty && address == null ? null : OwnerOrderDeliveryInfo.fromJson(deliveryMap, fallbackAddress: address),
       items: rawItems is List ? rawItems.whereType<Map>().map((e) => OwnerOrderDetailsItem.fromJson(_m(e))).toList() : const [],
       amounts: OwnerOrderAmounts.fromJson(amounts.isEmpty ? {'subtotal': json['subtotal'], 'discount': json['discountAmount'], 'tax': json['taxAmount'], 'serviceFee': json['serviceFee'], 'total': json['totalAmount']} : amounts),
       canEditItems: _b(json['canEditItems']) ?? false,
       paymentBreakdown: paymentBreakdown.isEmpty ? null : OwnerPaymentBreakdown.fromJson(paymentBreakdown),
     );
   }
-  Map<String, dynamic> toJson() => {'id': id, 'restaurantId': restaurantId, 'orderNumber': orderNumber, 'status': status, 'statusLabelAr': statusLabelAr, 'items': items.map((e) => e.toJson()).toList(), 'amounts': amounts.toJson(), 'canEditItems': canEditItems};
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'userId': userId,
+        'userAddressId': userAddressId,
+        'restaurantId': restaurantId,
+        'orderNumber': orderNumber,
+        'status': status,
+        'statusLabelAr': statusLabelAr,
+        'items': items.map((e) => e.toJson()).toList(),
+        'amounts': amounts.toJson(),
+        'customer': customer?.toJson(),
+        'customerAddress': customerAddress?.toJson(),
+        'delivery': delivery?.toJson(),
+        'canEditItems': canEditItems,
+      };
 }
 
 class OwnerOrderCustomer {
@@ -112,39 +148,125 @@ class OwnerOrderCustomer {
   Map<String, dynamic> toJson() => {'id': id, 'name': name, 'phone': phone, 'email': email};
 }
 
+class OwnerOrderAddress {
+  final int? id;
+  final String? label;
+  final String? mobile;
+  final String? city;
+  final String? neighborhood;
+  final String? street;
+  final String? building;
+  final String? floor;
+  final String? directions;
+  final double? latitude;
+  final double? longitude;
+  final String? formatted;
+
+  const OwnerOrderAddress({this.id, this.label, this.mobile, this.city, this.neighborhood, this.street, this.building, this.floor, this.directions, this.latitude, this.longitude, this.formatted});
+
+  factory OwnerOrderAddress.fromJson(Map<String, dynamic> json) => OwnerOrderAddress(
+        id: _i(json['id']),
+        label: _s(json['label']),
+        mobile: _s(json['mobile']),
+        city: _s(json['city']),
+        neighborhood: _s(json['neighborhood']),
+        street: _s(json['street']),
+        building: _s(json['building']),
+        floor: _s(json['floor']),
+        directions: _s(json['directions']),
+        latitude: _d(json['latitude']),
+        longitude: _d(json['longitude']),
+        formatted: _s(json['formatted']),
+      );
+
+  String get displayText {
+    final fromServer = formatted?.trim();
+    if (fromServer != null && fromServer.isNotEmpty) return fromServer;
+    final parts = [city, neighborhood, street, building == null ? null : 'بناء $building', floor == null ? null : 'طابق $floor', directions]
+        .whereType<String>()
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    return parts.join('، ');
+  }
+
+  Map<String, dynamic> toJson() => {'id': id, 'label': label, 'mobile': mobile, 'city': city, 'neighborhood': neighborhood, 'street': street, 'building': building, 'floor': floor, 'directions': directions, 'latitude': latitude, 'longitude': longitude, 'formatted': formatted};
+}
+
+class OwnerOrderDeliveryInfo {
+  final String? orderType;
+  final String? orderTypeLabelAr;
+  final String? pickupMode;
+  final String? scheduledFor;
+  final OwnerOrderAddress? address;
+  final double? deliveryFee;
+  final double? distanceKm;
+  final int? estimatedDeliveryMinutes;
+
+  const OwnerOrderDeliveryInfo({this.orderType, this.orderTypeLabelAr, this.pickupMode, this.scheduledFor, this.address, this.deliveryFee, this.distanceKm, this.estimatedDeliveryMinutes});
+
+  factory OwnerOrderDeliveryInfo.fromJson(Map<String, dynamic> json, {OwnerOrderAddress? fallbackAddress}) => OwnerOrderDeliveryInfo(
+        orderType: _s(json['orderType']),
+        orderTypeLabelAr: _s(json['orderTypeLabelAr']),
+        pickupMode: _s(json['pickupMode']),
+        scheduledFor: _s(json['scheduledFor']),
+        address: json['address'] is Map ? OwnerOrderAddress.fromJson(_m(json['address'])) : fallbackAddress,
+        deliveryFee: _d(json['deliveryFee']),
+        distanceKm: _d(json['distanceKm']),
+        estimatedDeliveryMinutes: _i(json['estimatedDeliveryMinutes']),
+      );
+
+  Map<String, dynamic> toJson() => {'orderType': orderType, 'orderTypeLabelAr': orderTypeLabelAr, 'pickupMode': pickupMode, 'scheduledFor': scheduledFor, 'address': address?.toJson(), 'deliveryFee': deliveryFee, 'distanceKm': distanceKm, 'estimatedDeliveryMinutes': estimatedDeliveryMinutes};
+}
+
 class OwnerOrderDetailsItem {
   final int id;
   final int? orderId;
   final int productId;
   final String? name;
+  final String? imageUrl;
   final int quantity;
   final double unitPrice;
   final double totalPrice;
   final String? specialInstructions;
-  const OwnerOrderDetailsItem({required this.id, this.orderId, required this.productId, this.name, required this.quantity, required this.unitPrice, required this.totalPrice, this.specialInstructions});
+  const OwnerOrderDetailsItem({required this.id, this.orderId, required this.productId, this.name, this.imageUrl, required this.quantity, required this.unitPrice, required this.totalPrice, this.specialInstructions});
   factory OwnerOrderDetailsItem.fromJson(Map<String, dynamic> json) {
     final product = _m(json['product']);
-    return OwnerOrderDetailsItem(id: _i(json['id']) ?? 0, orderId: _i(json['orderId']), productId: _i(json['productId']) ?? _i(product['id']) ?? 0, name: _s(json['name']) ?? _s(product['name']), quantity: _i(json['quantity']) ?? 0, unitPrice: _d(json['unitPrice']) ?? 0, totalPrice: _d(json['totalPrice']) ?? 0, specialInstructions: _s(json['specialInstructions']));
+    return OwnerOrderDetailsItem(
+      id: _i(json['id']) ?? 0,
+      orderId: _i(json['orderId']),
+      productId: _i(json['productId']) ?? _i(product['id']) ?? 0,
+      name: _s(json['name']) ?? _s(product['name']),
+      imageUrl: _s(json['imageUrl']) ?? _s(json['primaryImage']) ?? _s(product['imageUrl']) ?? _s(product['primaryImage']),
+      quantity: _i(json['quantity']) ?? 0,
+      unitPrice: _d(json['unitPrice']) ?? 0,
+      totalPrice: _d(json['totalPrice']) ?? 0,
+      specialInstructions: _s(json['specialInstructions']),
+    );
   }
-  Map<String, dynamic> toJson() => {'id': id, 'orderId': orderId, 'productId': productId, 'name': name, 'quantity': quantity, 'unitPrice': unitPrice, 'totalPrice': totalPrice, 'specialInstructions': specialInstructions};
+  Map<String, dynamic> toJson() => {'id': id, 'orderId': orderId, 'productId': productId, 'name': name, 'imageUrl': imageUrl, 'quantity': quantity, 'unitPrice': unitPrice, 'totalPrice': totalPrice, 'specialInstructions': specialInstructions};
 }
 
 class OwnerOrderAmounts {
   final double subtotal;
+  final double deliveryFee;
   final double discount;
   final double tax;
   final double serviceFee;
   final double total;
-  const OwnerOrderAmounts({this.subtotal = 0, this.discount = 0, this.tax = 0, this.serviceFee = 0, this.total = 0});
-  factory OwnerOrderAmounts.fromJson(Map<String, dynamic> json) => OwnerOrderAmounts(subtotal: _d(json['subtotal']) ?? 0, discount: _d(json['discount']) ?? _d(json['discountAmount']) ?? 0, tax: _d(json['tax']) ?? _d(json['taxAmount']) ?? 0, serviceFee: _d(json['serviceFee']) ?? 0, total: _d(json['total']) ?? _d(json['totalAmount']) ?? 0);
-  Map<String, dynamic> toJson() => {'subtotal': subtotal, 'discount': discount, 'tax': tax, 'serviceFee': serviceFee, 'total': total};
+  const OwnerOrderAmounts({this.subtotal = 0, this.deliveryFee = 0, this.discount = 0, this.tax = 0, this.serviceFee = 0, this.total = 0});
+  factory OwnerOrderAmounts.fromJson(Map<String, dynamic> json) => OwnerOrderAmounts(subtotal: _d(json['subtotal']) ?? 0, deliveryFee: _d(json['deliveryFee']) ?? 0, discount: _d(json['discount']) ?? _d(json['discountAmount']) ?? 0, tax: _d(json['tax']) ?? _d(json['taxAmount']) ?? 0, serviceFee: _d(json['serviceFee']) ?? 0, total: _d(json['total']) ?? _d(json['totalAmount']) ?? 0);
+  Map<String, dynamic> toJson() => {'subtotal': subtotal, 'deliveryFee': deliveryFee, 'discount': discount, 'tax': tax, 'serviceFee': serviceFee, 'total': total};
 }
 
 class OwnerPaymentBreakdown {
   final double subtotal;
+  final double deliveryFee;
+  final double serviceFee;
+  final double tax;
   final double discount;
   final double total;
-  const OwnerPaymentBreakdown({this.subtotal = 0, this.discount = 0, this.total = 0});
-  factory OwnerPaymentBreakdown.fromJson(Map<String, dynamic> json) => OwnerPaymentBreakdown(subtotal: _d(json['subtotal']) ?? 0, discount: _d(json['discount']) ?? 0, total: _d(json['total']) ?? 0);
-  Map<String, dynamic> toJson() => {'subtotal': subtotal, 'discount': discount, 'total': total};
+  const OwnerPaymentBreakdown({this.subtotal = 0, this.deliveryFee = 0, this.serviceFee = 0, this.tax = 0, this.discount = 0, this.total = 0});
+  factory OwnerPaymentBreakdown.fromJson(Map<String, dynamic> json) => OwnerPaymentBreakdown(subtotal: _d(json['subtotal']) ?? 0, deliveryFee: _d(json['deliveryFee']) ?? 0, serviceFee: _d(json['serviceFee']) ?? 0, tax: _d(json['tax']) ?? 0, discount: _d(json['discount']) ?? 0, total: _d(json['total']) ?? 0);
+  Map<String, dynamic> toJson() => {'subtotal': subtotal, 'deliveryFee': deliveryFee, 'serviceFee': serviceFee, 'tax': tax, 'discount': discount, 'total': total};
 }

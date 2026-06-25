@@ -21,15 +21,19 @@ class OrderDetailsSummaryCard extends StatelessWidget {
           const SizedBox(height: 16),
           _row('تكلفة المنتجات', amounts.subtotal, context),
           const SizedBox(height: 8),
-          _row('الضريبة', amounts.tax, context),
+          _row('رسوم التوصيل', amounts.deliveryFee, context),
           const SizedBox(height: 8),
           _row('رسوم الخدمة', amounts.serviceFee, context),
+          if (amounts.tax != 0) ...[
+            const SizedBox(height: 8),
+            _row('الضريبة', amounts.tax, context),
+          ],
           const SizedBox(height: 8),
           _row('الخصم', amounts.discount, context, isDiscount: true),
           const SizedBox(height: 12),
           const Divider(color: Color(0xffE5E7EB)),
           const SizedBox(height: 12),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [AppText.titleMedium('الإجمالي', fontWeight: FontWeight.bold), AppText.titleMedium('${amounts.total.toStringAsFixed(0)} ل.س', fontWeight: FontWeight.bold, color: context.primary)]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [AppText.titleMedium('الإجمالي', fontWeight: FontWeight.bold), AppText.titleMedium('${amounts.total.toStringAsFixed(1)} ل.س', fontWeight: FontWeight.bold, color: context.primary)]),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 8),
@@ -42,6 +46,6 @@ class OrderDetailsSummaryCard extends StatelessWidget {
   }
 
   Widget _row(String label, double value, BuildContext context, {bool isDiscount = false}) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [AppText.bodyMedium(label, color: const Color(0xff6B7280), fontWeight: FontWeight.w400), AppText.bodyMedium('${value.toStringAsFixed(0)} ل.س', color: isDiscount ? const Color(0xff24B364) : const Color(0xff2F2B3D), fontWeight: FontWeight.bold)]);
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [AppText.bodyMedium(label, color: const Color(0xff6B7280), fontWeight: FontWeight.w400), AppText.bodyMedium('${value.toStringAsFixed(1)} ل.س', color: isDiscount ? const Color(0xff24B364) : const Color(0xff2F2B3D), fontWeight: FontWeight.bold)]);
   }
 }
