@@ -11,7 +11,7 @@ abstract class HomeRepo {
 
   DataResponse<FetchNotificationsModel> fetchNotifications(FetchNotificationsParams params);
 
-  DataResponse<ReadAllNotificationsModel> readAllNotifications(ReadAllNotificationsParams params);
+  DataResponse<ReadAllNotificationsModel> readAllNotifications();
 
   DataResponse<HomeOverviewModel> homeOverview(HomeOverviewParams params);
 

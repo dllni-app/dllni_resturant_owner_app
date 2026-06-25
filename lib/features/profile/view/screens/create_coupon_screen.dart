@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
 
+import '../../domain/usecases/fetch_coupons_summary_use_case.dart';
+import '../../domain/usecases/fetch_coupons_use_case.dart';
 import '../manager/bloc/profile_bloc.dart';
 import '../widgets/create_coupon_app_bar.dart';
 import '../widgets/create_coupon_code_card.dart';
@@ -137,7 +139,16 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
             ),
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-              child: BlocBuilder<ProfileBloc, ProfileState>(
+              child: BlocConsumer<ProfileBloc, ProfileState>(
+                listener: (context,state){
+                  if(state.createCouponStatus==BlocStatus.success){
+                    context.pop();
+                    context.read<ProfileBloc>().add(FetchCouponsEvent(params: FetchCouponsParams(status: 'all'), isReload: true));
+                    context.read<ProfileBloc>().add(FetchCouponsSummaryEvent(params: FetchCouponsSummaryParams()));
+                  }
+                },
+                listenWhen: (pre,cur)=>pre.createCouponStatus!=cur.createCouponStatus,
+
                 builder: (context, state) {
                   final isLoading = state.createCouponStatus == BlocStatus.loading;
                   return Row(

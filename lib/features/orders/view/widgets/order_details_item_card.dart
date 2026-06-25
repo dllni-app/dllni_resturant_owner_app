@@ -62,12 +62,7 @@ class OrderDetailsItemCard extends StatelessWidget {
                     padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
                     child: AppText.labelMedium('x$quantity'),
                   ),
-                  /*SizedBox(height: 4),
-                  Container(
-                    padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(color: context.error.withAlpha(25), borderRadius: BorderRadius.circular(4)),
-                    child: AppText.labelSmall('غير متوفر', color: context.error, fontWeight: FontWeight.w500),
-                  ),*/
+
                 ],
               ),
             ),

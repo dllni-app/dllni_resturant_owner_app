@@ -35,39 +35,39 @@ class _OffersManagementScreenState extends State<OffersManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Column(
-            children: [
-              OffersManagementAppBar(),
-              SizedBox(height: 16),
-              Padding(
-                padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
-                child: InkWell(
-                  onTap: () {
-                    context.pushRoute('/offersmanagement/new');
-                  },
-                  borderRadius: BorderRadius.circular(24),
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
-                    width: context.width,
-                    padding: EdgeInsetsDirectional.symmetric(vertical: 11),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add_circle, color: context.onPrimaryContainer, size: 22),
-                        SizedBox(width: 8),
-                        AppText.labelLarge('إنشاء عرض جديد', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
-                      ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                OffersManagementAppBar(),
+                SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsetsDirectional.symmetric(horizontal: 24),
+                  child: InkWell(
+                    onTap: () {
+                      context.pushRoute('/offersmanagement/new');
+                    },
+                    borderRadius: BorderRadius.circular(24),
+                    child: Container(
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
+                      width: context.width,
+                      padding: EdgeInsetsDirectional.symmetric(vertical: 11),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_circle, color: context.onPrimaryContainer, size: 22),
+                          SizedBox(width: 8),
+                          AppText.labelLarge('إنشاء عرض جديد', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16),
-              OffersStatisticsGrid(),
-              SizedBox(height: 16),
-              OffersFilterCard(profileNotifier: profileNotifier),
-              SizedBox(height: 16),
-              Expanded(
-                child: BlocBuilder<ProfileBloc, ProfileState>(
+                SizedBox(height: 16),
+                OffersStatisticsGrid(),
+                SizedBox(height: 16),
+                OffersFilterCard(profileNotifier: profileNotifier),
+                SizedBox(height: 16),
+                BlocBuilder<ProfileBloc, ProfileState>(
                   builder: (context, state) {
                     return state.offers!.builder(
                       loadingWidget: SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator.adaptive())),
@@ -80,6 +80,8 @@ class _OffersManagementScreenState extends State<OffersManagementScreen> {
                           valueListenable: profileNotifier.offerStatus,
                           builder: (context, status, _) {
                             return ListView.separated(
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
                               padding: EdgeInsetsDirectional.only(start: 24, end: 24, bottom: 20),
                               itemBuilder: (context, index) {
                                 if (state.offers!.list.length == index) {
@@ -103,8 +105,8 @@ class _OffersManagementScreenState extends State<OffersManagementScreen> {
                     );
                   },
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
     );

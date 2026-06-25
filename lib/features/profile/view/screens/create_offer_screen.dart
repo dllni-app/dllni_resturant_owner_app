@@ -129,7 +129,15 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             ),
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-              child: BlocBuilder<ProfileBloc, ProfileState>(
+              child: BlocConsumer<ProfileBloc, ProfileState>(
+                listener: (context,state){
+
+                  if(state.createOfferStatus==BlocStatus.success){
+                    context.pop();
+                  }
+
+                },
+                listenWhen:(pre,cur)=>pre.createOfferStatus!=cur.createOfferStatus,
                 builder: (context, state) {
                   final isLoading = state.createOfferStatus == BlocStatus.loading;
                   final productIds = state.selectedProducts.where((p) => p.id != null).map((p) => p.id!).toList();

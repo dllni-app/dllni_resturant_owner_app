@@ -51,6 +51,7 @@ class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
                   setState(() {});
                 },
                 inactiveColor: const Color(0xFFD1D5DB),
+
               ),
             ],
           ),

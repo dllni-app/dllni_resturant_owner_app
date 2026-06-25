@@ -19,3 +19,7 @@ class HomeOverviewPerformanceEvent extends HomeEvent {
 
   HomeOverviewPerformanceEvent({required this.params});
 }
+
+class ReadAllNotificationsEvent extends HomeEvent {
+
+}

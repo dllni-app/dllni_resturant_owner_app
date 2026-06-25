@@ -27,9 +27,9 @@ class HomeRepoImpl with HandlingException implements HomeRepo {
   }
 
   @override
-  DataResponse<ReadAllNotificationsModel> readAllNotifications(ReadAllNotificationsParams params) {
+  DataResponse<ReadAllNotificationsModel> readAllNotifications() {
     return wrapHandlingException(
-      tryCall: () => homeRemoteDataSource.readAllNotifications(params),
+      tryCall: () => homeRemoteDataSource.readAllNotifications(),
     );
   }
 

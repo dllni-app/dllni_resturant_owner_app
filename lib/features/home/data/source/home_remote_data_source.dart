@@ -15,7 +15,9 @@ class HomeRemoteDataSource with HandlingApiManager {
 
   HomeRemoteDataSource({required this.dioNetwork});
 
-  Future<FetchNotificationsModel> fetchNotifications(FetchNotificationsParams params) {
+  Future<FetchNotificationsModel> fetchNotifications(
+    FetchNotificationsParams params,
+  ) {
     // #region agent log
     agentDebugLog(
       hypothesisId: 'H2',
@@ -29,29 +31,46 @@ class HomeRemoteDataSource with HandlingApiManager {
     );
     // #endregion
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/notifications', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
+      tryCall: () => dioNetwork.getData(
+        endPoint: '/api/v1/restaurant-owner/notifications',
+        params: params.getParams(),
+        data: params.getBody().isEmpty ? null : params.getBody(),
+      ),
       jsonConvert: fetchNotificationsModelFromJson,
     );
   }
 
-  Future<ReadAllNotificationsModel> readAllNotifications(ReadAllNotificationsParams params) {
+  Future<ReadAllNotificationsModel> readAllNotifications() {
     return wrapHandlingApi(
-      tryCall: () =>
-          dioNetwork.patchData(endPoint: '/api/v1/restaurant-owner/notifications/read-all', data: params.getBody(), params: params.getParams()),
+      tryCall: () => dioNetwork.patchData(
+        endPoint: '/api/v1/restaurant-owner/notifications/read-all',
+        data: {},
+      ),
       jsonConvert: readAllNotificationsModelFromJson,
     );
   }
 
   Future<HomeOverviewModel> homeOverview(HomeOverviewParams params) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/dashboard/overview', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
+      tryCall: () => dioNetwork.getData(
+        endPoint: '/api/v1/restaurant-owner/dashboard/overview',
+        params: params.getParams(),
+        data: params.getBody().isEmpty ? null : params.getBody(),
+      ),
       jsonConvert: homeOverviewModelFromJson,
     );
   }
 
-  Future<HomeOverviewPerformanceModel> homeOverviewPerformance(HomeOverviewPerformanceParams params) {
+  Future<HomeOverviewPerformanceModel> homeOverviewPerformance(
+    HomeOverviewPerformanceParams params,
+  ) {
     return wrapHandlingApi(
-      tryCall: () => dioNetwork.getData(endPoint: '/api/v1/restaurant-owner/dashboard/performance', params: params.getParams(), data: params.getBody().isEmpty ? null : params.getBody()),
+      tryCall: () => dioNetwork.getData(
+        endPoint: '/api/v1/restaurant-owner/dashboard/performance',
+        params: params.getParams(),
+        data: params.getBody().isEmpty ? null : params.getBody(),
+      ),
       jsonConvert: homeOverviewPerformanceModelFromJson,
     );
-  }}
+  }
+}
