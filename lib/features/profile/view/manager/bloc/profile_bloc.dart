@@ -149,7 +149,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
         (r) {
           if (isClosed) return;
-          emit(state.copyWith(coupons: state.coupons!.setSuccess(data: r.data!)));
+          emit(state.copyWith(coupons: state.coupons!.setSuccess(data: r.data ?? [], perPage: event.params.perPage)));
         },
       );
     }
@@ -234,19 +234,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         emit(state.copyWith(createCouponStatus: BlocStatus.failed, errorMessage: l.message));
       },
       (r) {
+        if (event.params.isDelete) Loading.close();
         if (isClosed) return;
+
+        final message = event.params.isDelete
+            ? 'تم حذف الكوبون بنجاح'
+            : event.params.isAddNew
+                ? 'تم انشاء الكوبون بنجاح'
+                : 'تم تعديل الكوبون بنجاح';
+
+        AppToast.showToast(context: event.context, message: message, type: ToastificationType.success);
+        add(FetchCouponsEvent(params: FetchCouponsParams(status: 'all'), isReload: true));
+        add(FetchCouponsSummaryEvent(params: FetchCouponsSummaryParams()));
         emit(state.copyWith(createCouponStatus: BlocStatus.success, createCouponDraft: r));
-        if (event.params.isDelete) {
-          Loading.close();
-          add(FetchCouponsEvent(params: FetchCouponsParams(status: 'all'), isReload: true));
-        } else {
-          AppToast.showToast(
-            context: event.context,
-            message: event.params.isAddNew ? 'تم انشاء الكوبون بنجاح' : 'تم تعديل الكوبون بنجاح',
-            type: ToastificationType.success,
-          );
-          event.context.pushRouteAndRemoveUntil('main', arguments: 4);
-        }
       },
     );
   }
