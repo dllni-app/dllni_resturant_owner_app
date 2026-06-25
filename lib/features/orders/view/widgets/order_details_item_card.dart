@@ -48,19 +48,19 @@ class OrderDetailsItemCard extends StatelessWidget {
                 Container(decoration: BoxDecoration(color: const Color(0xff6B7280).withAlpha(51), borderRadius: BorderRadius.circular(8)), padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2), child: AppText.labelMedium('x${item.quantity}')),
                 if ((item.specialInstructions ?? '').isNotEmpty) ...[const SizedBox(height: 4), AppText.labelSmall(item.specialInstructions!, color: const Color(0xff6B7280), textAlign: TextAlign.start)],
               ]),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText.bodyMedium(name, fontWeight: FontWeight.bold),
-                  SizedBox(height: 4),
-                  Container(
-                    decoration: BoxDecoration(color: Color(0xff6B7280).withAlpha(51), borderRadius: BorderRadius.circular(8)),
-                    padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
-                    child: AppText.labelMedium('x$quantity'),
-                  ),
-
-                ],
-              ),
+              // child: Column(
+              //   crossAxisAlignment: CrossAxisAlignment.start,
+              //   children: [
+              //     AppText.bodyMedium(name, fontWeight: FontWeight.bold),
+              //     SizedBox(height: 4),
+              //     Container(
+              //       decoration: BoxDecoration(color: Color(0xff6B7280).withAlpha(51), borderRadius: BorderRadius.circular(8)),
+              //       padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
+              //       child: AppText.labelMedium('x$quantity'),
+              //     ),
+              //
+              //   ],
+              // ),
             ),
             AppText.bodyMedium('${item.totalPrice.toStringAsFixed(0)} ل.س', fontWeight: FontWeight.bold, color: context.primary),
           ],

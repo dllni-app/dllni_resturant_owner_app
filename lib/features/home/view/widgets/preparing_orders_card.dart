@@ -56,7 +56,8 @@ class PreparingOrdersCard extends StatelessWidget {
                     context.pushRoute(
                       '/orders/details',
                       arguments: OrderDetailsParams(
-                        order: state.homePreparingOrders!.data![index],
+                        orderId:  state.homePreparingOrders!.data![index].id!,
+
                       ),
                     );
                   },
