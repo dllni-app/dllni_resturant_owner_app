@@ -19,9 +19,10 @@ class GetOrdersUseCase implements UseCase<GetOrdersModel, GetOrdersParams> {
 class GetOrdersParams with Params {
   final int page;
   final String? status;
+  final int perPage;
 
-  GetOrdersParams({required this.page, this.status});
+  GetOrdersParams({required this.page, this.status, this.perPage = 20});
 
   @override
-  QueryParams getParams() => {'page': page, 'filter[status]': status}..removeWhere((key, val) => val == null);
+  QueryParams getParams() => {'page': page, 'perPage': perPage, 'filter[status]': status}..removeWhere((key, val) => val == null);
 }

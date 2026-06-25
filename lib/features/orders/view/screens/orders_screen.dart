@@ -89,6 +89,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                   ? OrderStatus.preparingOrder
                                   : state.orders![index].status == 'completed'
                                   ? OrderStatus.completedOrder
+                                  : state.orders![index].status == 'cancelled'
+                                  ? OrderStatus.cancelledOrder
                                   : OrderStatus.readyOrder,
                             );
                           },
@@ -103,7 +105,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         GetOrdersEvent(
                           params: GetOrdersParams(
                             page: 1,
-                            status: 'worker_assigned',
+                            status: ordersNotifier.status.value,
                           ),
                           isReload: true,
                         ),
