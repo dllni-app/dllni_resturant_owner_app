@@ -46,8 +46,6 @@ class _CouponsStatisticsGridState extends State<CouponsStatisticsGrid> with Sing
 
   @override
   Widget build(BuildContext context) {
-    List<String> titles = ['كوبونات نشطة', 'كوبونات منتهية', 'إجمالي الخصومات (ل.س)'];
-
     return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
         final summary = state.couponsSummary?.summary;
@@ -58,10 +56,10 @@ class _CouponsStatisticsGridState extends State<CouponsStatisticsGrid> with Sing
           decoration: BoxDecoration(
             color: context.onPrimary,
             borderRadius: BorderRadius.circular(24),
-            boxShadow: [BoxShadow(color: Colors.black.withAlpha(5), offset: Offset(0, 2), blurRadius: 10)],
+            boxShadow: [BoxShadow(color: Colors.black.withAlpha(5), offset: const Offset(0, 2), blurRadius: 10)],
           ),
-          padding: EdgeInsetsDirectional.symmetric(horizontal: 17, vertical: 17),
-          margin: EdgeInsetsDirectional.symmetric(horizontal: 24),
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 17, vertical: 17),
+          margin: const EdgeInsetsDirectional.symmetric(horizontal: 24),
           child: Column(
             children: [
               InkWell(
@@ -71,16 +69,16 @@ class _CouponsStatisticsGridState extends State<CouponsStatisticsGrid> with Sing
                 child: Row(
                   children: [
                     Container(
-                      decoration: BoxDecoration(color: Color(0xffDBEAFE), borderRadius: BorderRadius.circular(16)),
-                      padding: EdgeInsetsDirectional.all(10),
+                      decoration: BoxDecoration(color: const Color(0xffDBEAFE), borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsetsDirectional.all(10),
                       child: AppImage.asset(Assets.images.offersStatisticsIcon.path, width: 24, height: 24),
                     ),
-                    SizedBox(width: 12),
-                    AppText.bodyMedium('الإحصائيات', fontWeight: FontWeight.bold, color: Color(0xff111827)),
-                    Spacer(),
+                    const SizedBox(width: 12),
+                    AppText.bodyMedium('الإحصائيات', fontWeight: FontWeight.bold, color: const Color(0xff111827)),
+                    const Spacer(),
                     RotationTransition(
                       turns: _rotationAnimation,
-                      child: Icon(Icons.keyboard_arrow_down_outlined, color: Color(0xff9CA3AF), size: 25),
+                      child: const Icon(Icons.keyboard_arrow_down_outlined, color: Color(0xff9CA3AF), size: 25),
                     ),
                   ],
                 ),
@@ -90,45 +88,104 @@ class _CouponsStatisticsGridState extends State<CouponsStatisticsGrid> with Sing
                 axisAlignment: -1.0,
                 child: Column(
                   children: [
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     if (isLoading)
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.symmetric(vertical: 20),
                         child: SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator.adaptive())),
                       )
                     else if (hasError)
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
                         child: AppText.labelMedium('حدث خطأ في تحميل الإحصائيات', color: context.error),
                       )
                     else ...[
                       Row(
                         spacing: 12,
-                        children: List.generate(
-                          2,
-                          (i) => Expanded(
+                        children: [
+                          Expanded(
                             child: StatePointer(
-                              title: titles[i],
-                              value: i == 0 ? (summary?.activeCount ?? 0) : (summary?.expiredCount ?? 0),
-                              containerBorderColor: i == 0 ? Color(0xff10B981).withAlpha(51) : Color(0xffE5E7EB),
-                              containerColor: i == 0 ? Color(0xff10B981).withAlpha(25) : Color(0xffF3F4F6),
-                              icon: i == 0 ? Icons.check_circle : Icons.block,
-                              iconCardColor: i == 0 ? Color(0xff10B981).withAlpha(51) : Color(0xffE5E7EB),
-                              iconColor: i == 0 ? Color(0xff10B981) : Color(0xff6B7280),
+                              title: 'كوبونات نشطة',
+                              value: summary?.activeCount ?? 0,
+                              containerBorderColor: const Color(0xff10B981).withAlpha(51),
+                              containerColor: const Color(0xff10B981).withAlpha(25),
+                              icon: Icons.check_circle,
+                              iconCardColor: const Color(0xff10B981).withAlpha(51),
+                              iconColor: const Color(0xff10B981),
                             ),
                           ),
-                        ),
+                          Expanded(
+                            child: StatePointer(
+                              title: 'كوبونات منتهية',
+                              value: summary?.expiredCount ?? 0,
+                              containerBorderColor: const Color(0xffE5E7EB),
+                              containerColor: const Color(0xffF3F4F6),
+                              icon: Icons.block,
+                              iconCardColor: const Color(0xffE5E7EB),
+                              iconColor: const Color(0xff6B7280),
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
+                      Row(
+                        spacing: 12,
+                        children: [
+                          Expanded(
+                            child: StatePointer(
+                              title: 'طلبات استخدمت الكوبونات',
+                              value: summary?.totalUsageOrders ?? 0,
+                              containerBorderColor: const Color(0xff3B82F6).withAlpha(51),
+                              containerColor: const Color(0xff3B82F6).withAlpha(25),
+                              icon: Icons.shopping_bag_outlined,
+                              iconCardColor: const Color(0xff3B82F6).withAlpha(51),
+                              iconColor: const Color(0xff2563EB),
+                            ),
+                          ),
+                          Expanded(
+                            child: StatePointer(
+                              title: 'إجمالي الخصومات (ل.س)',
+                              value: summary?.totalSavings ?? 0,
+                              containerBorderColor: const Color(0xffF59E0B).withAlpha(51),
+                              containerColor: const Color(0xffF59E0B).withAlpha(25),
+                              icon: Icons.discount_outlined,
+                              iconCardColor: const Color(0xffF59E0B).withAlpha(51),
+                              iconColor: const Color(0xffF59E0B),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       StatePointer(
-                        title: titles[2],
-                        value: summary?.totalSavings ?? 0,
-                        containerBorderColor: Color(0xffF59E0B).withAlpha(51),
-                        containerColor: Color(0xffF59E0B).withAlpha(25),
-                        icon: Icons.watch_later,
-                        iconCardColor: Color(0xffF59E0B).withAlpha(51),
-                        iconColor: Color(0xffF59E0B),
+                        title: 'أثر الإيرادات (ل.س)',
+                        value: summary?.revenueImpact ?? 0,
+                        containerBorderColor: const Color(0xff8B5CF6).withAlpha(51),
+                        containerColor: const Color(0xff8B5CF6).withAlpha(25),
+                        icon: Icons.trending_up_rounded,
+                        iconCardColor: const Color(0xff8B5CF6).withAlpha(51),
+                        iconColor: const Color(0xff7C3AED),
                       ),
+                      if (summary?.topPerforming != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsetsDirectional.all(14),
+                          decoration: BoxDecoration(color: const Color(0xffECFDF5), borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xff10B981).withAlpha(51))),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              AppText.labelLarge('أفضل كوبون أداءً', color: const Color(0xff047857), fontWeight: FontWeight.bold, textAlign: TextAlign.start),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(child: AppText.bodyMedium(summary!.topPerforming?.code ?? '-', color: const Color(0xff064E3B), fontWeight: FontWeight.bold, textAlign: TextAlign.start, scrollText: true)),
+                                  AppText.labelLarge('${summary.topPerforming?.usedCount ?? 0} استخدام', color: const Color(0xff047857)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ],
                 ),
@@ -169,29 +226,29 @@ class StatePointer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(17),
+      padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
         color: containerColor,
-        borderRadius: BorderRadius.all(Radius.circular(16)),
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
         border: Border.all(color: containerBorderColor),
-        boxShadow: [BoxShadow(offset: Offset(0, 0), blurRadius: 15, color: Color(0x07000000))],
+        boxShadow: const [BoxShadow(offset: Offset(0, 0), blurRadius: 15, color: Color(0x07000000))],
       ),
       child: Row(
         children: [
           Container(
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: iconCardColor),
-            padding: EdgeInsetsDirectional.all(11),
+            padding: const EdgeInsetsDirectional.all(11),
             child: icon is IconData ? Icon(icon, color: iconColor, size: 18) : AppImage.asset(icon, size: 18, color: iconColor),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 AppText.displaySmall(_formatValue(value), fontWeight: FontWeight.bold),
-                SizedBox(height: 2),
-                AppText.labelMedium(title, color: Color(0xff4B5563), fontWeight: FontWeight.w500, scrollText: true),
+                const SizedBox(height: 2),
+                AppText.labelMedium(title, color: const Color(0xff4B5563), fontWeight: FontWeight.w500, scrollText: true),
               ],
             ),
           ),

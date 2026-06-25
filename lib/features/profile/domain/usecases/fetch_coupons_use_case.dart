@@ -19,17 +19,52 @@ class FetchCouponsUseCase implements UseCase<FetchCouponsModel, FetchCouponsPara
 class FetchCouponsParams with Params {
   final String status;
   final String? search;
+  final String? dateFrom;
+  final String? dateTo;
+  final String? sort;
   final int page;
+  final int perPage;
 
-  FetchCouponsParams({required this.status, this.search, this.page = 1});
+  FetchCouponsParams({
+    required this.status,
+    this.search,
+    this.dateFrom,
+    this.dateTo,
+    this.sort = '-created_at',
+    this.page = 1,
+    this.perPage = 10,
+  });
+
+  FetchCouponsParams copyWith({
+    String? status,
+    String? search,
+    String? dateFrom,
+    String? dateTo,
+    String? sort,
+    int? page,
+    int? perPage,
+  }) {
+    return FetchCouponsParams(
+      status: status ?? this.status,
+      search: search ?? this.search,
+      dateFrom: dateFrom ?? this.dateFrom,
+      dateTo: dateTo ?? this.dateTo,
+      sort: sort ?? this.sort,
+      page: page ?? this.page,
+      perPage: perPage ?? this.perPage,
+    );
+  }
 
   @override
   QueryParams getParams() {
     return {
       'status': status,
       'search': search,
+      'dateFrom': dateFrom,
+      'dateTo': dateTo,
+      'sort': sort,
       'page': page,
-      'perPage': 10,
+      'perPage': perPage,
     }..removeWhere((key, value) => value == null || (value is String && value.trim().isEmpty));
   }
 
