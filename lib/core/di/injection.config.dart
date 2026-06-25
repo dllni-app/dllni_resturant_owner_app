@@ -96,6 +96,8 @@ import '../../features/profile/domain/usecases/create_coupon_use_case.dart'
     as _i158;
 import '../../features/profile/domain/usecases/create_offer_use_case.dart'
     as _i633;
+import '../../features/profile/domain/usecases/fetch_activity_logs_use_case.dart'
+    as _i997;
 import '../../features/profile/domain/usecases/fetch_coupons_summary_use_case.dart'
     as _i315;
 import '../../features/profile/domain/usecases/fetch_coupons_use_case.dart'
@@ -196,6 +198,9 @@ _i174.GetIt $initGetIt(
   );
   gh.lazySingleton<_i633.CreateOfferUseCase>(
     () => _i633.CreateOfferUseCase(profile: gh<_i275.ProfileRepo>()),
+  );
+  gh.lazySingleton<_i997.FetchActivityLogsUseCase>(
+    () => _i997.FetchActivityLogsUseCase(profile: gh<_i275.ProfileRepo>()),
   );
   gh.lazySingleton<_i315.FetchCouponsSummaryUseCase>(
     () => _i315.FetchCouponsSummaryUseCase(profile: gh<_i275.ProfileRepo>()),
@@ -330,6 +335,7 @@ _i174.GetIt $initGetIt(
       gh<_i623.FetchOffersSummaryUseCase>(),
       gh<_i879.FetchCouponsUseCase>(),
       gh<_i315.FetchCouponsSummaryUseCase>(),
+      gh<_i997.FetchActivityLogsUseCase>(),
       gh<_i379.FetchWorkingTimeUseCase>(),
       gh<_i903.UpdateWorkingTimeUseCase>(),
       gh<_i633.CreateOfferUseCase>(),
