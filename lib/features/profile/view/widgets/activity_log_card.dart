@@ -61,6 +61,7 @@ class ActivityLogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final causerName = item.causer?.name?.trim().isNotEmpty == true ? item.causer!.name!.trim() : 'النظام';
+    final causerInitial = causerName.isNotEmpty ? causerName.substring(0, 1) : '-';
     final description = item.description?.trim().isNotEmpty == true ? item.description!.trim() : 'تم تسجيل نشاط جديد';
     final subjectId = item.subjectId?.toString();
 
@@ -96,7 +97,7 @@ class ActivityLogCard extends StatelessWidget {
                         CircleAvatar(
                           radius: 12,
                           backgroundColor: const Color(0xffF3F4F6),
-                          child: AppText.labelSmall(causerName.characters.first, color: const Color(0xff374151), fontWeight: FontWeight.bold),
+                          child: AppText.labelSmall(causerInitial, color: const Color(0xff374151), fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 6),
                         Expanded(child: AppText.labelLarge(causerName, color: const Color(0xff6B7280), textAlign: TextAlign.start, scrollText: true)),
