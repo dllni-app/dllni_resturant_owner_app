@@ -32,6 +32,15 @@ class FetchCouponsSummaryEvent extends ProfileEvent {
   FetchCouponsSummaryEvent({required this.params});
 }
 
+class FetchActivityLogsEvent extends ProfileEvent with EventWithReload {
+  final FetchActivityLogsParams params;
+
+  @override
+  final bool isReload;
+
+  FetchActivityLogsEvent({required this.params, this.isReload = false});
+}
+
 class FetchWorkingTimeEvent extends ProfileEvent {
   final FetchWorkingTimeParams params;
 
