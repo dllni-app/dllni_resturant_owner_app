@@ -1,16 +1,34 @@
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/activity_category_card.dart';
+import 'activity_logs_screen.dart';
+
 @AutoRoutePage(path: '/employees/activity')
 class EmployeeActivityScreen extends StatelessWidget {
   const EmployeeActivityScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final items = [
-      ('قبول الطلبات', 'تابع الموظف المسؤول عن قبول وتجهيز الطلبات.'),
-      ('تحديث المخزون', 'راقب تعديلات الكميات والمواد المرتبطة بالمنتجات.'),
-      ('العروض والكوبونات', 'راجع نشاط إنشاء وتعديل العروض الترويجية.'),
+    const items = [
+      _ActivityCategory(
+        title: 'قبول الطلبات',
+        description: 'تابع الموظف المسؤول عن قبول وتجهيز الطلبات.',
+        logName: 'orders',
+        icon: Icons.receipt_long_rounded,
+      ),
+      _ActivityCategory(
+        title: 'تحديث المخزون',
+        description: 'راقب تعديلات الكميات والمواد المرتبطة بالمنتجات.',
+        logName: 'products',
+        icon: Icons.inventory_2_rounded,
+      ),
+      _ActivityCategory(
+        title: 'العروض والكوبونات',
+        description: 'راجع نشاط إنشاء وتعديل العروض الترويجية.',
+        logName: 'offers',
+        icon: Icons.local_offer_rounded,
+      ),
     ];
 
     return Scaffold(
@@ -18,36 +36,24 @@ class EmployeeActivityScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _Header(title: 'سجل نشاط الموظفين'),
+            const _Header(title: 'سجل نشاط الموظفين'),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 8),
                 itemBuilder: (context, index) {
                   final item = items[index];
-                  return Container(
-                    padding: const EdgeInsetsDirectional.all(16),
-                    decoration: BoxDecoration(color: context.onPrimary, borderRadius: BorderRadius.circular(18)),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(color: context.primary.withAlpha(25), borderRadius: BorderRadius.circular(14)),
-                          child: Icon(Icons.history_rounded, color: context.primary),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AppText.bodyLarge(item.$1, fontWeight: FontWeight.bold, textAlign: TextAlign.start),
-                              const SizedBox(height: 4),
-                              AppText.bodyMedium(item.$2, color: const Color(0xff6B7280), textAlign: TextAlign.start),
-                            ],
-                          ),
-                        ),
-                      ],
+                  return ActivityCategoryCard(
+                    title: item.title,
+                    description: item.description,
+                    icon: item.icon,
+                    onTap: () => context.pushRoute(
+                      '/employees/activity/logs',
+                      arguments: ActivityLogsScreenParams(
+                        title: item.title,
+                        description: item.description,
+                        logName: item.logName,
+                      ),
                     ),
                   );
                 },
@@ -73,6 +79,15 @@ class EmployeeActivityScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ActivityCategory {
+  const _ActivityCategory({required this.title, required this.description, required this.logName, required this.icon});
+
+  final String title;
+  final String description;
+  final String logName;
+  final IconData icon;
 }
 
 class _Header extends StatelessWidget {
