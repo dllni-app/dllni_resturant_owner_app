@@ -42,6 +42,7 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
   final TextEditingController endsAtController = TextEditingController();
 
   String couponType = 'fixed_amount';
+  bool isActive = true;
 
   @override
   void initState() {
@@ -55,6 +56,7 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
       startsAtController.text = coupon.startsAt == null ? '' : DateFormat('yyyy-MM-dd').format(DateTime.parse(coupon.startsAt!));
       endsAtController.text = coupon.endsAt == null ? '' : DateFormat('yyyy-MM-dd').format(DateTime.parse(coupon.endsAt!));
       couponType = coupon.discountType ?? 'fixed_amount';
+      isActive = coupon.isActive ?? true;
     }
   }
 
@@ -69,10 +71,19 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
     super.dispose();
   }
 
+  DateTime? _parseDate(String value) {
+    if (value.trim().isEmpty) return null;
+    return DateTime.tryParse(value.trim());
+  }
+
   bool _validate(BuildContext context) {
     final code = codeController.text.trim();
     final value = double.tryParse(couponValueController.text.trim());
+    final minAmountText = minAmountController.text.trim();
     final maxUseText = maxUseController.text.trim();
+    final startsAt = _parseDate(startsAtController.text);
+    final endsAt = _parseDate(endsAtController.text);
+    final editingCoupon = widget.params?.coupon;
 
     if (code.isEmpty) {
       AppToast.showToast(context: context, message: 'أدخل كود الكوبون', type: ToastificationType.error);
@@ -82,12 +93,39 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
       AppToast.showToast(context: context, message: 'أدخل قيمة خصم صحيحة', type: ToastificationType.error);
       return false;
     }
-    if (couponType == 'percentage' && value >= 100) {
-      AppToast.showToast(context: context, message: 'نسبة الخصم يجب أن تكون أقل من 100%', type: ToastificationType.error);
+    if (couponType == 'percentage' && (value <= 0 || value >= 100)) {
+      AppToast.showToast(context: context, message: 'نسبة الخصم يجب أن تكون بين 1 و 99%', type: ToastificationType.error);
       return false;
     }
-    if (maxUseText.isNotEmpty && int.tryParse(maxUseText) == null) {
-      AppToast.showToast(context: context, message: 'أدخل حد استخدام صحيح', type: ToastificationType.error);
+    if (minAmountText.isNotEmpty) {
+      final minAmount = double.tryParse(minAmountText);
+      if (minAmount == null || minAmount < 0) {
+        AppToast.showToast(context: context, message: 'أدخل الحد الأدنى للطلب بشكل صحيح', type: ToastificationType.error);
+        return false;
+      }
+    }
+    if (maxUseText.isNotEmpty) {
+      final maxUse = int.tryParse(maxUseText);
+      final usedCount = editingCoupon?.usageCount ?? 0;
+      if (maxUse == null || maxUse < 0) {
+        AppToast.showToast(context: context, message: 'أدخل حد استخدام صحيح', type: ToastificationType.error);
+        return false;
+      }
+      if (editingCoupon != null && maxUse < usedCount) {
+        AppToast.showToast(context: context, message: 'حد الاستخدام لا يمكن أن يكون أقل من عدد الاستخدامات الحالي', type: ToastificationType.error);
+        return false;
+      }
+    }
+    if (startsAtController.text.trim().isNotEmpty && startsAt == null) {
+      AppToast.showToast(context: context, message: 'تاريخ البداية غير صحيح', type: ToastificationType.error);
+      return false;
+    }
+    if (endsAtController.text.trim().isNotEmpty && endsAt == null) {
+      AppToast.showToast(context: context, message: 'تاريخ النهاية غير صحيح', type: ToastificationType.error);
+      return false;
+    }
+    if (startsAt != null && endsAt != null && endsAt.isBefore(startsAt)) {
+      AppToast.showToast(context: context, message: 'تاريخ النهاية يجب أن يكون بعد تاريخ البداية أو مساوياً له', type: ToastificationType.error);
       return false;
     }
     return true;
@@ -95,6 +133,9 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final editingCoupon = widget.params?.coupon;
+    final isEditing = editingCoupon != null;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -132,6 +173,36 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
                       ),
                       child: CreateCouponDurationCard(startsAtController: startsAtController, endsAtController: endsAtController),
                     ),
+                    const SizedBox(height: 16),
+                    CreateOfferStepCard(
+                      number: 6,
+                      title: 'حالة الكوبون',
+                      child: Container(
+                        padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 12),
+                        decoration: BoxDecoration(color: const Color(0xffF9FAFB), borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xffE5E7EB))),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsetsDirectional.all(10),
+                              decoration: BoxDecoration(color: isActive ? const Color(0xff10B981).withAlpha(25) : context.error.withAlpha(20), borderRadius: BorderRadius.circular(12)),
+                              child: Icon(isActive ? Icons.check_circle_outline_rounded : Icons.pause_circle_outline_rounded, color: isActive ? const Color(0xff10B981) : context.error),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AppText.bodyMedium('تفعيل الكوبون', fontWeight: FontWeight.bold, textAlign: TextAlign.start),
+                                  const SizedBox(height: 4),
+                                  AppText.labelMedium('عند تعطيله لن يستطيع العملاء استخدامه.', color: const Color(0xff6B7280), textAlign: TextAlign.start),
+                                ],
+                              ),
+                            ),
+                            Switch.adaptive(value: isActive, onChanged: (value) => setState(() => isActive = value)),
+                          ],
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -140,15 +211,14 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
               child: BlocConsumer<ProfileBloc, ProfileState>(
-                listener: (context,state){
-                  if(state.createCouponStatus==BlocStatus.success){
+                listener: (context, state) {
+                  if (state.createCouponStatus == BlocStatus.success) {
                     context.pop();
                     context.read<ProfileBloc>().add(FetchCouponsEvent(params: FetchCouponsParams(status: 'all'), isReload: true));
                     context.read<ProfileBloc>().add(FetchCouponsSummaryEvent(params: FetchCouponsSummaryParams()));
                   }
                 },
-                listenWhen: (pre,cur)=>pre.createCouponStatus!=cur.createCouponStatus,
-
+                listenWhen: (pre, cur) => pre.createCouponStatus != cur.createCouponStatus,
                 builder: (context, state) {
                   final isLoading = state.createCouponStatus == BlocStatus.loading;
                   return Row(
@@ -160,7 +230,6 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
                               ? null
                               : () {
                                   if (!_validate(context)) return;
-                                  final editingCoupon = widget.params?.coupon;
                                   context.read<ProfileBloc>().add(
                                         CreateCouponSubmitEvent(
                                           context: context,
@@ -172,8 +241,8 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
                                             usageLimit: int.tryParse(maxUseController.text.trim()),
                                             startsAt: startsAtController.text.trim().isNotEmpty ? startsAtController.text.trim() : null,
                                             endsAt: endsAtController.text.trim().isNotEmpty ? endsAtController.text.trim() : null,
-                                            isActive: true,
-                                            isAddNew: editingCoupon == null,
+                                            isActive: isActive,
+                                            isAddNew: !isEditing,
                                             id: editingCoupon?.id,
                                           ),
                                         ),
@@ -185,7 +254,7 @@ class _CreateCouponScreenState extends State<CreateCouponScreen> {
                             padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 16),
                             child: isLoading
                                 ? const SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator(strokeWidth: 2)))
-                                : AppText.labelLarge('حفظ وتفعيل', color: context.onPrimary, fontWeight: FontWeight.w500),
+                                : AppText.labelLarge(isEditing ? 'حفظ التعديلات' : 'إنشاء الكوبون', color: context.onPrimary, fontWeight: FontWeight.w500),
                           ),
                         ),
                       ),
