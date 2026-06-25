@@ -53,9 +53,11 @@ class CreateCouponParams with Params {
 
   @override
   BodyMap getBody() {
+    if (isDelete) return {};
+
     final now = DateTime.now();
-    final normalizedStartsAt = startsAt?.trim().isNotEmpty == true ? startsAt!.trim() : _formatDate(now);
-    final normalizedEndsAt = endsAt?.trim().isNotEmpty == true ? endsAt!.trim() : _formatDate(now.add(const Duration(days: 365)));
+    final normalizedStartsAt = startsAt?.trim().isNotEmpty == true ? startsAt!.trim() : (isAddNew ? _formatDate(now) : null);
+    final normalizedEndsAt = endsAt?.trim().isNotEmpty == true ? endsAt!.trim() : (isAddNew ? _formatDate(now.add(const Duration(days: 365))) : null);
 
     return {
       'code': code,
