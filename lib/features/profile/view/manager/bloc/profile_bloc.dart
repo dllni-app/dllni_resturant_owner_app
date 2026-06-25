@@ -16,6 +16,8 @@ import '../../../domain/usecases/fetch_coupons_use_case.dart';
 import '../../../data/models/fetch_coupons_model.dart';
 import '../../../domain/usecases/fetch_coupons_summary_use_case.dart';
 import '../../../data/models/fetch_coupons_summary_model.dart';
+import '../../../domain/usecases/fetch_activity_logs_use_case.dart';
+import '../../../data/models/fetch_activity_logs_model.dart';
 import '../../../domain/usecases/fetch_working_time_use_case.dart';
 import '../../../data/models/fetch_working_time_model.dart';
 import '../../../domain/usecases/update_working_time_use_case.dart';
@@ -47,6 +49,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final FetchEmployeesUseCase fetchEmployeesUseCase;
   final UpdateWorkingTimeUseCase updateWorkingTimeUseCase;
   final FetchWorkingTimeUseCase fetchWorkingTimeUseCase;
+  final FetchActivityLogsUseCase fetchActivityLogsUseCase;
   final FetchCouponsSummaryUseCase fetchCouponsSummaryUseCase;
   final FetchCouponsUseCase fetchCouponsUseCase;
   final FetchOffersSummaryUseCase fetchOffersSummaryUseCase;
@@ -60,6 +63,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     this.fetchOffersSummaryUseCase,
     this.fetchCouponsUseCase,
     this.fetchCouponsSummaryUseCase,
+    this.fetchActivityLogsUseCase,
     this.fetchWorkingTimeUseCase,
     this.updateWorkingTimeUseCase,
     this.createOfferUseCase,
@@ -75,6 +79,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<FetchOffersSummaryEvent>(_fetchOffersSummary);
     on<FetchCouponsEvent>(_fetchCoupons, transformer: droppableProMax());
     on<FetchCouponsSummaryEvent>(_fetchCouponsSummary);
+    on<FetchActivityLogsEvent>(_fetchActivityLogs, transformer: droppableProMax());
     on<FetchWorkingTimeEvent>(_fetchWorkingTime);
     on<UpdateWorkingTimeEvent>(_updateWorkingTime);
     on<CreateOfferSubmitEvent>(_createOfferSubmit);
@@ -168,6 +173,28 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         emit(state.copyWith(couponsSummaryStatus: BlocStatus.success, couponsSummary: r));
       },
     );
+  }
+
+  FutureOr<void> _fetchActivityLogs(FetchActivityLogsEvent event, Emitter<ProfileState> emit) async {
+    if (!state.activityLogs!.isEndPage || event.isReload) {
+      emit(state.copyWith(activityLogs: state.activityLogs!.setLoading(isReload: event.isReload)));
+      final res = await fetchActivityLogsUseCase(event.params);
+      res.fold(
+        (l) {
+          if (isClosed) return;
+          emit(
+            state.copyWith(
+              activityLogs: state.activityLogs!.setFaild(errorMessage: l.message),
+              errorMessage: l.message,
+            ),
+          );
+        },
+        (r) {
+          if (isClosed) return;
+          emit(state.copyWith(activityLogs: state.activityLogs!.setSuccess(data: r.data, perPage: event.params.perPage)));
+        },
+      );
+    }
   }
 
   FutureOr<void> _fetchWorkingTime(FetchWorkingTimeEvent event, Emitter<ProfileState> emit) async {
