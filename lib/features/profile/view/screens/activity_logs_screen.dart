@@ -29,11 +29,12 @@ class ActivityLogsScreen extends StatefulWidget {
 
 class _ActivityLogsScreenState extends State<ActivityLogsScreen> {
   final ScrollController _scrollController = ScrollController();
-  late String? selectedLogName = widget.params.logName;
+  String? selectedLogName;
 
   @override
   void initState() {
     super.initState();
+    selectedLogName = widget.params.logName;
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => _reload());
   }
@@ -45,21 +46,15 @@ class _ActivityLogsScreenState extends State<ActivityLogsScreen> {
     super.dispose();
   }
 
-  FetchActivityLogsParams _params({int page = 1}) {
-    return FetchActivityLogsParams(logName: selectedLogName, page: page, perPage: 15);
-  }
+  FetchActivityLogsParams _params({int page = 1}) => FetchActivityLogsParams(logName: selectedLogName, page: page, perPage: 15);
 
-  void _reload() {
-    context.read<ProfileBloc>().add(FetchActivityLogsEvent(params: _params(), isReload: true));
-  }
+  void _reload() => context.read<ProfileBloc>().add(FetchActivityLogsEvent(params: _params(), isReload: true));
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
     if (_scrollController.position.pixels < _scrollController.position.maxScrollExtent - 220) return;
-
     final logsState = context.read<ProfileBloc>().state.activityLogs;
     if (logsState == null || logsState.status == BlocStatus.loading || logsState.isEndPage) return;
-
     context.read<ProfileBloc>().add(FetchActivityLogsEvent(params: _params(page: logsState.pageNumber)));
   }
 
@@ -111,22 +106,11 @@ class _ActivityLogsScreenState extends State<ActivityLogsScreen> {
                       loadingWidget: const Center(child: SizedBox(width: 32, height: 32, child: FittedBox(child: CircularProgressIndicator.adaptive()))),
                       emptyWidget: ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          ActivityEmptyState(
-                            title: 'لا يوجد نشاط حالياً',
-                            message: 'لم يتم تسجيل أي نشاط ضمن هذا التصنيف بعد.',
-                            onRefresh: _reload,
-                          ),
-                        ],
+                        children: [ActivityEmptyState(title: 'لا يوجد نشاط حالياً', message: 'لم يتم تسجيل أي نشاط ضمن هذا التصنيف بعد.', onRefresh: _reload)],
                       ),
                       failedWidget: ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          ActivityErrorState(
-                            message: logsState.errorMessage.isNotEmpty ? logsState.errorMessage : 'حدث خطأ أثناء تحميل سجل النشاط',
-                            onRetry: _reload,
-                          ),
-                        ],
+                        children: [ActivityErrorState(message: logsState.errorMessage.isNotEmpty ? logsState.errorMessage : 'حدث خطأ أثناء تحميل سجل النشاط', onRetry: _reload)],
                       ),
                       successWidget: () {
                         final showBottomLoader = logsState.status == BlocStatus.loading && logsState.list.isNotEmpty;
@@ -161,7 +145,6 @@ class _ActivityLogsScreenState extends State<ActivityLogsScreen> {
 
 class _Header extends StatelessWidget {
   const _Header({required this.title});
-
   final String title;
 
   @override
