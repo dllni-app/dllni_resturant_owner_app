@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../features/orders/data/models/get_orders_model.dart';
 import '../features/orders/view/manager/bloc/orders_bloc.dart';
 import '../features/orders/view/widgets/accept_order_bottom_sheet.dart';
+import '../features/orders/view/widgets/order_status_action_bottom_sheet.dart';
 import '../features/orders/view/widgets/reject_order_bottom_sheet.dart';
 import '../generated/assets.dart';
 
@@ -103,9 +104,46 @@ class _OrderCardState extends State<OrderCard> {
               const Divider(height: 24),
               Container(width: double.infinity, padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: context.surface.withOpacity(0.5), borderRadius: BorderRadius.circular(8)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.labelLarge(productsText(), maxLines: 2, overflow: TextOverflow.ellipsis), const SizedBox(height: 8), Row(children: [const Icon(Icons.local_mall, size: 16), const SizedBox(width: 6), AppText.labelLarge(deliveryLabel(), fontWeight: FontWeight.bold)])])),
               if (!widget.isFromHome) ...[const SizedBox(height: 12), Align(alignment: Alignment.centerRight, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(20)), child: Row(mainAxisSize: MainAxisSize.min, children: [icon(widget.status, statusColor), const SizedBox(width: 6), AppText.labelSmall(widget.order.statusLabelAr ?? widget.order.status ?? '-', color: statusColor, fontWeight: FontWeight.bold)])))],
-              if (widget.order.status == 'pending') ...[const SizedBox(height: 16), Row(children: [Expanded(child: ElevatedButton(onPressed: () => showModalBottomSheet(context: context, builder: (_) => AcceptOrderBottomSheet(order: widget.order, bloc: widget.bloc)), child: const Text('قبول الطلب'))), const SizedBox(width: 12), Expanded(child: OutlinedButton(onPressed: () => showModalBottomSheet(context: context, builder: (_) => RejectOrderBottomSheet(order: widget.order, bloc: widget.bloc)), style: OutlinedButton.styleFrom(foregroundColor: context.error), child: const Text('رفض')))]),],
+              _buildActionButtons(context),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButtons(BuildContext context) {
+    if (widget.order.id == null) return const SizedBox.shrink();
+
+    if (widget.order.status == 'pending') {
+      return Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: Row(
+          children: [
+            Expanded(child: ElevatedButton(onPressed: () => showModalBottomSheet(context: context, isScrollControlled: true, builder: (_) => AcceptOrderBottomSheet(order: widget.order, bloc: widget.bloc)), child: const Text('قبول الطلب'))),
+            const SizedBox(width: 12),
+            Expanded(child: OutlinedButton(onPressed: () => showModalBottomSheet(context: context, isScrollControlled: true, builder: (_) => RejectOrderBottomSheet(order: widget.order, bloc: widget.bloc)), style: OutlinedButton.styleFrom(foregroundColor: context.error), child: const Text('رفض'))),
+          ],
+        ),
+      );
+    }
+
+    if (!hasRestaurantOrderStatusActions(widget.order.status)) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: () => showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            builder: (_) => OrderStatusActionBottomSheet.fromList(order: widget.order, bloc: widget.bloc),
+          ),
+          icon: const Icon(Icons.change_circle_outlined),
+          label: const Text('تغيير حالة الطلب'),
         ),
       ),
     );
