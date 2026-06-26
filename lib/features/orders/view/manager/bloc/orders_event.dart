@@ -35,6 +35,12 @@ class RejectOrderEvent extends OrdersEvent {
   RejectOrderEvent({required this.params});
 }
 
+class ChangeOrderStatusEvent extends OrdersEvent {
+  final ChangeOrderStatusParams params;
+
+  ChangeOrderStatusEvent({required this.params});
+}
+
 class AddOrderItemEvent extends OrdersEvent {
   final AddOrderItemParams params;
 
