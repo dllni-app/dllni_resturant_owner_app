@@ -5,6 +5,8 @@ class OrdersState {
   RejectOrderModel? rejectOrder;
   BlocStatus? acceptOrderStatus;
   AcceptOrderModel? acceptOrder;
+  BlocStatus? changeOrderStatusStatus;
+  OwnerOrderDetailsModel? statusChangedOrder;
   PaginationStateModel<GetOrdersModelDataItem>? orders;
   GetOrdersModel? homePreparingOrders;
   BlocStatus? homePreparingOrdersStatus;
@@ -21,6 +23,8 @@ class OrdersState {
     this.acceptOrderStatus,
     this.rejectOrder,
     this.rejectOrderStatus,
+    this.changeOrderStatusStatus,
+    this.statusChangedOrder,
     this.homePreparingOrders,
     this.homePreparingOrdersStatus,
     this.orderDetails,
@@ -36,6 +40,8 @@ class OrdersState {
     BlocStatus? acceptOrderStatus,
     RejectOrderModel? rejectOrder,
     BlocStatus? rejectOrderStatus,
+    BlocStatus? changeOrderStatusStatus,
+    OwnerOrderDetailsModel? statusChangedOrder,
     GetOrdersModel? homePreparingOrders,
     BlocStatus? homePreparingOrdersStatus,
     OwnerOrderDetailsModel? orderDetails,
@@ -50,6 +56,8 @@ class OrdersState {
     acceptOrderStatus: acceptOrderStatus ?? this.acceptOrderStatus,
     rejectOrder: rejectOrder ?? this.rejectOrder,
     rejectOrderStatus: rejectOrderStatus ?? this.rejectOrderStatus,
+    changeOrderStatusStatus: changeOrderStatusStatus ?? this.changeOrderStatusStatus,
+    statusChangedOrder: statusChangedOrder ?? this.statusChangedOrder,
     homePreparingOrders: homePreparingOrders ?? this.homePreparingOrders,
     homePreparingOrdersStatus: homePreparingOrdersStatus ?? this.homePreparingOrdersStatus,
     orderDetails: orderDetails ?? this.orderDetails,

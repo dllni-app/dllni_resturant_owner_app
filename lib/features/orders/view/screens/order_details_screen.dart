@@ -11,6 +11,7 @@ import '../widgets/order_details_app_bar.dart';
 import '../widgets/order_details_edit_card.dart';
 import '../widgets/order_details_item_card.dart';
 import '../widgets/order_details_notes_card.dart';
+import '../widgets/order_details_status_actions_card.dart';
 import '../widgets/order_details_summary_card.dart';
 import '../widgets/order_status_card.dart';
 
@@ -46,6 +47,8 @@ class OrderDetailsScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   OrderStatusCard(order: order),
+                                  const SizedBox(height: 16),
+                                  OrderDetailsStatusActionsCard(order: order, bloc: context.read<OrdersBloc>()),
                                   const SizedBox(height: 16),
                                   CustomerInfoCard(order: order),
                                   const SizedBox(height: 16),

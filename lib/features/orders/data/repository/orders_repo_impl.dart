@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../domain/repository/orders_repo.dart';
 import '../../domain/usecases/accept_order_use_case.dart';
 import '../../domain/usecases/add_order_item_use_case.dart';
+import '../../domain/usecases/change_order_status_use_case.dart';
 import '../../domain/usecases/delete_order_item_use_case.dart';
 import '../../domain/usecases/get_order_details_use_case.dart';
 import '../../domain/usecases/get_orders_use_case.dart';
@@ -40,6 +41,11 @@ class OrdersRepoImpl with HandlingException implements OrdersRepo {
   @override
   DataResponse<RejectOrderModel> rejectOrder(RejectOrderParams params) {
     return wrapHandlingException(tryCall: () => ordersRemoteDataSource.rejectOrder(params));
+  }
+
+  @override
+  DataResponse<OwnerOrderDetailsModel> changeOrderStatus(ChangeOrderStatusParams params) {
+    return wrapHandlingException(tryCall: () => ordersRemoteDataSource.changeOrderStatus(params));
   }
 
   @override

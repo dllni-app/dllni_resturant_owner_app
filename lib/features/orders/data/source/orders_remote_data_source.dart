@@ -3,6 +3,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../domain/usecases/accept_order_use_case.dart';
 import '../../domain/usecases/add_order_item_use_case.dart';
+import '../../domain/usecases/change_order_status_use_case.dart';
 import '../../domain/usecases/delete_order_item_use_case.dart';
 import '../../domain/usecases/get_order_details_use_case.dart';
 import '../../domain/usecases/get_orders_use_case.dart';
@@ -60,6 +61,17 @@ class OrdersRemoteDataSource with HandlingApiManager {
         params: params.getParams(),
       ),
       jsonConvert: rejectOrderModelFromJson,
+    );
+  }
+
+  Future<OwnerOrderDetailsModel> changeOrderStatus(ChangeOrderStatusParams params) {
+    return wrapHandlingApi(
+      tryCall: () => dioNetwork.patchData(
+        endPoint: '/api/v1/restaurant-owner/orders/${params.orderId}/status',
+        data: params.getBody(),
+        params: params.getParams(),
+      ),
+      jsonConvert: ownerOrderDetailsModelFromJson,
     );
   }
 
