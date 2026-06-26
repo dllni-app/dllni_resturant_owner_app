@@ -11,6 +11,7 @@ import '../../../data/models/owner_order_details_model.dart';
 import '../../../data/models/reject_order_model.dart';
 import '../../../domain/usecases/accept_order_use_case.dart';
 import '../../../domain/usecases/add_order_item_use_case.dart';
+import '../../../domain/usecases/change_order_status_use_case.dart';
 import '../../../domain/usecases/delete_order_item_use_case.dart';
 import '../../../domain/usecases/get_order_details_use_case.dart';
 import '../../../domain/usecases/get_orders_use_case.dart';
@@ -32,6 +33,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<GetOrderDetailsEvent>(_getOrderDetails);
     on<AcceptOrderEvent>(_acceptOrder);
     on<RejectOrderEvent>(_rejectOrder);
+    on<ChangeOrderStatusEvent>(_changeOrderStatus);
     on<AddOrderItemEvent>(_addOrderItem);
     on<UpdateOrderItemEvent>(_updateOrderItem);
     on<DeleteOrderItemEvent>(_deleteOrderItem);
@@ -75,6 +77,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
       (l) => emit(state.copyWith(acceptOrderStatus: BlocStatus.failed, errorMessage: l.message)),
       (r) {
         add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: state.currentStatus), isReload: true));
+        add(GetHomePreparingOrdersEvent(params: GetOrdersParams(page: 1, status: 'preparing')));
         emit(state.copyWith(acceptOrderStatus: BlocStatus.success, acceptOrder: r));
       },
     );
@@ -87,7 +90,22 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
       (l) => emit(state.copyWith(rejectOrderStatus: BlocStatus.failed, errorMessage: l.message)),
       (r) {
         add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: state.currentStatus), isReload: true));
+        add(GetHomePreparingOrdersEvent(params: GetOrdersParams(page: 1, status: 'preparing')));
         emit(state.copyWith(rejectOrderStatus: BlocStatus.success, rejectOrder: r));
+      },
+    );
+  }
+
+  FutureOr<void> _changeOrderStatus(ChangeOrderStatusEvent event, Emitter<OrdersState> emit) async {
+    emit(state.copyWith(changeOrderStatusStatus: BlocStatus.loading));
+    final res = await getOrdersUseCase.orders.changeOrderStatus(event.params);
+    res.fold(
+      (l) => emit(state.copyWith(changeOrderStatusStatus: BlocStatus.failed, errorMessage: l.message)),
+      (r) {
+        emit(state.copyWith(changeOrderStatusStatus: BlocStatus.success, statusChangedOrder: r, orderDetails: r));
+        add(GetOrdersEvent(params: GetOrdersParams(page: 1, status: state.currentStatus), isReload: true));
+        add(GetHomePreparingOrdersEvent(params: GetOrdersParams(page: 1, status: 'preparing')));
+        add(GetOrderDetailsEvent(params: GetOrderDetailsParams(orderId: event.params.orderId)));
       },
     );
   }
