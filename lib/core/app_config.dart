@@ -3,5 +3,5 @@ class AppConfig {
 
   static const String appName = 'Dllni resturant';
   static const String orgIdentifier = 'com.dllni.restOwner';
-  static const String baseUrl = 'https://dllni.mustafafares.com';
+  static const String baseUrl = 'https://alnadha.net';
 }

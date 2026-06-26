@@ -135,6 +135,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 children: [
                   Expanded(
                     child: BlocConsumer<ProfileBloc, ProfileState>(
+                      listenWhen: (pre,cur)=>pre.addEmployeeStatus!=cur.addEmployeeStatus,
                       listener: (context, state) {
                         switch (state.addEmployeeStatus) {
                           case BlocStatus.failed:

@@ -15,9 +15,11 @@ class DeliveryInfoCard extends StatelessWidget {
     final delivery = order.delivery;
     final address = delivery?.address ?? order.customerAddress;
     final isPickup = (delivery?.orderType ?? order.orderType) == 'pickup';
-    final label = isPickup ? 'معلومات الاستلام' : 'معلومات التوصيل';
-    final orderTypeLabel = delivery?.orderTypeLabelAr ?? (isPickup ? 'استلام' : 'توصيل');
-    final mode = delivery?.pickupMode ?? order.pickupMode ?? '-';
+    // final label = isPickup ? 'معلومات الاستلام' : 'معلومات التوصيل';
+    final label =  'معلومات الطلب';
+    // final orderTypeLabel = delivery?.orderTypeLabelAr ?? (isPickup ? 'استلام' : 'توصيل');
+    final orderTypeLabel = delivery?.orderType;
+    final mode = delivery?.pickupMode;
     final scheduledFor = delivery?.scheduledFor ?? order.pickupScheduledFor ?? '-';
     final addressText = address?.displayText.trim() ?? '';
 
@@ -29,19 +31,22 @@ class DeliveryInfoCard extends StatelessWidget {
         children: [
           AppText.headlineMedium(label, fontWeight: FontWeight.bold),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _metricBox('المسافة', delivery?.distanceKm == null ? '-' : '${delivery!.distanceKm!.toStringAsFixed(1)} كم', context)),
-              const SizedBox(width: 12),
-              Expanded(child: _metricBox('وقت التوصيل', delivery?.estimatedDeliveryMinutes == null ? '-' : '${delivery!.estimatedDeliveryMinutes} دقيقة', context)),
-            ],
-          ),
+          // Row(
+          //   children: [
+          //     Expanded(child: _metricBox('المسافة', delivery?.distanceKm == null ? '-' : '${delivery!.distanceKm!.toStringAsFixed(1)} كم', context)),
+          //     const SizedBox(width: 12),
+          //     Expanded(child: _metricBox('وقت التوصيل', delivery?.estimatedDeliveryMinutes == null ? '-' : '${delivery!.estimatedDeliveryMinutes} دقيقة', context)),
+          //   ],
+          // ),
           const SizedBox(height: 12),
-          _box('نوع الطلب', orderTypeLabel, context),
+          _box('نوع الطلب', orderTypeLabel?.label??'-', context),
           const SizedBox(height: 8),
-          _box('نمط الطلب', mode, context),
+          _box('استلام الطلب', mode?.label??'-', context),
           const SizedBox(height: 8),
-          _box('الوقت المجدول', scheduledFor, context),
+          if(delivery?.pickupMode ==PickupMode.scheduledPickup)...[
+            _box('الوقت المجدول', scheduledFor, context),
+
+          ],
           const SizedBox(height: 12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

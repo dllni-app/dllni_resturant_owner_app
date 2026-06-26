@@ -143,17 +143,21 @@ class _ProductImage extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: const BorderRadius.all(Radius.circular(14)),
-      child: SizedBox(
+      child: Container(
         width: 96,
         height: 96,
         child: Stack(
           children: [
             if (hasImage)
-              AppImage.network(
-                imageUrl,
-                loadingBuilder: (context) => const Center(child: CircularProgressIndicator()),
-                failedBuilder: (context) => const Center(child: Icon(Icons.image_outlined, color: Color(0xFF9CA3AF))),
-                fit: BoxFit.cover,
+              Center(
+                child: AppImage.network(
+                  imageUrl,
+                  loadingBuilder: (context) => const Center(child: CircularProgressIndicator()),
+                  failedBuilder: (context) => const Center(child: Icon(Icons.image_outlined, color: Color(0xFF9CA3AF))),
+                  fit: BoxFit.cover,
+                  height: 96,
+                  width: 96,
+                ),
               )
             else
               Container(

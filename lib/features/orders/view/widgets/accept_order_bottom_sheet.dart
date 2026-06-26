@@ -98,6 +98,7 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
                   flex: 5,
                   child: BlocConsumer<OrdersBloc, OrdersState>(
                     bloc: widget.bloc,
+                    listenWhen: (pre,cur)=>pre.acceptOrderStatus!=cur.acceptOrderStatus,
                     listener: (context, state) {
                       switch (state.acceptOrderStatus) {
                         case BlocStatus.failed:
