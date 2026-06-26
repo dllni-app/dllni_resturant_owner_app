@@ -1,14 +1,26 @@
-﻿import 'package:common_package/common_package.dart';
+import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/fetch_products_model.dart';
+import '../../domain/usecases/delete_product_use_case.dart';
+import '../../domain/usecases/fetch_products_use_case.dart';
+import '../manager/bloc/products_bloc.dart';
+import '../screens/add_product_details_screen.dart';
 import 'app_switch.dart';
 import 'products_style_tokens.dart';
 
+enum _ProductAction { edit, delete }
+
 class ProductCard extends StatefulWidget {
-  const ProductCard({super.key, required this.product});
+  const ProductCard({
+    super.key,
+    required this.product,
+    required this.refreshParams,
+  });
 
   final FetchProductsModelDataItem product;
+  final FetchProductsParams refreshParams;
 
   @override
   State<ProductCard> createState() => _ProductCardState();
@@ -21,6 +33,75 @@ class _ProductCardState extends State<ProductCard> {
   void initState() {
     super.initState();
     enabled = widget.product.isAvailable ?? false;
+  }
+
+  @override
+  void didUpdateWidget(covariant ProductCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.product.id != widget.product.id ||
+        oldWidget.product.isAvailable != widget.product.isAvailable) {
+      enabled = widget.product.isAvailable ?? false;
+    }
+  }
+
+  Future<void> _openEdit(BuildContext context) async {
+    final didUpdate = await context.pushRoute(
+      '/products/new_product/details',
+      arguments: AddProductDetailsScreenParams.fromProduct(widget.product),
+    );
+
+    if (!context.mounted || didUpdate != true) return;
+
+    context.read<ProductsBloc>().add(
+      FetchProductsEvent(
+        params: widget.refreshParams,
+        isReload: true,
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final productId = widget.product.id;
+    if (productId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر تحديد المنتج المراد حذفه')),
+      );
+      return;
+    }
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: AppText.titleLarge('حذف المنتج', fontWeight: FontWeight.bold),
+        content: AppText.bodyMedium(
+          'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذه العملية.',
+          textAlign: TextAlign.start,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: AppText.labelLarge('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: AppText.labelLarge(
+              'حذف',
+              color: context.error,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true || !context.mounted) return;
+
+    context.read<ProductsBloc>().add(
+      DeleteProductEvent(
+        params: DeleteProductParams(id: productId),
+        refreshParams: widget.refreshParams,
+      ),
+    );
   }
 
   @override
@@ -71,7 +152,53 @@ class _ProductCardState extends State<ProductCard> {
                             ),
                           ),
                         ),
-                        const Icon(Icons.more_vert, size: 18, color: Color(0xFFCACACA)),
+                        PopupMenuButton<_ProductAction>(
+                          icon: const Icon(
+                            Icons.more_vert,
+                            size: 18,
+                            color: Color(0xFF6B7280),
+                          ),
+                          onSelected: (action) {
+                            switch (action) {
+                              case _ProductAction.edit:
+                                _openEdit(context);
+                                break;
+                              case _ProductAction.delete:
+                                _confirmDelete(context);
+                                break;
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            PopupMenuItem<_ProductAction>(
+                              value: _ProductAction.edit,
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.edit_outlined,
+                                    size: 18,
+                                    color: Color(0xFF065F46),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  AppText.labelLarge('تعديل'),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem<_ProductAction>(
+                              value: _ProductAction.delete,
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.delete_outline,
+                                    size: 18,
+                                    color: Color(0xFFEF4444),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  AppText.labelLarge('حذف'),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -90,7 +217,7 @@ class _ProductCardState extends State<ProductCard> {
                           ),
                         ),
                         const SizedBox(width: 4),
-                         AppText(
+                        AppText(
                           'ل.س',
                           textAlign: TextAlign.start,
                           style: TextStyle(
