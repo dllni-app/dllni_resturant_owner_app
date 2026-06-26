@@ -339,6 +339,7 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: BlocConsumer<ProductsBloc, ProductsState>(
+                              listenWhen: (pre,cur)=>(pre.updateProductStatus!=cur.updateProductStatus||pre.newProductStatus!=cur.newProductStatus),
                               listener: (context, state) {
                                 final activeStatus = _isEditMode
                                     ? state.updateProductStatus
