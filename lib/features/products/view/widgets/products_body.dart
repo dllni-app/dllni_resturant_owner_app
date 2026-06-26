@@ -35,45 +35,82 @@ class _ProductsBodyState extends State<ProductsBody> {
         ),
         ProductsTabBar(productsNotifier: widget.productsNotifier),
         Expanded(
-          child: BlocBuilder<ProductsBloc, ProductsState>(
-            buildWhen: (pre, cur) => pre.products != cur.products,
-            builder: (context, state) {
-              return state.products!.builder(
-                loadingWidget: LoadingMoreRow(),
-                failedWidget: Center(
-                  child: AppText.labelLarge(
-                    state.products?.errorMessage ?? 'خطأ في تحميل المنتجات',
-                    color: context.error,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                emptyWidget: Center(child: AppText.labelLarge('لا يوجد منتجات', fontWeight: FontWeight.bold)),
-                successWidget: () {
-                  return ValueListenableBuilder(
-                    valueListenable: widget.productsNotifier.selectedCategoryId,
-                    builder: (context, id, _) => ListView.separated(
-                      padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 18),
-                      separatorBuilder: (context, index) => const SizedBox(height: 14),
-                      itemCount: state.products!.listLength(1),
-                      itemBuilder: (context, index) {
-                        if (state.products!.list.length == index) {
-                          if (!state.products!.isEndPage && state.products!.status != BlocStatus.loading) {
-                            context.read<ProductsBloc>().add(
-                              FetchProductsEvent(
-                                params: widget.productsNotifier.fetchParams(page: state.products!.pageNumber, categoryId: id == 0 ? null : id),
-                                isReload: false,
-                              ),
-                            );
-                          }
-                          return LoadingMoreRow();
-                        }
-                        return ProductCard(product: state.products!.list[index]);
-                      },
+          child: BlocListener<ProductsBloc, ProductsState>(
+            listenWhen: (previous, current) =>
+                previous.deleteProductStatus != current.deleteProductStatus,
+            listener: (context, state) {
+              switch (state.deleteProductStatus) {
+                case BlocStatus.loading:
+                  Loading.show(context);
+                  break;
+                case BlocStatus.failed:
+                  Loading.close();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        state.errorMessage ?? 'خطأ في حذف المنتج',
+                      ),
                     ),
                   );
-                },
-              );
+                  break;
+                case BlocStatus.success:
+                  Loading.close();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم حذف المنتج بنجاح')),
+                  );
+                  break;
+                case BlocStatus.init:
+                case null:
+                  Loading.close();
+                  break;
+              }
             },
+            child: BlocBuilder<ProductsBloc, ProductsState>(
+              buildWhen: (pre, cur) => pre.products != cur.products,
+              builder: (context, state) {
+                return state.products!.builder(
+                  loadingWidget: LoadingMoreRow(),
+                  failedWidget: Center(
+                    child: AppText.labelLarge(
+                      state.products?.errorMessage ?? 'خطأ في تحميل المنتجات',
+                      color: context.error,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  emptyWidget: Center(child: AppText.labelLarge('لا يوجد منتجات', fontWeight: FontWeight.bold)),
+                  successWidget: () {
+                    return ValueListenableBuilder(
+                      valueListenable: widget.productsNotifier.selectedCategoryId,
+                      builder: (context, id, _) => ListView.separated(
+                        padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 18),
+                        separatorBuilder: (context, index) => const SizedBox(height: 14),
+                        itemCount: state.products!.listLength(1),
+                        itemBuilder: (context, index) {
+                          if (state.products!.list.length == index) {
+                            if (!state.products!.isEndPage && state.products!.status != BlocStatus.loading) {
+                              context.read<ProductsBloc>().add(
+                                FetchProductsEvent(
+                                  params: widget.productsNotifier.fetchParams(page: state.products!.pageNumber, categoryId: id == 0 ? null : id),
+                                  isReload: false,
+                                ),
+                              );
+                            }
+                            return LoadingMoreRow();
+                          }
+                          return ProductCard(
+                            product: state.products!.list[index],
+                            refreshParams: widget.productsNotifier.fetchParams(
+                              page: 1,
+                              categoryId: id == 0 ? null : id,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ),
       ],
