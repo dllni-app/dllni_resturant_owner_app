@@ -9,7 +9,6 @@ import 'package:common_package/helpers/shared_preferences_helper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 typedef NotificationTapCallback = FutureOr<void> Function(RemoteMessage message);
 typedef NotificationRouteArgumentsBuilder = Object? Function(String route, Map<String, dynamic> argsMap);
@@ -22,23 +21,26 @@ class _ResolvedRoute {
 }
 
 const String _lifecycleMarkerKey = '_notification_lifecycle';
+const String _basicChannelKey = 'basic_channel';
+const String _notificationIcon = 'resource://drawable/notification_icon';
+const String _notificationLargeIcon = 'resource://mipmap/launcher_icon';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  final payload = message.data.map((k, v) => MapEntry(k.toString(), v.toString()));
+  // final payload = message.data.map((k, v) => MapEntry(k.toString(), v.toString()));
   // Store lifecycle marker to indicate this notification was created in background
-  payload[_lifecycleMarkerKey] = NotificationLifeCycle.Background.name;
-
-  await AwesomeNotifications().createNotification(
-    content: NotificationContent(
-      id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-      channelKey: 'basic_channel',
-      title: message.notification?.title ?? message.data['title'] ?? 'New Notification',
-      body: message.notification?.body ?? message.data['body'] ?? '',
-      payload: payload,
-    ),
-  );
+  // payload[_lifecycleMarkerKey] = NotificationLifeCycle.Background.name;
+  //
+  // await AwesomeNotifications().createNotification(
+  //   content: NotificationContent(
+  //     id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+  //     channelKey: 'basic_channel',
+  //     title: message.notification?.title ?? message.data['title'] ?? 'New Notification',
+  //     body: message.notification?.body ?? message.data['body'] ?? '',
+  //     payload: payload,
+  //   ),
+  // );
 }
 
 @pragma('vm:entry-point')
@@ -103,12 +105,12 @@ class NotificationHelper {
   }
 
   static Future<void> _initAwesomeNotifications() async {
-    await _awesome.initialize(null, [
+    await _awesome.initialize(_notificationIcon, [
       NotificationChannel(
-        channelKey: 'basic_channel',
+        channelKey: _basicChannelKey,
         channelName: 'Basic Notifications',
         importance: NotificationImportance.High,
-        defaultColor: const Color(0xffBF956B),
+        defaultColor: const Color(0xff1E2A7B),
         onlyAlertOnce: true,
         channelShowBadge: true,
         channelDescription: 'Basic Instant Notification',
@@ -146,10 +148,12 @@ class NotificationHelper {
     await _awesome.createNotification(
       content: NotificationContent(
         id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-        channelKey: 'basic_channel',
+        channelKey: _basicChannelKey,
         title: message.notification?.title ?? message.data['title'] ?? '',
         body: message.notification?.body ?? message.data['body'] ?? '',
         payload: payload,
+        icon: _notificationIcon,
+        largeIcon: _notificationLargeIcon,
       ),
     );
   }
