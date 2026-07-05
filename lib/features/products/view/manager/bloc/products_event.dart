@@ -44,6 +44,12 @@ class PostNewProductEvent extends ProductsEvent {
   PostNewProductEvent({required this.params});
 }
 
+class PostProductsFromMenuEvent extends ProductsEvent {
+  final PostProductsFromMenuParams params;
+
+  PostProductsFromMenuEvent({required this.params});
+}
+
 class UpdateProductEvent extends ProductsEvent {
   final UpdateProductParams params;
   final FetchProductsParams refreshParams;
