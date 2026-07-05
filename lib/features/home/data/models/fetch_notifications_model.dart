@@ -112,10 +112,26 @@ class FetchNotificationsModelDataItem {
       };
   FetchNotificationsModelDataItem copyWith({
     bool? isRead,
+    String? id,
+    String? source,
+    String? category,
+    String? title,
+    String? body,
+    String? type,
+    String? createdAt,
+    Map<String, dynamic>? meta
   }) {
     return FetchNotificationsModelDataItem(
       // باقي الحقول
       isRead: isRead ?? this.isRead,
+      id: id ?? this.id,
+      source: source ?? this.source,
+      category: category ?? this.category,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      type: type ?? this.type,
+      createdAt: createdAt ?? this.createdAt,
+      meta: meta ?? this.meta,
     );
   }
 }

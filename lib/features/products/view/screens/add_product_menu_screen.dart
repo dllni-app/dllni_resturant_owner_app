@@ -142,7 +142,8 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                     if (state.generateAiProductDataFromMenuStatus ==
                         BlocStatus.success) {
                       final isSubmitting =
-                          state.postProductsFromMenuStatus == BlocStatus.loading;
+                          state.postProductsFromMenuStatus ==
+                          BlocStatus.loading;
                       return Column(
                         children: [
                           SizedBox(height: 10),
@@ -161,9 +162,9 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                                     onTap: isSubmitting
                                         ? null
                                         : () => _submitProductsFromMenu(
-                                              context,
-                                              state,
-                                            ),
+                                            context,
+                                            state,
+                                          ),
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -255,15 +256,18 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                       state.generateAiProductDataFromMenuStatus ==
                       BlocStatus.loading;
                   return GradientButton(
-                    title: isAnalyzing ? 'جاري تحليل الصورة...' : 'تحليل الصورة',
+                    title: isAnalyzing
+                        ? 'جاري تحليل الصورة...'
+                        : 'تحليل الصورة',
                     icon: isAnalyzing
                         ? const SizedBox(
                             width: 16,
                             height: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           )
                         : const Icon(Icons.auto_awesome_rounded),
@@ -279,14 +283,13 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                               return;
                             }
                             context.read<ProductsBloc>().add(
-                                  GenerateAiProductDataFromMenuEvent(
-                                    params:
-                                        GenerateAiProductDataFromMenuParams(
-                                      image: File(imagePath!),
-                                      locale: _resolveAiLocale(context),
-                                    ),
-                                  ),
-                                );
+                              GenerateAiProductDataFromMenuEvent(
+                                params: GenerateAiProductDataFromMenuParams(
+                                  image: File(imagePath!),
+                                  locale: _resolveAiLocale(context),
+                                ),
+                              ),
+                            );
                           },
                   );
                 },
@@ -421,14 +424,14 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
     }
 
     context.read<ProductsBloc>().add(
-          PostProductsFromMenuEvent(
-            params: PostProductsFromMenuParams(
-              categoryId: categoryId,
-              image: File(currentImagePath),
-              products: products,
-            ),
-          ),
-        );
+      PostProductsFromMenuEvent(
+        params: PostProductsFromMenuParams(
+          categoryId: categoryId,
+          image: File(currentImagePath),
+          products: products,
+        ),
+      ),
+    );
   }
 
   String? _resolveAiLocale(BuildContext context) {

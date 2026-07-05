@@ -54,6 +54,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           state.copyWith(
             notificationsStatus: BlocStatus.success,
             notifications: r,
+            unreadNumber: r.meta?.unreadTotal
           ),
         );
 
@@ -64,8 +65,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   FutureOr<void> _readAllNotifications(
     ReadAllNotificationsEvent event,
     Emitter<HomeState> emit,
-  ) async {
-    emit(state.copyWith(readNotificationsStatus: BlocStatus.loading));
+  )
+  async {
+   final unreadLocale=state.unreadNumber;
+    emit(state.copyWith(readNotificationsStatus: BlocStatus.loading,unreadNumber: 0));
     final res = await readAllNotificationsUseCase(
      NoParams()
     );
@@ -75,6 +78,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           state.copyWith(
             readNotificationsStatus: BlocStatus.failed,
             errorMessage: l.message,
+            unreadNumber: unreadLocale
+
           ),
         );
       },
@@ -85,6 +90,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             .map(
               (e) => e.copyWith(
             isRead: true,
+
           ),
         )
             .toList();
