@@ -80,6 +80,7 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
     _selectedCategoryId = existing?.categoryId;
     _existingPrimaryImageUrl =
         widget.params.existingImageUrl ?? existing?.primaryImage;
+    primaryImage = widget.params.imageFile;
   }
 
   String _formatNum(num? value) {
@@ -397,9 +398,8 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                                         const [];
                                     final hasPrimaryImage =
                                         primaryImage != null ||
-                                        ((_existingPrimaryImageUrl ?? '')
-                                            .trim()
-                                            .isNotEmpty);
+                                            (_existingPrimaryImageUrl?.isNotEmpty ?? false) ||
+                                            (widget.params.image?.isNotEmpty ?? false);
                                     int? effectiveCategoryId =
                                         _selectedCategoryId;
                                     if (effectiveCategoryId == null) {
@@ -572,6 +572,7 @@ class _ProductStepDetails extends StatelessWidget {
 
 class AddProductDetailsScreenParams {
   final String? image;
+  final File? imageFile;
   final String? title;
   final String? desc;
   final String? existingImageUrl;
@@ -579,6 +580,7 @@ class AddProductDetailsScreenParams {
 
   AddProductDetailsScreenParams({
     this.image,
+    this.imageFile,
     this.title,
     this.desc,
     this.existingImageUrl,

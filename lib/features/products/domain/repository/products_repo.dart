@@ -11,6 +11,7 @@ import '../usecases/generate_ai_product_data_from_menu_use_case.dart';
 import '../../data/models/generate_ai_product_data_from_menu_model.dart';
 import '../usecases/post_new_product_use_case.dart';
 import '../../data/models/post_new_product_model.dart';
+import '../usecases/post_products_from_menu_use_case.dart';
 import '../usecases/update_product_use_case.dart';
 import '../usecases/delete_product_use_case.dart';
 import '../../data/models/delete_product_model.dart';
@@ -26,6 +27,8 @@ abstract class ProductsRepo {
   DataResponse<GenerateAiProductDataFromMenuModel> generateAiProductDataFromMenu(GenerateAiProductDataFromMenuParams params);
 
   DataResponse<PostNewProductModel> postNewProduct(PostNewProductParams params);
+
+  DataResponse<PostProductsFromMenuResult> postProductsFromMenu(PostProductsFromMenuParams params);
 
   DataResponse<PostNewProductModel> updateProduct(UpdateProductParams params);
 

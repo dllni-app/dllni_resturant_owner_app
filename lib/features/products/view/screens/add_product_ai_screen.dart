@@ -7,6 +7,7 @@ import 'package:dllni_resturant_owner_app/features/products/domain/usecases/gene
 import 'package:dllni_resturant_owner_app/features/products/domain/usecases/generate_ai_product_image_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:toastification/toastification.dart';
 
 import '../../../../generated/assets.dart';
@@ -227,27 +228,35 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                           Expanded(
                                             child: Column(
                                               children: [
-                                                AppOutlinedButton(
-                                                  color: const Color(
-                                                    0xFF00A7BC,
-                                                  ),
-                                                  title: 'عرض الصورة',
-                                                  onTap: () {},
-                                                ),
-                                                const SizedBox(height: 8),
+                                                // AppOutlinedButton(
+                                                //   color: const Color(
+                                                //     0xFF00A7BC,
+                                                //   ),
+                                                //   title: 'عرض الصورة',
+                                                //   onTap: () {},
+                                                // ),
+                                                // const SizedBox(height: 8),
                                                 AppButton(
                                                   withShadow: false,
                                                   title: 'الموافقة والاستمرار',
-                                                  onTap: () => context.pushRoute(
-                                                    '/products/new_product/details',
-                                                    arguments:
-                                                        AddProductDetailsScreenParams(
-                                                          image: state
-                                                              .generateAiProductImage
-                                                              ?.data
-                                                              ?.imageBase64,
-                                                        ),
-                                                  ),
+                                                  onTap: () async {
+                                                    final image64 =
+                                                    state.generateAiProductImage!.data!.imageBase64!;
+
+                                                    final imageFile = await base64ToFile(image64);
+
+                                                    if (!context.mounted) return;
+
+                                                    context.pushRoute(
+                                                      '/products/new_product/details',
+                                                      arguments: AddProductDetailsScreenParams(
+                                                        image: image64,
+                                                        imageFile: imageFile,
+                                                        title: productNameController.text,
+                                                        desc: productDescriptionController.text,
+                                                      ),
+                                                    );
+                                                  },
                                                 ),
                                               ],
                                             ),
@@ -289,6 +298,9 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+
+
                       ExpandedProductCard(
                         backgroundColor: const Color(0xFFFFF3E6),
                         foregroundColor: const Color(0xFFEF7A00),
@@ -468,6 +480,10 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
                                                 .generateAiProductDataFromImage
                                                 ?.data
                                                 ?.description,
+                                            image: base64Encode(
+                                              File(uploadedImagePath!).readAsBytesSync(),
+                                            ),
+                                            imageFile: File(uploadedImagePath!),
                                           ),
                                         ),
                                       ),
@@ -502,4 +518,12 @@ class _AddProductAIScreenState extends State<AddProductAIScreen> {
     }
     return null;
   }
+  Future<File> base64ToFile(String base64) async {
+    final bytes = base64Decode(base64);
+    final dir = await getTemporaryDirectory();
+    final file = File('${dir.path}/generated_product.png');
+    await file.writeAsBytes(bytes);
+    return file;
+  }
 }
+
