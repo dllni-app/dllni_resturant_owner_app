@@ -8,17 +8,20 @@ class AppButton extends StatelessWidget {
     this.onTap,
     required this.title,
     this.withShadow = true,
+    this.isLoading = false,
   });
 
   final VoidCallback? onTap;
   final String title;
   final bool withShadow;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
-    final bool enabled = onTap != null;
+    final bool enabled = onTap != null && !isLoading;
+    final bool useActiveStyle = onTap != null || isLoading;
     return InkWell(
-      onTap: onTap,
+      onTap: enabled ? onTap : null,
       borderRadius: ProductsStyleTokens.buttonRadius,
       child: Container(
         alignment: Alignment.center,
@@ -26,7 +29,7 @@ class AppButton extends StatelessWidget {
         padding: const EdgeInsetsDirectional.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           borderRadius: ProductsStyleTokens.buttonRadius,
-          color: enabled
+          color: useActiveStyle
               ? ProductsStyleTokens.primaryActionDark
               : const Color(0x662F2B3D),
           boxShadow: enabled && withShadow
@@ -39,14 +42,38 @@ class AppButton extends StatelessWidget {
                 ]
               : null,
         ),
-        child: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
+        child: isLoading
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              )
+            : Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
       ),
     );
   }
