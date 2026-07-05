@@ -50,42 +50,42 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                           if (state.generateAiProductDataFromMenuStatus ==
                               BlocStatus.success) {
                             return state
-                                        .generateAiProductDataFromMenu
-                                        ?.data
-                                        ?.items
-                                        ?.isNotEmpty ==
-                                    true
+                                .generateAiProductDataFromMenu
+                                ?.data
+                                ?.items
+                                ?.isNotEmpty ==
+                                true
                                 ? Column(
-                                    children: [
-                                      const SizedBox(height: 16),
-                                      ListView.separated(
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        shrinkWrap: true,
-                                        itemCount: state
+                              children: [
+                                const SizedBox(height: 16),
+                                ListView.separated(
+                                  physics:
+                                  const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: state
+                                      .generateAiProductDataFromMenu!
+                                      .data!
+                                      .items!
+                                      .length,
+                                  padding: EdgeInsets.zero,
+                                  separatorBuilder: (_, _) =>
+                                  const SizedBox(height: 12),
+                                  itemBuilder: (context, index) =>
+                                      _NewProductCard(
+                                        state
                                             .generateAiProductDataFromMenu!
                                             .data!
-                                            .items!
-                                            .length,
-                                        padding: EdgeInsets.zero,
-                                        separatorBuilder: (_, _) =>
-                                            const SizedBox(height: 12),
-                                        itemBuilder: (context, index) =>
-                                            _NewProductCard(
-                                              state
-                                                  .generateAiProductDataFromMenu!
-                                                  .data!
-                                                  .items![index],
-                                            ),
+                                            .items![index],
                                       ),
-                                    ],
-                                  )
+                                ),
+                              ],
+                            )
                                 : Center(
-                                    child: AppText.labelLarge(
-                                      'لم يتم العثور على منتجات، يمكنك إضافة المنتجات يدوياً',
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  );
+                              child: AppText.labelLarge(
+                                'لم يتم العثور على منتجات، يمكنك إضافة المنتجات يدوياً',
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
                           } else {
                             return SizedBox.shrink();
                           }
@@ -141,85 +141,89 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
   }
 
   Widget _buildUploaderCard() {
-    return Container(
-      padding: const EdgeInsetsDirectional.all(16),
-      decoration: const BoxDecoration(
-        color: ProductsStyleTokens.cardBackground,
-        borderRadius: ProductsStyleTokens.cardRadius16,
-        border: Border.fromBorderSide(
-          BorderSide(color: ProductsStyleTokens.lineCard),
-        ),
-        boxShadow: [ProductsStyleTokens.softShadow],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'رفع صورة المنيو',
-            style: TextStyle(
-              color: ProductsStyleTokens.textHigh,
-              fontSize: 24 / 1.4,
-              fontWeight: FontWeight.w700,
-              height: 1.3,
+    return BlocBuilder<ProductsBloc, ProductsState>(
+      builder: (context, state) {
+        return Container(
+          padding: const EdgeInsetsDirectional.all(16),
+          decoration: const BoxDecoration(
+            color: ProductsStyleTokens.cardBackground,
+            borderRadius: ProductsStyleTokens.cardRadius16,
+            border: Border.fromBorderSide(
+              BorderSide(color: ProductsStyleTokens.lineCard),
             ),
+            boxShadow: [ProductsStyleTokens.softShadow],
           ),
-          const SizedBox(height: 4),
-          const Text(
-            'قم برفع صورة المنيو ليتم استخراج المنتجات تلقائياً',
-            style: TextStyle(
-              color: ProductsStyleTokens.textHint,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _uploadTile()),
-              if (imagePath != null) ...[
-                const SizedBox(width: 10),
-                ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(16)),
-                  child: Image.file(
-                    File(imagePath!),
-                    width: 130,
-                    height: 190,
-                    fit: BoxFit.cover,
-                  ),
+              const Text(
+                'رفع صورة المنيو',
+                style: TextStyle(
+                  color: ProductsStyleTokens.textHigh,
+                  fontSize: 24 / 1.4,
+                  fontWeight: FontWeight.w700,
+                  height: 1.3,
                 ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 12),
-          BlocBuilder<ProductsBloc, ProductsState>(
-            builder: (context, state) {
-              return GradientButton(
-                title: 'تحليل الصورة',
-                icon: const Icon(Icons.auto_awesome_rounded),
-                onTap: () {
-                  if (imagePath == null) {
-                    AppToast.showToast(
-                      context: context,
-                      message: 'اختر صورة مناسبة',
-                      type: ToastificationType.error,
-                    );
-                    return;
-                  }
-                  context.read<ProductsBloc>().add(
-                    GenerateAiProductDataFromMenuEvent(
-                      params: GenerateAiProductDataFromMenuParams(
-                        image: File(imagePath!),
-                        locale: _resolveAiLocale(context),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'قم برفع صورة المنيو ليتم استخراج المنتجات تلقائياً',
+                style: TextStyle(
+                  color: ProductsStyleTokens.textHint,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(child: _uploadTile()),
+                  if (imagePath != null) ...[
+                    const SizedBox(width: 10),
+                    ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(16)),
+                      child: Image.file(
+                        File(imagePath!),
+                        width: 130,
+                        height: 190,
+                        fit: BoxFit.cover,
                       ),
                     ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 12),
+              BlocBuilder<ProductsBloc, ProductsState>(
+                builder: (context, state) {
+                  return GradientButton(
+                    title: 'تحليل الصورة',
+                    icon: const Icon(Icons.auto_awesome_rounded),
+                    onTap: () {
+                      if (imagePath == null) {
+                        AppToast.showToast(
+                          context: context,
+                          message: 'اختر صورة مناسبة',
+                          type: ToastificationType.error,
+                        );
+                        return;
+                      }
+                      context.read<ProductsBloc>().add(
+                        GenerateAiProductDataFromMenuEvent(
+                          params: GenerateAiProductDataFromMenuParams(
+                            image: File(imagePath!),
+                            locale: _resolveAiLocale(context),
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -284,9 +288,12 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
   }
 
   String? _resolveAiLocale(BuildContext context) {
-    final languageCode = Localizations.localeOf(
+    final languageCode = Localizations
+        .localeOf(
       context,
-    ).languageCode.toLowerCase();
+    )
+        .languageCode
+        .toLowerCase();
     if (languageCode == 'ar' || languageCode == 'en') {
       return languageCode;
     }
@@ -315,28 +322,28 @@ class _NewProductCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              AppImage.asset(
-                Assets.images.testBurger.path,
-                width: 78,
-                height: 78,
-                fit: BoxFit.cover,
-                borderRadius: const BorderRadius.all(Radius.circular(12)),
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
+              // AppImage.asset(
+              //   Assets.images.testBurger.path,
+              //   width: 78,
+              //   height: 78,
+              //   fit: BoxFit.cover,
+              //   borderRadius: const BorderRadius.all(Radius.circular(12)),
+              // ),
+              // const SizedBox(width: 12),
+              Expanded(
                 child: ProductTextField(
                   title: 'اسم المنتج',
-                  hintText: 'برجر دجاج كلاسيك',
+                  hintText: product.title,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          const ProductTextField(
+          ProductTextField(
             maxLines: 3,
             title: 'وصف المنتج',
             hintText:
-                'شريحة دجاج طازجة متبلة بخلطتنا الخاصة، مقلية حتى القرمشة الذهبية، تقدم مع الخس الطازج، الطماطم، وجبنة الشيدر الذائبة في خبز البريوش الطري.',
+            product.description,
           ),
         ],
       ),

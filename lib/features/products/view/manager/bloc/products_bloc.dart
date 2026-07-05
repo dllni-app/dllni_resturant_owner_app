@@ -40,7 +40,8 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     this.generateAiProductDataFromMenuUseCase,
     this.updateProductUseCase,
     this.deleteProductUseCase,
-    this.postNewProductUseCase,) : super(ProductsState()) {
+    this.postNewProductUseCase)
+    : super(ProductsState()) {
     on<FetchCategoriesEvent>(_fetchCategories, transformer: droppableProMax());
     on<FetchProductsEvent>(_fetchProducts, transformer: droppableProMax());
   
