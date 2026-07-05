@@ -2,14 +2,15 @@
 
 import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
+import 'package:dllni_resturant_owner_app/features/products/domain/usecases/fetch_categories_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/products/domain/usecases/generate_ai_product_data_from_menu_use_case.dart';
+import 'package:dllni_resturant_owner_app/features/products/domain/usecases/post_products_from_menu_use_case.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toastification/toastification.dart';
 
-import '../../../../generated/assets.dart';
 import '../../data/models/generate_ai_product_data_from_menu_model.dart';
 import '../manager/bloc/products_bloc.dart';
 import '../widgets/add_new_product_app_bar.dart';
@@ -32,108 +33,162 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductsBloc>(
-      create: (context) => getIt<ProductsBloc>(),
-      child: Scaffold(
-        backgroundColor: ProductsStyleTokens.pageBackground,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const AddNewProductAppBar(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsetsDirectional.only(start: 24, end: 24),
-                  child: Column(
-                    children: [
-                      _buildUploaderCard(),
-                      BlocBuilder<ProductsBloc, ProductsState>(
-                        builder: (context, state) {
-                          if (state.generateAiProductDataFromMenuStatus ==
-                              BlocStatus.success) {
-                            return state
-                                .generateAiProductDataFromMenu
-                                ?.data
-                                ?.items
-                                ?.isNotEmpty ==
-                                true
-                                ? Column(
-                              children: [
-                                const SizedBox(height: 16),
-                                ListView.separated(
-                                  physics:
-                                  const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemCount: state
-                                      .generateAiProductDataFromMenu!
-                                      .data!
-                                      .items!
-                                      .length,
-                                  padding: EdgeInsets.zero,
-                                  separatorBuilder: (_, _) =>
-                                  const SizedBox(height: 12),
-                                  itemBuilder: (context, index) =>
-                                      _NewProductCard(
-                                        state
-                                            .generateAiProductDataFromMenu!
-                                            .data!
-                                            .items![index],
+      create: (context) => getIt<ProductsBloc>()
+        ..add(
+          FetchCategoriesEvent(
+            params: FetchCategoriesParams(page: 1),
+            isReload: true,
+          ),
+        ),
+      child: BlocListener<ProductsBloc, ProductsState>(
+        listenWhen: (previous, current) =>
+            previous.generateAiProductDataFromMenuStatus !=
+                current.generateAiProductDataFromMenuStatus ||
+            previous.postProductsFromMenuStatus !=
+                current.postProductsFromMenuStatus,
+        listener: (context, state) {
+          if (state.generateAiProductDataFromMenuStatus == BlocStatus.failed) {
+            AppToast.showToast(
+              context: context,
+              message: state.errorMessage ?? 'حدث خطأ أثناء تحليل الصورة',
+              type: ToastificationType.error,
+            );
+          }
+
+          if (state.postProductsFromMenuStatus == BlocStatus.failed) {
+            AppToast.showToast(
+              context: context,
+              message: state.errorMessage ?? 'حدث خطأ أثناء إضافة المنتجات',
+              type: ToastificationType.error,
+            );
+          }
+
+          if (state.postProductsFromMenuStatus == BlocStatus.success) {
+            final createdCount = state.postProductsFromMenuResult?.createdCount;
+            AppToast.showToast(
+              context: context,
+              message: createdCount == null
+                  ? 'تمت إضافة المنتجات للقائمة بنجاح'
+                  : 'تمت إضافة $createdCount منتجات للقائمة بنجاح',
+              type: ToastificationType.success,
+            );
+            context.pushRouteAndRemoveUntil('/main', arguments: 2);
+          }
+        },
+        child: Scaffold(
+          backgroundColor: ProductsStyleTokens.pageBackground,
+          body: SafeArea(
+            child: Column(
+              children: [
+                const AddNewProductAppBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsetsDirectional.only(start: 24, end: 24),
+                    child: Column(
+                      children: [
+                        _buildUploaderCard(),
+                        BlocBuilder<ProductsBloc, ProductsState>(
+                          builder: (context, state) {
+                            if (state.generateAiProductDataFromMenuStatus ==
+                                BlocStatus.success) {
+                              return state
+                                          .generateAiProductDataFromMenu
+                                          ?.data
+                                          ?.items
+                                          ?.isNotEmpty ==
+                                      true
+                                  ? Column(
+                                      children: [
+                                        const SizedBox(height: 16),
+                                        ListView.separated(
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          shrinkWrap: true,
+                                          itemCount: state
+                                              .generateAiProductDataFromMenu!
+                                              .data!
+                                              .items!
+                                              .length,
+                                          padding: EdgeInsets.zero,
+                                          separatorBuilder: (_, _) =>
+                                              const SizedBox(height: 12),
+                                          itemBuilder: (context, index) =>
+                                              _NewProductCard(
+                                                state
+                                                    .generateAiProductDataFromMenu!
+                                                    .data!
+                                                    .items![index],
+                                              ),
+                                        ),
+                                      ],
+                                    )
+                                  : Center(
+                                      child: AppText.labelLarge(
+                                        'لم يتم العثور على منتجات، يمكنك إضافة المنتجات يدوياً',
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                ),
-                              ],
-                            )
-                                : Center(
-                              child: AppText.labelLarge(
-                                'لم يتم العثور على منتجات، يمكنك إضافة المنتجات يدوياً',
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          } else {
-                            return SizedBox.shrink();
-                          }
-                        },
-                      ),
-                    ],
+                                    );
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              BlocBuilder<ProductsBloc, ProductsState>(
-                builder: (context, state) {
-                  if (state.generateAiProductDataFromMenuStatus ==
-                      BlocStatus.success) {
-                    return Column(
-                      children: [
-                        SizedBox(height: 10),
-                        Padding(
-                          padding: const EdgeInsetsDirectional.symmetric(
-                            horizontal: 24,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: AppButton(
-                                  title: 'إضافة للقائمة',
-                                  onTap: () {},
+                BlocBuilder<ProductsBloc, ProductsState>(
+                  builder: (context, state) {
+                    if (state.generateAiProductDataFromMenuStatus ==
+                        BlocStatus.success) {
+                      final isSubmitting =
+                          state.postProductsFromMenuStatus == BlocStatus.loading;
+                      return Column(
+                        children: [
+                          SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 24,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: AppButton(
+                                    title: isSubmitting
+                                        ? 'جاري الإضافة...'
+                                        : 'إضافة للقائمة',
+                                    isLoading: isSubmitting,
+                                    onTap: isSubmitting
+                                        ? null
+                                        : () => _submitProductsFromMenu(
+                                              context,
+                                              state,
+                                            ),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 12),
-                              AppOutlinedButton(
-                                title: 'إلغاء',
-                                color: const Color(0xFFFF4C51),
-                                onTap: () {
-                                  context.pop();
-                                },
-                              ),
-                            ],
+                                const SizedBox(width: 12),
+                                AppOutlinedButton(
+                                  title: 'إلغاء',
+                                  color: const Color(0xFFFF4C51),
+                                  onTap: isSubmitting
+                                      ? null
+                                      : () {
+                                          context.pop();
+                                        },
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 20),
-                      ],
-                    );
-                  } else {
-                    return SizedBox.shrink();
-                  }
-                },
-              ),
-            ],
+                          SizedBox(height: 20),
+                        ],
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -196,27 +251,43 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
               const SizedBox(height: 12),
               BlocBuilder<ProductsBloc, ProductsState>(
                 builder: (context, state) {
+                  final isAnalyzing =
+                      state.generateAiProductDataFromMenuStatus ==
+                      BlocStatus.loading;
                   return GradientButton(
-                    title: 'تحليل الصورة',
-                    icon: const Icon(Icons.auto_awesome_rounded),
-                    onTap: () {
-                      if (imagePath == null) {
-                        AppToast.showToast(
-                          context: context,
-                          message: 'اختر صورة مناسبة',
-                          type: ToastificationType.error,
-                        );
-                        return;
-                      }
-                      context.read<ProductsBloc>().add(
-                        GenerateAiProductDataFromMenuEvent(
-                          params: GenerateAiProductDataFromMenuParams(
-                            image: File(imagePath!),
-                            locale: _resolveAiLocale(context),
-                          ),
-                        ),
-                      );
-                    },
+                    title: isAnalyzing ? 'جاري تحليل الصورة...' : 'تحليل الصورة',
+                    icon: isAnalyzing
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : const Icon(Icons.auto_awesome_rounded),
+                    onTap: isAnalyzing
+                        ? null
+                        : () {
+                            if (imagePath == null) {
+                              AppToast.showToast(
+                                context: context,
+                                message: 'اختر صورة مناسبة',
+                                type: ToastificationType.error,
+                              );
+                              return;
+                            }
+                            context.read<ProductsBloc>().add(
+                                  GenerateAiProductDataFromMenuEvent(
+                                    params:
+                                        GenerateAiProductDataFromMenuParams(
+                                      image: File(imagePath!),
+                                      locale: _resolveAiLocale(context),
+                                    ),
+                                  ),
+                                );
+                          },
                   );
                 },
               ),
@@ -287,13 +358,83 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
     });
   }
 
+  void _submitProductsFromMenu(BuildContext context, ProductsState state) {
+    final currentImagePath = imagePath;
+    if (currentImagePath == null) {
+      AppToast.showToast(
+        context: context,
+        message: 'اختر صورة مناسبة',
+        type: ToastificationType.error,
+      );
+      return;
+    }
+
+    final categoriesState = state.categories;
+    if (categoriesState?.isLoading == true) {
+      AppToast.showToast(
+        context: context,
+        message: 'جاري تحميل التصنيفات، يرجى الانتظار',
+        type: ToastificationType.warning,
+      );
+      return;
+    }
+
+    int? categoryId;
+    for (final category in categoriesState?.list ?? const []) {
+      if (category.id != null) {
+        categoryId = category.id;
+        break;
+      }
+    }
+
+    if (categoryId == null) {
+      AppToast.showToast(
+        context: context,
+        message: 'لا توجد تصنيفات متاحة لإضافة المنتجات',
+        type: ToastificationType.error,
+      );
+      return;
+    }
+
+    final extractedItems =
+        state.generateAiProductDataFromMenu?.data?.items ?? const [];
+    final products = <PostProductFromMenuParams>[];
+
+    for (final product in extractedItems) {
+      final title = (product.title ?? '').trim();
+      if (title.isEmpty) continue;
+      products.add(
+        PostProductFromMenuParams(
+          title: title,
+          description: (product.description ?? '').trim(),
+        ),
+      );
+    }
+
+    if (products.isEmpty) {
+      AppToast.showToast(
+        context: context,
+        message: 'لم يتم العثور على منتجات صالحة للإضافة',
+        type: ToastificationType.error,
+      );
+      return;
+    }
+
+    context.read<ProductsBloc>().add(
+          PostProductsFromMenuEvent(
+            params: PostProductsFromMenuParams(
+              categoryId: categoryId,
+              image: File(currentImagePath),
+              products: products,
+            ),
+          ),
+        );
+  }
+
   String? _resolveAiLocale(BuildContext context) {
-    final languageCode = Localizations
-        .localeOf(
+    final languageCode = Localizations.localeOf(
       context,
-    )
-        .languageCode
-        .toLowerCase();
+    ).languageCode.toLowerCase();
     if (languageCode == 'ar' || languageCode == 'en') {
       return languageCode;
     }
@@ -322,14 +463,6 @@ class _NewProductCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              // AppImage.asset(
-              //   Assets.images.testBurger.path,
-              //   width: 78,
-              //   height: 78,
-              //   fit: BoxFit.cover,
-              //   borderRadius: const BorderRadius.all(Radius.circular(12)),
-              // ),
-              // const SizedBox(width: 12),
               Expanded(
                 child: ProductTextField(
                   title: 'اسم المنتج',
@@ -342,8 +475,7 @@ class _NewProductCard extends StatelessWidget {
           ProductTextField(
             maxLines: 3,
             title: 'وصف المنتج',
-            hintText:
-            product.description,
+            hintText: product.description,
           ),
         ],
       ),

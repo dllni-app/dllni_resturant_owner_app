@@ -83,6 +83,8 @@ import '../../features/products/domain/usecases/generate_ai_product_image_use_ca
     as _i990;
 import '../../features/products/domain/usecases/post_new_product_use_case.dart'
     as _i456;
+import '../../features/products/domain/usecases/post_products_from_menu_use_case.dart'
+    as _i1024;
 import '../../features/products/domain/usecases/update_product_use_case.dart'
     as _i796;
 import '../../features/products/view/manager/bloc/products_bloc.dart' as _i113;
@@ -273,6 +275,11 @@ _i174.GetIt $initGetIt(
   gh.lazySingleton<_i456.PostNewProductUseCase>(
     () => _i456.PostNewProductUseCase(products: gh<_i466.ProductsRepo>()),
   );
+  gh.lazySingleton<_i1024.PostProductsFromMenuUseCase>(
+    () => _i1024.PostProductsFromMenuUseCase(
+      products: gh<_i466.ProductsRepo>(),
+    ),
+  );
   gh.lazySingleton<_i796.UpdateProductUseCase>(
     () => _i796.UpdateProductUseCase(products: gh<_i466.ProductsRepo>()),
   );
@@ -319,6 +326,7 @@ _i174.GetIt $initGetIt(
       gh<_i796.UpdateProductUseCase>(),
       gh<_i290.DeleteProductUseCase>(),
       gh<_i456.PostNewProductUseCase>(),
+      gh<_i1024.PostProductsFromMenuUseCase>(),
     ),
   );
   gh.factory<_i648.HomeBloc>(

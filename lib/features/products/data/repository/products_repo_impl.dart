@@ -16,6 +16,7 @@ import '../../domain/usecases/generate_ai_product_data_from_menu_use_case.dart';
 import '../models/generate_ai_product_data_from_menu_model.dart';
 import '../../domain/usecases/post_new_product_use_case.dart';
 import '../models/post_new_product_model.dart';
+import '../../domain/usecases/post_products_from_menu_use_case.dart';
 import '../../domain/usecases/update_product_use_case.dart';
 import '../../domain/usecases/delete_product_use_case.dart';
 import '../models/delete_product_model.dart';
@@ -69,6 +70,15 @@ class ProductsRepoImpl with HandlingException implements ProductsRepo {
   }
 
   @override
+  DataResponse<PostProductsFromMenuResult> postProductsFromMenu(
+    PostProductsFromMenuParams params,
+  ) {
+    return wrapHandlingException(
+      tryCall: () => productsRemoteDataSource.postProductsFromMenu(params),
+    );
+  }
+
+  @override
   DataResponse<PostNewProductModel> updateProduct(UpdateProductParams params) {
     return wrapHandlingException(
       tryCall: () => productsRemoteDataSource.updateProduct(params),
@@ -82,4 +92,3 @@ class ProductsRepoImpl with HandlingException implements ProductsRepo {
     );
   }
 }
-

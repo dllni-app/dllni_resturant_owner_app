@@ -3,6 +3,8 @@ part of 'products_bloc.dart';
 class ProductsState {
   BlocStatus? newProductStatus;
   PostNewProductModel? newProduct;
+  BlocStatus? postProductsFromMenuStatus;
+  PostProductsFromMenuResult? postProductsFromMenuResult;
   BlocStatus? updateProductStatus;
   PostNewProductModel? updatedProduct;
   BlocStatus? deleteProductStatus;
@@ -29,6 +31,8 @@ class ProductsState {
     this.generateAiProductDataFromMenuStatus,
     this.newProduct,
     this.newProductStatus,
+    this.postProductsFromMenuStatus,
+    this.postProductsFromMenuResult,
     this.updateProductStatus,
     this.updatedProduct,
     this.deleteProductStatus,
@@ -47,6 +51,8 @@ class ProductsState {
     BlocStatus? generateAiProductDataFromMenuStatus,
     PostNewProductModel? newProduct,
     BlocStatus? newProductStatus,
+    PostProductsFromMenuResult? postProductsFromMenuResult,
+    BlocStatus? postProductsFromMenuStatus,
     PostNewProductModel? updatedProduct,
     BlocStatus? updateProductStatus,
     DeleteProductModel? deletedProduct,
@@ -63,6 +69,8 @@ class ProductsState {
     generateAiProductDataFromMenuStatus: generateAiProductDataFromMenuStatus ?? this.generateAiProductDataFromMenuStatus,
     newProduct: newProduct ?? this.newProduct,
     newProductStatus: newProductStatus ?? this.newProductStatus,
+    postProductsFromMenuResult: postProductsFromMenuResult ?? this.postProductsFromMenuResult,
+    postProductsFromMenuStatus: postProductsFromMenuStatus ?? this.postProductsFromMenuStatus,
     updatedProduct: updatedProduct ?? this.updatedProduct,
     updateProductStatus: updateProductStatus ?? this.updateProductStatus,
     deletedProduct: deletedProduct ?? this.deletedProduct,

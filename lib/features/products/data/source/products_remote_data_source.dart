@@ -13,6 +13,7 @@ import '../models/generate_ai_product_data_from_menu_model.dart';
 import '../../domain/usecases/generate_ai_product_data_from_menu_use_case.dart';
 import '../models/post_new_product_model.dart';
 import '../../domain/usecases/post_new_product_use_case.dart';
+import '../../domain/usecases/post_products_from_menu_use_case.dart';
 import '../models/delete_product_model.dart';
 import '../../domain/usecases/delete_product_use_case.dart';
 import '../../domain/usecases/update_product_use_case.dart';
@@ -102,6 +103,31 @@ class ProductsRemoteDataSource with HandlingApiManager {
       ),
       jsonConvert: postNewProductModelFromJson,
     );
+  }
+
+  Future<PostProductsFromMenuResult> postProductsFromMenu(
+    PostProductsFromMenuParams params,
+  ) async {
+    final createdProducts = <PostNewProductModel>[];
+
+    for (final product in params.products) {
+      final createdProduct = await postNewProduct(
+        PostNewProductParams(
+          categoryId: params.categoryId,
+          name: product.title,
+          desc: product.description,
+          price: params.price,
+          discountedPrice: params.discountedPrice,
+          lowStock: params.lowStock,
+          preparationTime: params.preparationTime,
+          primaryImage: params.image,
+          images: const [],
+        ),
+      );
+      createdProducts.add(createdProduct);
+    }
+
+    return PostProductsFromMenuResult(products: createdProducts);
   }
 
   Future<PostNewProductModel> updateProduct(UpdateProductParams params) {
