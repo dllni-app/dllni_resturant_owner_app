@@ -80,8 +80,18 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         },
         (r) {
           if (isClosed) return;
-          add(FetchProductsEvent(params: FetchProductsParams(categoryId: r.data![0].id!, page: 1)));
-          emit(state.copyWith(categories: state.categories!.setSuccess(data: r.data!)));
+          final categories = r.data ?? [];
+          if (categories.isNotEmpty && categories.first.id != null) {
+            add(
+              FetchProductsEvent(
+                params: FetchProductsParams(
+                  categoryId: categories.first.id!,
+                  page: 1,
+                ),
+              ),
+            );
+          }
+          emit(state.copyWith(categories: state.categories!.setSuccess(data: categories)));
         },
       );
     }
