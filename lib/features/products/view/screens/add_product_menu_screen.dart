@@ -379,10 +379,13 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
       return;
     }
 
-    final categoryId = categoriesState?.list
-        .where((category) => category.id != null)
-        .map((category) => category.id!)
-        .firstOrNull;
+    int? categoryId;
+    for (final category in categoriesState?.list ?? const []) {
+      if (category.id != null) {
+        categoryId = category.id;
+        break;
+      }
+    }
 
     if (categoryId == null) {
       AppToast.showToast(
