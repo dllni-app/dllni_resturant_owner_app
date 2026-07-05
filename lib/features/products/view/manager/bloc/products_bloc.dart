@@ -15,6 +15,7 @@ import '../../../domain/usecases/generate_ai_product_data_from_menu_use_case.dar
 import '../../../data/models/generate_ai_product_data_from_menu_model.dart';
 import '../../../domain/usecases/post_new_product_use_case.dart';
 import '../../../data/models/post_new_product_model.dart';
+import '../../../domain/usecases/post_products_from_menu_use_case.dart';
 import '../../../domain/usecases/update_product_use_case.dart';
 import '../../../domain/usecases/delete_product_use_case.dart';
 import '../../../data/models/delete_product_model.dart';
@@ -28,6 +29,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   final DeleteProductUseCase deleteProductUseCase;
   final UpdateProductUseCase updateProductUseCase;
   final PostNewProductUseCase postNewProductUseCase;
+  final PostProductsFromMenuUseCase postProductsFromMenuUseCase;
   final GenerateAiProductDataFromMenuUseCase generateAiProductDataFromMenuUseCase;
   final GenerateAiProductDataFromImageUseCase generateAiProductDataFromImageUseCase;
   final GenerateAiProductImageUseCase generateAiProductImageUseCase;
@@ -40,7 +42,8 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     this.generateAiProductDataFromMenuUseCase,
     this.updateProductUseCase,
     this.deleteProductUseCase,
-    this.postNewProductUseCase)
+    this.postNewProductUseCase,
+    this.postProductsFromMenuUseCase)
     : super(ProductsState()) {
     on<FetchCategoriesEvent>(_fetchCategories, transformer: droppableProMax());
     on<FetchProductsEvent>(_fetchProducts, transformer: droppableProMax());
@@ -49,6 +52,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
     on<GenerateAiProductDataFromImageEvent>(_generateAiProductDataFromImage);
     on<GenerateAiProductDataFromMenuEvent>(_generateAiProductDataFromMenu);
     on<PostNewProductEvent>(_postNewProduct);
+    on<PostProductsFromMenuEvent>(_postProductsFromMenu);
     on<UpdateProductEvent>(_updateProduct);
     on<DeleteProductEvent>(_deleteProduct);
   }
@@ -167,6 +171,22 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       emit(state.copyWith(
         newProductStatus: BlocStatus.success,
         newProduct: r,
+      ));
+    });
+  }
+
+  FutureOr<void> _postProductsFromMenu(PostProductsFromMenuEvent event, Emitter<ProductsState> emit) async {
+    emit(state.copyWith(postProductsFromMenuStatus: BlocStatus.loading));
+    final res = await postProductsFromMenuUseCase(event.params);
+    res.fold((l) {
+      emit(state.copyWith(
+        postProductsFromMenuStatus: BlocStatus.failed,
+        errorMessage: l.message,
+      ));
+    }, (r) {
+      emit(state.copyWith(
+        postProductsFromMenuStatus: BlocStatus.success,
+        postProductsFromMenuResult: r,
       ));
     });
   }
