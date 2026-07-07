@@ -76,7 +76,7 @@ class MoreScreenAppBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              AppText.displayMedium('المزيد', fontWeight: FontWeight.bold, color: context.primary),
+             // AppText.displayMedium('المزيد', fontWeight: FontWeight.bold, color: context.primary),
               SizedBox(height: 16),
               Row(
                 children: [

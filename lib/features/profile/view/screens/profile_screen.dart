@@ -168,6 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   lat: lat,
                                   long: long,
                                   whatsapp: whatsController.text,
+
                                 ),
                               ),
                             );

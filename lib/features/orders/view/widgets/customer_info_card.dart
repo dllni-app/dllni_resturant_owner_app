@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/extentions.dart';
 import '../../data/models/owner_order_details_model.dart';
 
 class CustomerInfoCard extends StatelessWidget {
@@ -67,9 +68,12 @@ class CustomerInfoCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                     const SizedBox(height: 8),
-                    _infoLine(Icons.phone, phone.isEmpty ? '-' : phone),
-                    const SizedBox(height: 8),
-                    _infoLine(Icons.email, customer?.email ?? '-'),
+                    _infoLine(
+                      Icons.phone,
+                      phone.isEmpty ? '-' : phone.formatAsPhoneNumber,
+                    ),
+                    // const SizedBox(height: 8),
+                    // _infoLine(Icons.email, customer?.email ?? '-'),
                     const SizedBox(height: 8),
                     _infoLine(
                       Icons.location_on,
@@ -88,7 +92,10 @@ class CustomerInfoCard extends StatelessWidget {
             width: context.width,
             child: ElevatedButton(
               onPressed: () {
-                makePhoneCall(context: context,phoneNumber: order.customer?.phone);
+                makePhoneCall(
+                  context: context,
+                  phoneNumber: order.customer?.phone,
+                );
               },
               style: ElevatedButton.styleFrom(backgroundColor: context.primary),
 
@@ -130,39 +137,37 @@ class CustomerInfoCard extends StatelessWidget {
 Future<void> makePhoneCall({
   required String? phoneNumber,
   required BuildContext context,
-})
-async {
-  // 1. التحقق إذا كان الرقم null أو فارغاً
-  if (phoneNumber == null || phoneNumber.isEmpty) {
+}) async {
+  final phone = phoneNumber?.trim();
+
+  if (phone == null || phone.isEmpty) {
     AppToast.showToast(
-      message: "خطأ: رقم الهاتف غير صالح",
+      message: "رقم الهاتف غير صالح",
       context: context,
       type: ToastificationType.error,
     );
     return;
   }
 
-  // 2. تجهيز الرابط (tel:...)
-  final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+  final uri = Uri(
+    scheme: 'tel',
+    path: phone,
+  );
 
   try {
-    // 3. محاولة فتح الرابط
-    if (await canLaunchUrl(phoneUri)) {
-      await launchUrl(phoneUri);
-    } else {
-      if (context.mounted) {
-        AppToast.showToast(
-          message: "خطأ: تعذر فتح تطبيق الاتصال",
-          context: context,
-          type: ToastificationType.error,
-        );
-      }
+    final launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
 
-
+    if (!launched && context.mounted) {
+      AppToast.showToast(
+        message: "تعذر فتح تطبيق الاتصال",
+        context: context,
+        type: ToastificationType.error,
+      );
     }
-  } catch (e) {
-
-
+  } catch (_) {
     if (context.mounted) {
       AppToast.showToast(
         message: "حدث خطأ غير متوقع",
