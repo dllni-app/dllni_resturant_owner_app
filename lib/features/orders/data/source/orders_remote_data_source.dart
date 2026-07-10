@@ -9,6 +9,7 @@ import '../../domain/usecases/get_order_details_use_case.dart';
 import '../../domain/usecases/get_orders_use_case.dart';
 import '../../domain/usecases/reject_order_use_case.dart';
 import '../../domain/usecases/update_order_item_use_case.dart';
+import '../../domain/usecases/update_preparation_estimate_params.dart';
 import '../models/accept_order_model.dart';
 import '../models/get_orders_model.dart';
 import '../models/owner_order_details_model.dart';
@@ -68,6 +69,17 @@ class OrdersRemoteDataSource with HandlingApiManager {
     return wrapHandlingApi(
       tryCall: () => dioNetwork.patchData(
         endPoint: '/api/v1/restaurant-owner/orders/${params.orderId}/status',
+        data: params.getBody(),
+        params: params.getParams(),
+      ),
+      jsonConvert: ownerOrderDetailsModelFromJson,
+    );
+  }
+
+  Future<OwnerOrderDetailsModel> updatePreparationEstimate(UpdatePreparationEstimateParams params) {
+    return wrapHandlingApi(
+      tryCall: () => dioNetwork.patchData(
+        endPoint: '/api/v1/restaurant-owner/orders/${params.orderId}/preparation-estimate',
         data: params.getBody(),
         params: params.getParams(),
       ),
