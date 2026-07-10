@@ -17,16 +17,22 @@ class AcceptOrderUseCase implements UseCase<AcceptOrderModel, AcceptOrderParams>
 }
 
 class AcceptOrderParams with Params {
-  final int preparationTimeMinutes;
+  final int? preparationTimeMinutes;
   final int? assignedEmployeeId;
   final String kitchenNotes;
-
   final int id;
 
-  AcceptOrderParams({required this.preparationTimeMinutes, this.assignedEmployeeId, required this.kitchenNotes, required this.id});
+  AcceptOrderParams({
+    this.preparationTimeMinutes,
+    this.assignedEmployeeId,
+    required this.kitchenNotes,
+    required this.id,
+  });
 
   @override
-  BodyMap getBody() =>
-      {"preparationTimeMinutes": preparationTimeMinutes, "assignedEmployeeId": assignedEmployeeId, "kitchenNotes": kitchenNotes}
-        ..removeWhere((key, value) => value == null);
+  BodyMap getBody() => {
+        'preparationTimeMinutes': preparationTimeMinutes,
+        'assignedEmployeeId': assignedEmployeeId,
+        'kitchenNotes': kitchenNotes,
+      }..removeWhere((key, value) => value == null);
 }
