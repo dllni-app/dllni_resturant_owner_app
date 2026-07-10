@@ -1,4 +1,4 @@
-﻿import 'package:common_package/common_package.dart';
+import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/features/orders/domain/usecases/accept_order_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/profile/data/models/fetch_employees_model.dart';
@@ -12,13 +12,18 @@ import '../../data/models/get_orders_model.dart';
 import '../manager/bloc/orders_bloc.dart';
 
 class AcceptOrderBottomSheet extends StatefulWidget {
-  const AcceptOrderBottomSheet({super.key, required this.order, required this.bloc});
+  const AcceptOrderBottomSheet({
+    super.key,
+    required this.order,
+    required this.bloc,
+  });
 
   final GetOrdersModelDataItem order;
   final OrdersBloc bloc;
 
   @override
-  State<AcceptOrderBottomSheet> createState() => _AcceptOrderBottomSheetState();
+  State<AcceptOrderBottomSheet> createState() =>
+      _AcceptOrderBottomSheetState();
 }
 
 class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
@@ -28,9 +33,20 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
   bool _employeesLoading = true;
   String? _employeesError;
   final List<FetchEmployeesModelDataItem> _employees = [];
-  final TextEditingController _kitchenNotesController = TextEditingController();
+  final TextEditingController _kitchenNotesController =
+      TextEditingController();
   final TextEditingController _customTimeController = TextEditingController();
   final List<int> _predefinedTimes = [15, 25, 35, 45];
+
+  int? get _preparationTime =>
+      _customPreparationTime ?? _selectedPreparationTime;
+
+  bool get _hasInvalidCustomTime {
+    final raw = _customTimeController.text.trim();
+    if (raw.isEmpty) return false;
+    final value = int.tryParse(raw);
+    return value == null || value < 1 || value > 120;
+  }
 
   @override
   void initState() {
@@ -41,13 +57,13 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
   Future<void> _loadEmployees() async {
     final result = await getIt<FetchEmployeesUseCase>()(FetchEmployeesParams());
     result.fold(
-      (failure) {
-        _employeesError = failure.message;
-      },
+      (failure) => _employeesError = failure.message,
       (model) {
         _employees
           ..clear()
-          ..addAll((model.data ?? []).where((employee) => employee.isActive != false));
+          ..addAll(
+            (model.data ?? []).where((employee) => employee.isActive != false),
+          );
         _employeesError = null;
       },
     );
@@ -66,16 +82,22 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: context.onPrimary,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
       ),
-      height: context.height * .8,
+      height: context.height * .82,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(context),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 24,
+                vertical: 16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -89,79 +111,110 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsetsDirectional.all(24),
-            decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xffE5E7EB), width: 1))),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: BlocConsumer<OrdersBloc, OrdersState>(
-                    bloc: widget.bloc,
-                    listenWhen: (pre,cur)=>pre.acceptOrderStatus!=cur.acceptOrderStatus,
-                    listener: (context, state) {
-                      switch (state.acceptOrderStatus) {
-                        case BlocStatus.failed:
-                          Loading.close();
-                          AppToast.showToast(context: context, message: state.errorMessage ?? 'خطأ في قبول الطلب', type: ToastificationType.error);
-                          break;
-                        case BlocStatus.success:
-                          Loading.close();
-                          context.pop();
-                          break;
-                        case BlocStatus.loading:
-                          Loading.show(context);
-                          break;
-                        case BlocStatus.init:
-                        case null:
-                          Loading.close();
-                          break;
-                      }
-                    },
-                    builder: (context, state) {
-                      final preparationTime = _customPreparationTime ?? _selectedPreparationTime;
-                      final canConfirm = preparationTime != null && state.acceptOrderStatus != BlocStatus.loading;
-                      return InkWell(
-                        onTap: canConfirm
-                            ? () {
-                                widget.bloc.add(
-                                  AcceptOrderEvent(
-                                    params: AcceptOrderParams(
-                                      id: widget.order.id!,
-                                      preparationTimeMinutes: preparationTime,
-                                      assignedEmployeeId: _selectedEmployeeId,
-                                      kitchenNotes: _kitchenNotesController.text.trim(),
-                                    ),
-                                  ),
-                                );
-                              }
-                            : null,
-                        child: Container(
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: canConfirm ? context.primary : const Color(0xffD1D5DB)),
-                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 12),
-                          child: AppText.labelLarge('تأكيد الطلب', color: context.onPrimary, fontWeight: FontWeight.bold),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  flex: 2,
-                  child: InkWell(
-                    onTap: () => context.pop(),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: context.error.withAlpha(50),
-                        border: Border.all(color: context.error),
-                      ),
-                      padding: const EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 12),
-                      child: AppText.labelLarge('تراجع', color: context.error, fontWeight: FontWeight.w500),
+          _buildActions(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    return Container(
+      padding: const EdgeInsetsDirectional.all(24),
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: Color(0xffE5E7EB), width: 1)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 5,
+            child: BlocConsumer<OrdersBloc, OrdersState>(
+              bloc: widget.bloc,
+              listenWhen: (previous, current) =>
+                  previous.acceptOrderStatus != current.acceptOrderStatus,
+              listener: (context, state) {
+                switch (state.acceptOrderStatus) {
+                  case BlocStatus.failed:
+                    Loading.close();
+                    AppToast.showToast(
+                      context: context,
+                      message: state.errorMessage ?? 'خطأ في قبول الطلب',
+                      type: ToastificationType.error,
+                    );
+                    break;
+                  case BlocStatus.success:
+                    Loading.close();
+                    context.pop();
+                    break;
+                  case BlocStatus.loading:
+                    Loading.show(context);
+                    break;
+                  case BlocStatus.init:
+                  case null:
+                    Loading.close();
+                    break;
+                }
+              },
+              builder: (context, state) {
+                final canConfirm = !_hasInvalidCustomTime &&
+                    state.acceptOrderStatus != BlocStatus.loading;
+                return InkWell(
+                  onTap: canConfirm
+                      ? () {
+                          widget.bloc.add(
+                            AcceptOrderEvent(
+                              params: AcceptOrderParams(
+                                id: widget.order.id!,
+                                preparationTimeMinutes: _preparationTime,
+                                assignedEmployeeId: _selectedEmployeeId,
+                                kitchenNotes:
+                                    _kitchenNotesController.text.trim(),
+                              ),
+                            ),
+                          );
+                        }
+                      : null,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: canConfirm
+                          ? context.primary
+                          : const Color(0xffD1D5DB),
+                    ),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: AppText.labelLarge(
+                      'تأكيد الطلب',
+                      color: context.onPrimary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 2,
+            child: InkWell(
+              onTap: () => context.pop(),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: context.error.withAlpha(50),
+                  border: Border.all(color: context.error),
                 ),
-              ],
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: 6,
+                  vertical: 12,
+                ),
+                child: AppText.labelLarge(
+                  'تراجع',
+                  color: context.error,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
         ],
@@ -171,21 +224,37 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 16),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xffE5E7EB), width: 1))),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 24,
+        vertical: 16,
+      ),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xffE5E7EB), width: 1)),
+      ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppText.titleMedium('قبول الطلب #${widget.order.orderNumber}', fontWeight: FontWeight.bold, textAlign: TextAlign.start),
-                AppText.bodySmall('يرجى تأكيد تفاصيل التجهيز قبل البدء', color: const Color(0xff6B7280), textAlign: TextAlign.start),
+                AppText.titleMedium(
+                  'قبول الطلب #${widget.order.orderNumber}',
+                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.start,
+                ),
+                AppText.bodySmall(
+                  'وقت التجهيز اختياري، وسيبدأ البحث عن مندوب فور القبول.',
+                  color: const Color(0xff6B7280),
+                  textAlign: TextAlign.start,
+                ),
               ],
             ),
           ),
           const SizedBox(width: 8),
-          InkWell(onTap: () => context.pop(), child: const Icon(Icons.close, color: Color(0xff6B7280))),
+          InkWell(
+            onTap: () => context.pop(),
+            child: const Icon(Icons.close, color: Color(0xff6B7280)),
+          ),
         ],
       ),
     );
@@ -199,13 +268,31 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
           children: [
             const Icon(Icons.access_time, size: 20, color: Color(0xff3B82F6)),
             const SizedBox(width: 8),
-            AppText.bodyMedium('وقت التجهيز المتوقع', fontWeight: FontWeight.bold),
+            AppText.bodyMedium(
+              'وقت التجهيز المتوقع',
+              fontWeight: FontWeight.bold,
+            ),
+            const SizedBox(width: 6),
+            AppText.bodySmall('(اختياري)', color: const Color(0xff9CA3AF)),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: () {
+            setState(() {
+              _selectedPreparationTime = null;
+              _customPreparationTime = null;
+              _customTimeController.clear();
+            });
+          },
+          icon: const Icon(Icons.help_outline),
+          label: const Text('الوقت غير معروف حالياً'),
+        ),
+        const SizedBox(height: 12),
         Row(
           children: _predefinedTimes.map((time) {
-            final isSelected = _selectedPreparationTime == time && _customPreparationTime == null;
+            final isSelected = _selectedPreparationTime == time &&
+                _customPreparationTime == null;
             return Expanded(
               child: Padding(
                 padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
@@ -219,16 +306,36 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
                   },
                   borderRadius: BorderRadius.circular(8),
                   child: Container(
-                    padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 12),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xff3B82F6).withAlpha(51) : context.onPrimary,
+                      color: isSelected
+                          ? const Color(0xff3B82F6).withAlpha(51)
+                          : context.onPrimary,
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: isSelected ? const Color(0xff3B82F6) : const Color(0xffE5E7EB), width: 1),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xff3B82F6)
+                            : const Color(0xffE5E7EB),
+                      ),
                     ),
                     child: Column(
                       children: [
-                        AppText.labelLarge('$time', color: isSelected ? const Color(0xff1D4ED8) : const Color(0xff2F2B3D), fontWeight: FontWeight.bold),
-                        AppText.labelLarge('دقيقة', color: isSelected ? const Color(0xff1D4ED8) : const Color(0xff2F2B3D), fontWeight: FontWeight.w500),
+                        AppText.labelLarge(
+                          '$time',
+                          color: isSelected
+                              ? const Color(0xff1D4ED8)
+                              : const Color(0xff2F2B3D),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        AppText.labelLarge(
+                          'دقيقة',
+                          color: isSelected
+                              ? const Color(0xff1D4ED8)
+                              : const Color(0xff2F2B3D),
+                        ),
                       ],
                     ),
                   ),
@@ -241,15 +348,25 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
         TextField(
           controller: _customTimeController,
           keyboardType: TextInputType.number,
-          style: TextStyle(color: context.primary, fontWeight: FontWeight.bold, fontSize: 14),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           onChanged: (value) {
             setState(() {
-              _customPreparationTime = value.isEmpty ? null : int.tryParse(value);
-              if (_customPreparationTime != null) _selectedPreparationTime = null;
+              _customPreparationTime =
+                  value.isEmpty ? null : int.tryParse(value);
+              if (_customPreparationTime != null) {
+                _selectedPreparationTime = null;
+              }
             });
           },
-          decoration: _fieldDecoration(context, 'أدخل وقت مخصص (دقيقة)', Icons.hourglass_empty),
+          decoration: _fieldDecoration(
+            context,
+            'أدخل وقتاً مخصصاً من 1 إلى 120 دقيقة',
+            Icons.hourglass_empty,
+          ).copyWith(
+            errorText: _hasInvalidCustomTime
+                ? 'يجب أن يكون الوقت بين 1 و120 دقيقة'
+                : null,
+          ),
         ),
       ],
     );
@@ -260,8 +377,12 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
         .map((employee) {
           final id = employee.userId;
           if (id == null) return null;
-          final name = employee.user?.name ?? employee.user?.email ?? 'موظف #$id';
-          return DropdownMenuItem<int>(value: id, child: Text(name, overflow: TextOverflow.ellipsis));
+          final name =
+              employee.user?.name ?? employee.user?.email ?? 'موظف #$id';
+          return DropdownMenuItem<int>(
+            value: id,
+            child: Text(name, overflow: TextOverflow.ellipsis),
+          );
         })
         .whereType<DropdownMenuItem<int>>()
         .toList();
@@ -269,29 +390,31 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.people, size: 20, color: Color(0xff3B82F6)),
-            const SizedBox(width: 8),
-            AppText.bodyMedium('تعيين موظف مسؤول', fontWeight: FontWeight.bold),
-            const SizedBox(width: 8),
-            AppText.bodyMedium('(اختياري)', fontWeight: FontWeight.w400, color: const Color(0xff9CA3AF)),
-          ],
+        AppText.bodyMedium(
+          'تعيين موظف مسؤول (اختياري)',
+          fontWeight: FontWeight.bold,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         if (_employeesLoading)
           const Center(child: CircularProgressIndicator.adaptive())
         else if (_employeesError != null)
-          AppText.bodyMedium(_employeesError!, color: context.error, textAlign: TextAlign.start)
+          AppText.bodyMedium(_employeesError!, color: context.error)
         else if (dropdownItems.isEmpty)
-          AppText.bodyMedium('لا يوجد موظفين نشطين', color: const Color(0xff9CA3AF), textAlign: TextAlign.start)
+          AppText.bodyMedium(
+            'لا يوجد موظفون نشطون',
+            color: const Color(0xff9CA3AF),
+          )
         else
           DropdownButtonFormField<int>(
             value: _selectedEmployeeId,
             isExpanded: true,
             items: dropdownItems,
             onChanged: (value) => setState(() => _selectedEmployeeId = value),
-            decoration: _fieldDecoration(context, 'اختر موظف....', Icons.person_outline),
+            decoration: _fieldDecoration(
+              context,
+              'اختر موظفاً',
+              Icons.person_outline,
+            ),
           ),
       ],
     );
@@ -301,34 +424,42 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.sticky_note_2_outlined, color: Color(0xff3B82F6)),
-            const SizedBox(width: 8),
-            AppText.headlineMedium('ملاحظات المطبخ', fontWeight: FontWeight.bold),
-          ],
-        ),
+        AppText.bodyMedium('ملاحظات المطبخ', fontWeight: FontWeight.bold),
         const SizedBox(height: 12),
         TextField(
           controller: _kitchenNotesController,
           maxLines: 4,
-          style: TextStyle(color: context.primary, fontWeight: FontWeight.bold, fontSize: 14),
-          decoration: _fieldDecoration(context, 'أضف ملاحظات خاصة للتجهيز....', Icons.sticky_note_2_outlined),
+          decoration: _fieldDecoration(
+            context,
+            'أضف ملاحظات خاصة للتجهيز',
+            Icons.sticky_note_2_outlined,
+          ),
         ),
       ],
     );
   }
 
-  InputDecoration _fieldDecoration(BuildContext context, String hint, IconData icon) {
+  InputDecoration _fieldDecoration(
+    BuildContext context,
+    String hint,
+    IconData icon,
+  ) {
     return InputDecoration(
       filled: true,
       fillColor: const Color(0xffF9FAFB),
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xff9CA3AF), fontSize: 14),
       prefixIcon: Icon(icon, color: const Color(0xff6B7280), size: 20),
-      border: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xffE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(12))),
-      enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xffE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(12))),
-      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: context.primary), borderRadius: const BorderRadius.all(Radius.circular(12))),
+      border: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Color(0xffE5E7EB)),
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: context.primary),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+      ),
     );
   }
 }
