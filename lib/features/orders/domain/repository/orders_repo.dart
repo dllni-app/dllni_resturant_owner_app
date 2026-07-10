@@ -12,6 +12,7 @@ import '../usecases/get_order_details_use_case.dart';
 import '../usecases/get_orders_use_case.dart';
 import '../usecases/reject_order_use_case.dart';
 import '../usecases/update_order_item_use_case.dart';
+import '../usecases/update_preparation_estimate_params.dart';
 
 abstract class OrdersRepo {
   DataResponse<GetOrdersModel> getOrders(GetOrdersParams params);
@@ -19,6 +20,7 @@ abstract class OrdersRepo {
   DataResponse<AcceptOrderModel> acceptOrder(AcceptOrderParams params);
   DataResponse<RejectOrderModel> rejectOrder(RejectOrderParams params);
   DataResponse<OwnerOrderDetailsModel> changeOrderStatus(ChangeOrderStatusParams params);
+  DataResponse<OwnerOrderDetailsModel> updatePreparationEstimate(UpdatePreparationEstimateParams params);
   DataResponse<OwnerOrderDetailsModel> addOrderItem(AddOrderItemParams params);
   DataResponse<OwnerOrderDetailsModel> updateOrderItem(UpdateOrderItemParams params);
   DataResponse<OwnerOrderDetailsModel> deleteOrderItem(DeleteOrderItemParams params);

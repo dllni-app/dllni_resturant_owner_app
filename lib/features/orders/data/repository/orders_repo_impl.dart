@@ -11,6 +11,7 @@ import '../../domain/usecases/get_order_details_use_case.dart';
 import '../../domain/usecases/get_orders_use_case.dart';
 import '../../domain/usecases/reject_order_use_case.dart';
 import '../../domain/usecases/update_order_item_use_case.dart';
+import '../../domain/usecases/update_preparation_estimate_params.dart';
 import '../models/accept_order_model.dart';
 import '../models/get_orders_model.dart';
 import '../models/owner_order_details_model.dart';
@@ -46,6 +47,11 @@ class OrdersRepoImpl with HandlingException implements OrdersRepo {
   @override
   DataResponse<OwnerOrderDetailsModel> changeOrderStatus(ChangeOrderStatusParams params) {
     return wrapHandlingException(tryCall: () => ordersRemoteDataSource.changeOrderStatus(params));
+  }
+
+  @override
+  DataResponse<OwnerOrderDetailsModel> updatePreparationEstimate(UpdatePreparationEstimateParams params) {
+    return wrapHandlingException(tryCall: () => ordersRemoteDataSource.updatePreparationEstimate(params));
   }
 
   @override
