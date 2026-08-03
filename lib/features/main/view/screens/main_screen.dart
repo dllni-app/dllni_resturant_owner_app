@@ -35,6 +35,7 @@ class _MainScreenState extends State<MainScreen>
     final access = SellerPermissionAccess.current();
     tabs = [
       _MainTab(
+        originalIndex: 0,
         screen: HomeScreen(),
         destination: BottomNavDestinationData(
           title: 'الرئيسية',
@@ -43,6 +44,7 @@ class _MainScreenState extends State<MainScreen>
       ),
       if (access.can(RestaurantPermissionCodes.orders))
         _MainTab(
+          originalIndex: 1,
           screen: OrdersScreen(),
           destination: BottomNavDestinationData(
             title: 'الطلبات',
@@ -51,6 +53,7 @@ class _MainScreenState extends State<MainScreen>
         ),
       if (access.can(RestaurantPermissionCodes.meals))
         _MainTab(
+          originalIndex: 2,
           screen: ProductsScreen(),
           destination: BottomNavDestinationData(
             title: 'الوجبات',
@@ -59,6 +62,7 @@ class _MainScreenState extends State<MainScreen>
         ),
       if (access.can(RestaurantPermissionCodes.warehouse))
         _MainTab(
+          originalIndex: 3,
           screen: InventoryScreen(),
           destination: BottomNavDestinationData(
             title: 'المخزون',
@@ -66,6 +70,7 @@ class _MainScreenState extends State<MainScreen>
           ),
         ),
       _MainTab(
+        originalIndex: 4,
         screen: MoreScreen(),
         destination: BottomNavDestinationData(
           title: 'المزيد',
@@ -74,10 +79,11 @@ class _MainScreenState extends State<MainScreen>
       ),
     ];
 
-    final requestedIndex = widget.mainScreenParam;
-    final initialIndex = requestedIndex == 4
-        ? tabs.length - 1
-        : (requestedIndex ?? 0).clamp(0, tabs.length - 1).toInt();
+    final requestedIndex = widget.mainScreenParam ?? 0;
+    final permittedIndex = tabs.indexWhere(
+      (tab) => tab.originalIndex == requestedIndex,
+    );
+    final initialIndex = permittedIndex < 0 ? 0 : permittedIndex;
 
     controller = TabController(
       length: tabs.length,
@@ -113,8 +119,13 @@ class _MainScreenState extends State<MainScreen>
 }
 
 class _MainTab {
-  const _MainTab({required this.screen, required this.destination});
+  const _MainTab({
+    required this.originalIndex,
+    required this.screen,
+    required this.destination,
+  });
 
+  final int originalIndex;
   final Widget screen;
   final BottomNavDestinationData destination;
 }
