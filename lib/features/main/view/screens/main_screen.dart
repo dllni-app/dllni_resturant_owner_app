@@ -11,6 +11,7 @@ import '../../../products/view/screens/products_screen.dart';
 import '../../../profile/domain/usecases/fetch_resturant_data_use_case.dart';
 import '../../../profile/view/manager/bloc/profile_bloc.dart';
 import '../../../profile/view/screens/more_screen.dart';
+import '../../../profile/view/screens/profile_permission_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 @AutoRoutePage()
@@ -33,15 +34,16 @@ class _MainScreenState extends State<MainScreen>
     super.initState();
 
     final access = SellerPermissionAccess.current();
-    tabs = [
-      _MainTab(
-        originalIndex: 0,
-        screen: HomeScreen(),
-        destination: BottomNavDestinationData(
-          title: 'الرئيسية',
-          image: Assets.images.navBarHome.path,
+    final primaryTabs = <_MainTab>[
+      if (access.can(RestaurantPermissionCodes.orders))
+        _MainTab(
+          originalIndex: 0,
+          screen: HomeScreen(),
+          destination: BottomNavDestinationData(
+            title: 'الرئيسية',
+            image: Assets.images.navBarHome.path,
+          ),
         ),
-      ),
       if (access.can(RestaurantPermissionCodes.orders))
         _MainTab(
           originalIndex: 1,
@@ -69,6 +71,55 @@ class _MainScreenState extends State<MainScreen>
             image: Assets.images.navBarInventory.path,
           ),
         ),
+    ];
+
+    final profilePermissionTabs = <_MainTab>[
+      if (access.can(RestaurantPermissionCodes.storeData))
+        _MainTab(
+          originalIndex: 5,
+          screen: const ProfilePermissionScreen(
+            permission: RestaurantPermissionCodes.storeData,
+          ),
+          destination: BottomNavDestinationData(
+            title: 'بيانات المتجر',
+            image: Assets.images.marketInfoIcon.path,
+          ),
+        ),
+      if (access.can(RestaurantPermissionCodes.offersAndCoupons))
+        _MainTab(
+          originalIndex: 6,
+          screen: const ProfilePermissionScreen(
+            permission: RestaurantPermissionCodes.offersAndCoupons,
+          ),
+          destination: BottomNavDestinationData(
+            title: 'العروض',
+            image: Assets.images.offersManagementIcon.path,
+          ),
+        ),
+      if (access.can(RestaurantPermissionCodes.employees))
+        _MainTab(
+          originalIndex: 7,
+          screen: const ProfilePermissionScreen(
+            permission: RestaurantPermissionCodes.employees,
+          ),
+          destination: BottomNavDestinationData(
+            title: 'الموظفون',
+            image: Assets.images.employeesManagementIcon.path,
+          ),
+        ),
+    ];
+
+    const maximumTabs = 5;
+    const reservedMoreTabs = 1;
+    final availableProfileSlots =
+        maximumTabs - reservedMoreTabs - primaryTabs.length;
+
+    if (availableProfileSlots > 0) {
+      primaryTabs.addAll(profilePermissionTabs.take(availableProfileSlots));
+    }
+
+    tabs = [
+      ...primaryTabs,
       _MainTab(
         originalIndex: 4,
         screen: MoreScreen(),
