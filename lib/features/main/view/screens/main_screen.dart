@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen>
     final access = SellerPermissionAccess.current();
     tabs = [
       _MainTab(
-        screen: const HomeScreen(),
+        screen: HomeScreen(),
         destination: BottomNavDestinationData(
           title: 'الرئيسية',
           image: Assets.images.navBarHome.path,
@@ -43,7 +43,7 @@ class _MainScreenState extends State<MainScreen>
       ),
       if (access.can(RestaurantPermissionCodes.orders))
         _MainTab(
-          screen: const OrdersScreen(),
+          screen: OrdersScreen(),
           destination: BottomNavDestinationData(
             title: 'الطلبات',
             image: Assets.images.navBarOrders.path,
@@ -51,7 +51,7 @@ class _MainScreenState extends State<MainScreen>
         ),
       if (access.can(RestaurantPermissionCodes.meals))
         _MainTab(
-          screen: const ProductsScreen(),
+          screen: ProductsScreen(),
           destination: BottomNavDestinationData(
             title: 'الوجبات',
             image: Assets.images.navBarProducts.path,
@@ -59,14 +59,14 @@ class _MainScreenState extends State<MainScreen>
         ),
       if (access.can(RestaurantPermissionCodes.warehouse))
         _MainTab(
-          screen: const InventoryScreen(),
+          screen: InventoryScreen(),
           destination: BottomNavDestinationData(
             title: 'المخزون',
             image: Assets.images.navBarInventory.path,
           ),
         ),
       _MainTab(
-        screen: const MoreScreen(),
+        screen: MoreScreen(),
         destination: BottomNavDestinationData(
           title: 'المزيد',
           image: Assets.images.navBarMore.path,
