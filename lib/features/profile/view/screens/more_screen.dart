@@ -3,6 +3,7 @@ import 'package:dllni_resturant_owner_app/features/profile/view/screens/profile_
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/helpers/seller_permission_access.dart';
 import '../../../../generated/assets.dart';
 import '../manager/bloc/profile_bloc.dart';
 import '../widgets/more_screen_app_bar.dart';
@@ -14,6 +15,15 @@ class MoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final access = SellerPermissionAccess.current();
+    final canManageStore = access.can(RestaurantPermissionCodes.storeData);
+    final canManageOffers = access.can(
+      RestaurantPermissionCodes.offersAndCoupons,
+    );
+    final canManageEmployees = access.can(
+      RestaurantPermissionCodes.employees,
+    );
+
     return SafeArea(
       child: Column(
         children: [
@@ -24,17 +34,10 @@ class MoreScreen extends StatelessWidget {
               padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  const SectionTitle(title: 'إعدادات المتجر'),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: context.onPrimaryContainer,
-                      border: Border.all(color: const Color(0xffF3F4F6), width: 1),
-                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(6), offset: const Offset(0, 2), blurRadius: 10)],
-                    ),
-                    padding: const EdgeInsetsDirectional.all(16),
-                    child: Column(
+                  if (canManageStore) ...[
+                    const SectionTitle(title: 'إعدادات المتجر'),
+                    const SizedBox(height: 16),
+                    _SectionContainer(
                       children: [
                         BlocBuilder<ProfileBloc, ProfileState>(
                           builder: (context, state) {
@@ -47,12 +50,17 @@ class MoreScreen extends StatelessWidget {
                               subtitle: 'الاسم والعنوان والتفاصيل',
                               onTap: () {
                                 if (resturantData == null) return;
-                                context.pushRoute('/profile', arguments: ProfileScreenParams(profile: resturantData));
+                                context.pushRoute(
+                                  '/profile',
+                                  arguments: ProfileScreenParams(
+                                    profile: resturantData,
+                                  ),
+                                );
                               },
                             );
                           },
                         ),
-                        Padding(padding: const EdgeInsetsDirectional.symmetric(vertical: 16), child: Divider(color: context.surface, thickness: .5)),
+                        const _SectionDivider(),
                         SectionCard(
                           containerColor: const Color(0xffE0F2FE),
                           imageColor: const Color(0xff0284C7),
@@ -63,19 +71,12 @@ class MoreScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const SectionTitle(title: 'العروض والتسويق'),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: context.onPrimaryContainer,
-                      border: Border.all(color: const Color(0xffF3F4F6), width: 1),
-                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(6), offset: const Offset(0, 2), blurRadius: 10)],
-                    ),
-                    padding: const EdgeInsetsDirectional.all(16),
-                    child: Column(
+                    const SizedBox(height: 16),
+                  ],
+                  if (canManageOffers) ...[
+                    const SectionTitle(title: 'العروض والتسويق'),
+                    const SizedBox(height: 16),
+                    _SectionContainer(
                       children: [
                         SectionCard(
                           containerColor: const Color(0xffFEE2E2),
@@ -85,7 +86,7 @@ class MoreScreen extends StatelessWidget {
                           subtitle: 'انشاء وتعديل العروض الترويجية',
                           onTap: () => context.pushRoute('/offersmanagement'),
                         ),
-                        Padding(padding: const EdgeInsetsDirectional.symmetric(vertical: 16), child: Divider(color: context.surface, thickness: .5)),
+                        const _SectionDivider(),
                         SectionCard(
                           containerColor: const Color(0xffFEF3C7),
                           imageColor: const Color(0xffD97706),
@@ -96,19 +97,12 @@ class MoreScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const SectionTitle(title: 'الموظفون والسجل'),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: context.onPrimaryContainer,
-                      border: Border.all(color: const Color(0xffF3F4F6), width: 1),
-                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(6), offset: const Offset(0, 2), blurRadius: 10)],
-                    ),
-                    padding: const EdgeInsetsDirectional.all(16),
-                    child: Column(
+                    const SizedBox(height: 16),
+                  ],
+                  if (canManageEmployees) ...[
+                    const SectionTitle(title: 'الموظفون والسجل'),
+                    const SizedBox(height: 16),
+                    _SectionContainer(
                       children: [
                         SectionCard(
                           containerColor: const Color(0xffCFFAFE),
@@ -116,9 +110,11 @@ class MoreScreen extends StatelessWidget {
                           image: Assets.images.employeesManagementIcon.path,
                           title: 'إدارة الموظفين',
                           subtitle: 'إضافة وتعديل بيانات الموظفين',
-                          onTap: () => context.pushRoute('/employeesmanagement'),
+                          onTap: () => context.pushRoute(
+                            '/employeesmanagement',
+                          ),
                         ),
-                        Padding(padding: const EdgeInsetsDirectional.symmetric(vertical: 16), child: Divider(color: context.surface, thickness: .5)),
+                        const _SectionDivider(),
                         SectionCard(
                           containerColor: const Color(0xffF1F5F9),
                           imageColor: const Color(0xff475569),
@@ -129,28 +125,19 @@ class MoreScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: context.onPrimaryContainer,
-                      border: Border.all(color: const Color(0xffF3F4F6), width: 1),
-                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(6), offset: const Offset(0, 2), blurRadius: 10)],
-                    ),
-                    padding: const EdgeInsetsDirectional.all(16),
-                    child: Column(
-                      children: [
-                        SectionCard(
-                          containerColor: const Color(0xffDBEAFE),
-                          imageColor: const Color(0xff2563EB),
-                          image: Assets.images.supportIcon.path,
-                          title: 'الدعم الفني',
-                          subtitle: 'تواصل مع فريق الدعم',
-                          onTap: () => context.pushRoute('/support'),
-                        ),
-                      ],
-                    ),
+                    const SizedBox(height: 16),
+                  ],
+                  _SectionContainer(
+                    children: [
+                      SectionCard(
+                        containerColor: const Color(0xffDBEAFE),
+                        imageColor: const Color(0xff2563EB),
+                        image: Assets.images.supportIcon.path,
+                        title: 'الدعم الفني',
+                        subtitle: 'تواصل مع فريق الدعم',
+                        onTap: () => context.pushRoute('/support'),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   InkWell(
@@ -163,19 +150,33 @@ class MoreScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: const Color(0xffEF4444).withAlpha(6),
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xffEF4444).withAlpha(52)),
+                        border: Border.all(
+                          color: const Color(0xffEF4444).withAlpha(52),
+                        ),
                       ),
-                      padding: const EdgeInsetsDirectional.symmetric(vertical: 16),
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        vertical: 16,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            decoration: BoxDecoration(color: const Color(0xffEF4444).withAlpha(25), borderRadius: BorderRadius.circular(16)),
+                            decoration: BoxDecoration(
+                              color: const Color(0xffEF4444).withAlpha(25),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             padding: const EdgeInsetsDirectional.all(13),
-                            child: const Icon(Icons.logout_rounded, color: Color(0xffEF4444)),
+                            child: const Icon(
+                              Icons.logout_rounded,
+                              color: Color(0xffEF4444),
+                            ),
                           ),
                           const SizedBox(width: 12),
-                          AppText.bodyMedium('تسجيل الخروج', color: const Color(0xffEF4444), fontWeight: FontWeight.bold),
+                          AppText.bodyMedium(
+                            'تسجيل الخروج',
+                            color: const Color(0xffEF4444),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ],
                       ),
                     ),
@@ -187,6 +188,44 @@ class MoreScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SectionContainer extends StatelessWidget {
+  const _SectionContainer({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+        color: context.onPrimaryContainer,
+        border: Border.all(color: const Color(0xffF3F4F6), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(6),
+            offset: const Offset(0, 2),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      padding: const EdgeInsetsDirectional.all(16),
+      child: Column(children: children),
+    );
+  }
+}
+
+class _SectionDivider extends StatelessWidget {
+  const _SectionDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.symmetric(vertical: 16),
+      child: Divider(color: context.surface, thickness: .5),
     );
   }
 }
