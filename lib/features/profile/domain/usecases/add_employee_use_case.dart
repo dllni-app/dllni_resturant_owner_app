@@ -50,5 +50,6 @@ class AddEmployeeParams with Params {
     if (isActive != null) 'isActive': isActive == true ? 1 : 0,
     'profileImage': image,
     'permissionIds': permissions,
+    if (!isAddNew && !isDelete) 'syncPermissions': 1,
   }..removeWhere((key, val) => val == null);
 }
