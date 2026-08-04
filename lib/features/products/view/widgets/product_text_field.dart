@@ -14,7 +14,6 @@ class ProductTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
     this.validator,
-
   });
 
   final String title;
@@ -24,7 +23,7 @@ class ProductTextField extends StatelessWidget {
   final TextEditingController? controller;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
-  final  String? Function(String?)? validator;
+  final String? Function(String?)? validator;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +53,6 @@ class ProductTextField extends StatelessWidget {
                 }
                 return null;
               },
-
           textAlign: TextAlign.start,
           onTapOutside: (_) => FocusScope.of(context).unfocus(),
           style: const TextStyle(
@@ -64,7 +62,6 @@ class ProductTextField extends StatelessWidget {
           ),
           decoration: InputDecoration(
             suffixIcon: suffixIcon,
-
             filled: true,
             fillColor: ProductsStyleTokens.fieldBackground,
             hintText: hintText,
@@ -124,6 +121,7 @@ class ProductMenuField<T> extends StatelessWidget {
           items: items,
           onChanged: onChanged,
           style: const TextStyle(
+            fontFamily: 'Cairo',
             color: Color(0xE52F2B3D),
             fontSize: 14,
             fontWeight: FontWeight.w500,
