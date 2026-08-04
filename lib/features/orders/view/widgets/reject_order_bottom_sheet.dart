@@ -8,13 +8,18 @@ import 'package:toastification/toastification.dart';
 import '../../data/models/get_orders_model.dart';
 
 class RejectOrderBottomSheet extends StatefulWidget {
-  const RejectOrderBottomSheet({super.key, required this.order, required this.bloc});
+  const RejectOrderBottomSheet({
+    super.key,
+    required this.order,
+    required this.bloc,
+  });
 
   final GetOrdersModelDataItem order;
   final OrdersBloc bloc;
 
   @override
-  State<RejectOrderBottomSheet> createState() => _RejectOrderBottomSheetState();
+  State<RejectOrderBottomSheet> createState() =>
+      _RejectOrderBottomSheetState();
 }
 
 class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
@@ -23,10 +28,26 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
   final int _maxNotesLength = 150;
 
   final List<RejectionReason> _rejectionReasons = [
-    RejectionReason(code: 'out_of_stock', title: 'نفاد أحد العناصر', description: 'المكونات غير متوفرة حالياً'),
-    RejectionReason(code: 'kitchen_busy', title: 'المطبخ مزدحم جداً', description: 'لا يمكن استقبال طلبات جديدة حالياً'),
-    RejectionReason(code: 'end_of_work', title: 'انتهاء وقت العمل', description: 'المطعم سيغلق قريباً'),
-    RejectionReason(code: 'other', title: 'سبب آخر', description: 'يرجى التوضيح في الحقل أدناه'),
+    RejectionReason(
+      code: 'out_of_stock',
+      title: 'نفاد أحد العناصر',
+      description: 'المكونات غير متوفرة حالياً',
+    ),
+    RejectionReason(
+      code: 'kitchen_busy',
+      title: 'المطبخ مزدحم جداً',
+      description: 'لا يمكن استقبال طلبات جديدة حالياً',
+    ),
+    RejectionReason(
+      code: 'end_of_work',
+      title: 'انتهاء وقت العمل',
+      description: 'المطعم سيغلق قريباً',
+    ),
+    RejectionReason(
+      code: 'other',
+      title: 'سبب آخر',
+      description: 'يرجى التوضيح في الحقل أدناه',
+    ),
   ];
 
   @override
@@ -40,7 +61,10 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: context.onPrimary,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
       ),
       height: context.height * .8,
       child: Column(
@@ -49,16 +73,19 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
           _buildHeader(context),
           Flexible(
             child: SingleChildScrollView(
-              padding: EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 16),
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 24,
+                vertical: 16,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildRejectionReasonSection(context),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   _buildAdditionalNotesSection(context),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   _buildInfoSection(context),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -71,9 +98,14 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: EdgeInsetsDirectional.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xffE5E7EB), width: 1)),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 24,
+        vertical: 16,
+      ),
+      decoration: const BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Color(0xffE5E7EB), width: 1),
+        ),
       ),
       child: Row(
         children: [
@@ -81,17 +113,23 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppText.headlineMedium('رفض الطلب #${widget.order.orderNumber}', fontWeight: FontWeight.bold, textAlign: TextAlign.start),
-                AppText.bodySmall('يرجى توضيح سبب الرفض للعميل', color: Color(0xff6B7280), textAlign: TextAlign.start),
+                AppText.headlineMedium(
+                  'رفض الطلب #${widget.order.orderNumber}',
+                  fontWeight: FontWeight.bold,
+                  textAlign: TextAlign.start,
+                ),
+                AppText.bodySmall(
+                  'يرجى توضيح سبب الرفض للعميل',
+                  color: const Color(0xff6B7280),
+                  textAlign: TextAlign.start,
+                ),
               ],
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           InkWell(
-            onTap: () {
-              context.pop();
-            },
-            child: Icon(Icons.close, color: Color(0xff6B7280)),
+            onTap: () => context.pop(),
+            child: const Icon(Icons.close, color: Color(0xff6B7280)),
           ),
         ],
       ),
@@ -105,13 +143,22 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
         Row(
           children: [
             Icon(Icons.checklist_rounded, color: context.error),
-            SizedBox(width: 8),
-            AppText.titleMedium('سبب الرفض', fontWeight: FontWeight.bold),
-            AppText.bodyLarge(' *', color: context.error, fontWeight: FontWeight.bold),
+            const SizedBox(width: 8),
+            AppText.titleMedium(
+              'سبب الرفض',
+              fontWeight: FontWeight.bold,
+            ),
+            AppText.bodyLarge(
+              ' *',
+              color: context.error,
+              fontWeight: FontWeight.bold,
+            ),
           ],
         ),
-        SizedBox(height: 16),
-        ..._rejectionReasons.map((reason) => _buildReasonOption(context, reason)),
+        const SizedBox(height: 16),
+        ..._rejectionReasons.map(
+          (reason) => _buildReasonOption(context, reason),
+        ),
       ],
     );
   }
@@ -126,12 +173,17 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
       },
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        margin: EdgeInsetsDirectional.only(bottom: 12),
-        padding: EdgeInsetsDirectional.all(16),
+        margin: const EdgeInsetsDirectional.only(bottom: 12),
+        padding: const EdgeInsetsDirectional.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? context.primary.withAlpha(25) : context.onPrimary,
+          color: isSelected
+              ? context.primary.withAlpha(25)
+              : context.onPrimary,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: isSelected ? context.primary : Color(0xffE5E7EB), width: isSelected ? 2 : 1),
+          border: Border.all(
+            color: isSelected ? context.primary : const Color(0xffE5E7EB),
+            width: isSelected ? 2 : 1,
+          ),
         ),
         child: Row(
           children: [
@@ -140,19 +192,32 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
               height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: isSelected ? context.primary : Color(0xffD1D5DB), width: 2),
+                border: Border.all(
+                  color: isSelected
+                      ? context.primary
+                      : const Color(0xffD1D5DB),
+                  width: 2,
+                ),
                 color: isSelected ? context.primary : Colors.transparent,
               ),
-              child: isSelected ? Icon(Icons.check, size: 16, color: context.onPrimary) : null,
+              child: isSelected
+                  ? Icon(Icons.check, size: 16, color: context.onPrimary)
+                  : null,
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppText.bodyMedium(reason.title, fontWeight: FontWeight.bold),
-                  SizedBox(height: 4),
-                  AppText.bodySmall(reason.description, color: Color(0xff6B7280)),
+                  AppText.bodyMedium(
+                    reason.title,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 4),
+                  AppText.bodySmall(
+                    reason.description,
+                    color: const Color(0xff6B7280),
+                  ),
                 ],
               ),
             ),
@@ -168,38 +233,54 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
       children: [
         Row(
           children: [
-            Icon(Icons.chat_bubble_outline, size: 20, color: Color(0xff6B7280)),
-            SizedBox(width: 8),
-            AppText.headlineMedium('ملاحظات إضافية', fontWeight: FontWeight.bold),
+            const Icon(
+              Icons.chat_bubble_outline,
+              size: 20,
+              color: Color(0xff6B7280),
+            ),
+            const SizedBox(width: 8),
+            AppText.headlineMedium(
+              'ملاحظات إضافية',
+              fontWeight: FontWeight.bold,
+            ),
           ],
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         TextField(
           controller: _notesController,
           maxLines: 4,
-          style: TextStyle(color: context.primary, fontWeight: FontWeight.bold, fontSize: 14),
+          style: TextStyle(
+            color: context.primary,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
           maxLength: _maxNotesLength,
-          onChanged: (value) {
-            setState(() {});
-          },
+          onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Color(0xffF9FAFB),
+            fillColor: const Color(0xffF9FAFB),
             hintText: 'اكتب رسالة توضيحية للعميل....',
-            hintStyle: TextStyle(color: Color(0xff9CA3AF), fontSize: 14),
-            counterText: '${_notesController.text.length}/$_maxNotesLength',
-            counterStyle: TextStyle(color: Color(0xff6B7280), fontSize: 12),
-            border: OutlineInputBorder(
+            hintStyle: const TextStyle(
+              color: Color(0xff9CA3AF),
+              fontSize: 14,
+            ),
+            counterText:
+                '${_notesController.text.length}/$_maxNotesLength',
+            counterStyle: const TextStyle(
+              color: Color(0xff6B7280),
+              fontSize: 12,
+            ),
+            border: const OutlineInputBorder(
               borderSide: BorderSide(color: Color(0xffE5E7EB)),
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
-            enabledBorder: OutlineInputBorder(
+            enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Color(0xffE5E7EB)),
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: context.primary),
-              borderRadius: BorderRadius.all(Radius.circular(12)),
+              borderRadius: const BorderRadius.all(Radius.circular(12)),
             ),
           ),
         ),
@@ -209,8 +290,11 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
 
   Widget _buildInfoSection(BuildContext context) {
     return Container(
-      padding: EdgeInsetsDirectional.all(16),
-      decoration: BoxDecoration(color: Color(0xffFFF7ED), borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsetsDirectional.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xffFFF7ED),
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -220,19 +304,36 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
               Container(
                 width: 24,
                 height: 24,
-                decoration: BoxDecoration(shape: BoxShape.circle, color: Color(0xffF59E0B).withAlpha(51)),
-                child: Icon(Icons.info, size: 16, color: Color(0xffF59E0B)),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xffF59E0B).withAlpha(51),
+                ),
+                child: const Icon(
+                  Icons.info,
+                  size: 16,
+                  color: Color(0xffF59E0B),
+                ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText.labelLarge('ماذا سيحدث بعد الرفض؟', fontWeight: FontWeight.bold, color: Color(0xff92400E)),
-                    SizedBox(height: 12),
-                    _buildInfoItem('سيتم إشعار العميل فوراً بإلغاء الطلب.', context),
-                    SizedBox(height: 8),
-                    _buildInfoItem('قد يؤثر تكرار الرفض على نقاط الثقة.', context),
+                    AppText.labelLarge(
+                      'ماذا سيحدث بعد الرفض؟',
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xff92400E),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildInfoItem(
+                      'سيتم إشعار العميل فوراً بإلغاء الطلب.',
+                      context,
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoItem(
+                      'قد يؤثر تكرار الرفض على نقاط الثقة.',
+                      context,
+                    ),
                   ],
                 ),
               ),
@@ -250,23 +351,30 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
         Container(
           width: 6,
           height: 6,
-          margin: EdgeInsetsDirectional.only(top: 6, end: 8),
-          decoration: BoxDecoration(shape: BoxShape.circle, color: Color(0xffF59E0B)),
+          margin: const EdgeInsetsDirectional.only(top: 6, end: 8),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color(0xffF59E0B),
+          ),
         ),
         Expanded(
-          child: AppText.labelMedium(text, color: Color(0xffC2410C), textAlign: TextAlign.start),
+          child: AppText.labelMedium(
+            text,
+            color: const Color(0xffC2410C),
+            textAlign: TextAlign.start,
+          ),
         ),
       ],
     );
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    final canConfirm = _selectedReason != null;
-
     return Container(
-      padding: EdgeInsetsDirectional.all(24),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xffE5E7EB), width: 1)),
+      padding: const EdgeInsetsDirectional.all(24),
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Color(0xffE5E7EB), width: 1),
+        ),
       ),
       child: Row(
         children: [
@@ -274,47 +382,70 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
             flex: 5,
             child: BlocConsumer<OrdersBloc, OrdersState>(
               bloc: widget.bloc,
+              listenWhen: (previous, current) =>
+                  previous.rejectOrderStatus != current.rejectOrderStatus,
               listener: (context, state) {
                 switch (state.rejectOrderStatus) {
-                  case null:
-                    Loading.close();
-                    break;
                   case BlocStatus.failed:
-                    AppToast.showToast(context: context, message: state.errorMessage ?? 'خطا في رفض الطلب', type: ToastificationType.error);
                     Loading.close();
+                    AppToast.showToast(
+                      context: context,
+                      message: state.errorMessage ?? 'خطأ في رفض الطلب',
+                      type: ToastificationType.error,
+                    );
                     break;
                   case BlocStatus.success:
                     Loading.close();
+                    context.pop();
                     break;
                   case BlocStatus.loading:
                     Loading.show(context);
                     break;
                   case BlocStatus.init:
+                  case null:
                     Loading.close();
                     break;
                 }
               },
               builder: (context, state) {
+                final canConfirm = _selectedReason != null &&
+                    state.rejectOrderStatus != BlocStatus.loading;
                 return InkWell(
                   onTap: canConfirm
                       ? () {
                           widget.bloc.add(
                             RejectOrderEvent(
-                              params: RejectOrderParams(reason: _selectedReason!, message: _notesController.text, id: widget.order.id!),
+                              params: RejectOrderParams(
+                                reason: _selectedReason!,
+                                message: _notesController.text.trim(),
+                                id: widget.order.id!,
+                              ),
                             ),
                           );
                         }
                       : null,
                   child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: canConfirm ? context.primary : Color(0xffD1D5DB)),
-                    padding: EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 12),
-                    child: AppText.labelLarge('تأكيد الرفض', color: context.onPrimary, fontWeight: FontWeight.bold),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: canConfirm
+                          ? context.primary
+                          : const Color(0xffD1D5DB),
+                    ),
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: AppText.labelLarge(
+                      'تأكيد الرفض',
+                      color: context.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 );
               },
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             flex: 2,
             child: InkWell(
@@ -325,8 +456,15 @@ class _RejectOrderBottomSheetState extends State<RejectOrderBottomSheet> {
                   color: context.error.withAlpha(50),
                   border: Border.all(color: context.error),
                 ),
-                padding: EdgeInsetsDirectional.symmetric(horizontal: 6, vertical: 12),
-                child: AppText.labelLarge('تراجع', color: context.error, fontWeight: FontWeight.w500),
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: 6,
+                  vertical: 12,
+                ),
+                child: AppText.labelLarge(
+                  'تراجع',
+                  color: context.error,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),
@@ -341,5 +479,9 @@ class RejectionReason {
   final String title;
   final String description;
 
-  RejectionReason({required this.code, required this.title, required this.description});
+  RejectionReason({
+    required this.code,
+    required this.title,
+    required this.description,
+  });
 }
