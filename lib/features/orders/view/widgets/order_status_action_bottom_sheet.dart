@@ -76,28 +76,7 @@ List<RestaurantOrderStatusAction> restaurantOrderNextStatusActions(
           isDanger: true,
         ),
       ],
-    'ready_for_pickup' => const [
-        RestaurantOrderStatusAction(
-          status: 'picked_up',
-          label: 'تم الاستلام',
-          description: 'تأكيد استلام الطلب من السائق أو العميل.',
-          icon: Icons.delivery_dining,
-        ),
-        RestaurantOrderStatusAction(
-          status: 'completed',
-          label: 'إكمال الطلب',
-          description: 'إنهاء الطلب مباشرة إذا تم التسليم.',
-          icon: Icons.done_all,
-        ),
-      ],
-    'picked_up' => const [
-        RestaurantOrderStatusAction(
-          status: 'completed',
-          label: 'إكمال الطلب',
-          description: 'تأكيد انتهاء الطلب بنجاح.',
-          icon: Icons.done_all,
-        ),
-      ],
+    'ready_for_pickup' || 'picked_up' => const [],
     _ => const [],
   };
 }
