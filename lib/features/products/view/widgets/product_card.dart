@@ -106,7 +106,6 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    final stockQuantity = widget.product.stockQuantity ?? 0;
     final price = widget.product.discountedPrice ?? widget.product.price ?? 0;
 
     return Opacity(
@@ -125,8 +124,6 @@ class _ProductCardState extends State<ProductCard> {
             _ProductImage(
               imageUrl: widget.product.primaryImage ?? '',
               unavailable: !enabled,
-              limited: enabled && stockQuantity <= (widget.product.lowStockThreshold ?? 5),
-              quantity: stockQuantity,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -255,14 +252,10 @@ class _ProductImage extends StatelessWidget {
   const _ProductImage({
     required this.imageUrl,
     required this.unavailable,
-    required this.limited,
-    required this.quantity,
   });
 
   final String imageUrl;
   final bool unavailable;
-  final bool limited;
-  final int quantity;
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +263,7 @@ class _ProductImage extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: const BorderRadius.all(Radius.circular(14)),
-      child: Container(
+      child: SizedBox(
         width: 96,
         height: 96,
         child: Stack(
@@ -279,8 +272,14 @@ class _ProductImage extends StatelessWidget {
               Center(
                 child: AppImage.network(
                   imageUrl,
-                  loadingBuilder: (context) => const Center(child: CircularProgressIndicator()),
-                  failedBuilder: (context) => const Center(child: Icon(Icons.image_outlined, color: Color(0xFF9CA3AF))),
+                  loadingBuilder: (context) =>
+                      const Center(child: CircularProgressIndicator()),
+                  failedBuilder: (context) => const Center(
+                    child: Icon(
+                      Icons.image_outlined,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                  ),
                   fit: BoxFit.cover,
                   height: 96,
                   width: 96,
@@ -290,7 +289,10 @@ class _ProductImage extends StatelessWidget {
               Container(
                 color: const Color(0xFFF3F4F6),
                 alignment: Alignment.center,
-                child: const Icon(Icons.image_outlined, color: Color(0xFF9CA3AF)),
+                child: const Icon(
+                  Icons.image_outlined,
+                  color: Color(0xFF9CA3AF),
+                ),
               ),
             if (unavailable)
               Container(
@@ -298,21 +300,10 @@ class _ProductImage extends StatelessWidget {
                 color: const Color(0x99000000),
                 child: const Text(
                   'غير متوفر',
-                  style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
-                ),
-              ),
-            if (limited)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: 96,
-                  height: 20,
-                  padding: const EdgeInsetsDirectional.symmetric(vertical: 2),
-                  color: const Color(0xCCFF4C51),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'باقي $quantity فقط',
-                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700, height: 1.5),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -333,13 +324,17 @@ class AvailabilityChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: isAvailable ? ProductsStyleTokens.successSoft : const Color(0x292F2B3D),
+        color: isAvailable
+            ? ProductsStyleTokens.successSoft
+            : const Color(0x292F2B3D),
         borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
       child: Text(
         isAvailable ? 'متوفر' : 'غير متوفر',
         style: TextStyle(
-          color: isAvailable ? ProductsStyleTokens.success : const Color(0xFF6B7280),
+          color: isAvailable
+              ? ProductsStyleTokens.success
+              : const Color(0xFF6B7280),
           fontSize: 10,
           fontWeight: FontWeight.w700,
           height: 1.5,
