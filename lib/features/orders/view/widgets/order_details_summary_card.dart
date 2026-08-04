@@ -24,8 +24,6 @@ class OrderDetailsSummaryCard extends StatelessWidget {
           const SizedBox(height: 16),
           _row('تكلفة المنتجات', amounts.subtotal, context),
           const SizedBox(height: 8),
-          _row('رسوم التوصيل', amounts.deliveryFee, context),
-          const SizedBox(height: 8),
           _row('رسوم الخدمة', amounts.serviceFee, context),
           if (amounts.tax != 0) ...[
             const SizedBox(height: 8),
