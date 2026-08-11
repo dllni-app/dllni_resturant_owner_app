@@ -52,10 +52,16 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
   final TextEditingController _searchController = TextEditingController();
 
   final Set<int> _selectedProductIds = {};
+  final Map<int, double> _productQuantities = {};
   final Map<int, FetchProductsModelDataItem> _initialLinkedProducts = {};
   String _selectedUnit = 'كغ';
 
   FetchInventoryItemsModelDataItem? get _editingItem => widget.params?.item;
+
+  String get _effectiveUnit {
+    final customUnit = _customUnitController.text.trim();
+    return customUnit.isNotEmpty ? customUnit : _selectedUnit;
+  }
 
   String _formatNumber(num? value) {
     final number = value ?? 0;
@@ -79,6 +85,8 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
   @override
   void initState() {
     super.initState();
+    _customUnitController.addListener(_refreshUnitLabel);
+
     final item = _editingItem;
     if (item == null) return;
 
@@ -96,8 +104,17 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
       final id = linkedProduct.id;
       if (id == null) continue;
       _selectedProductIds.add(id);
+      _productQuantities[id] = linkedProduct.quantityUsed ?? 1.0;
       _initialLinkedProducts[id] = FetchProductsModelDataItem(id: id, name: linkedProduct.name);
     }
+  }
+
+  void _refreshUnitLabel() {
+    if (mounted) setState(() {});
+  }
+
+  void _onProductQuantityChanged(int productId, String value) {
+    _productQuantities[productId] = double.tryParse(value.trim()) ?? 0;
   }
 
   void _onSave(InventoryBloc bloc) {
@@ -107,11 +124,26 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
       return;
     }
 
-    final customUnit = _customUnitController.text.trim();
-    final unit = customUnit.isNotEmpty ? customUnit : _selectedUnit;
+    for (final productId in _selectedProductIds) {
+      final quantityUsed = _productQuantities[productId] ?? 0;
+      if (quantityUsed <= 0) {
+        AppToast.showToast(
+          context: context,
+          message: 'أدخل كمية خصم أكبر من صفر لكل منتج محدد',
+          type: ToastificationType.error,
+        );
+        return;
+      }
+    }
+
+    final unit = _effectiveUnit;
     final quantity = _parseWholeNumber(_initialQuantityController.text);
     final minimumLimit = _parseWholeNumber(_minimumQuantityController.text);
     final unitCost = double.tryParse(_unitCostController.text.trim()) ?? 0.0;
+    final productQuantities = <int, double>{
+      for (final productId in _selectedProductIds)
+        productId: _productQuantities[productId] ?? 1.0,
+    };
     final item = _editingItem;
     if (item != null) {
       bloc.add(
@@ -123,7 +155,7 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
             quantity: quantity,
             minimumLimit: minimumLimit,
             unitCost: unitCost,
-            productIds: _selectedProductIds.toList(),
+            productQuantities: productQuantities,
           ),
         ),
       );
@@ -137,7 +169,7 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
           quantity: quantity,
           minimumLimit: minimumLimit,
           unitCost: unitCost,
-          productIds: _selectedProductIds.toList(),
+          productQuantities: productQuantities,
         ),
       ),
     );
@@ -145,6 +177,7 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
 
   @override
   void dispose() {
+    _customUnitController.removeListener(_refreshUnitLabel);
     _nameController.dispose();
     _customUnitController.dispose();
     _initialQuantityController.dispose();
@@ -211,6 +244,8 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                         builder: (context, state) {
                           return InventoryLinkProductsSection(
                             selectedProductIds: _selectedProductIds,
+                            productQuantities: _productQuantities,
+                            inventoryUnit: _effectiveUnit,
                             searchController: _searchController,
                             onSearchChanged: (value) {
                               context.read<ProductsBloc>().add(FetchProductsEvent(params: FetchProductsParams(search: value, page: 1), isReload: true));
@@ -218,10 +253,13 @@ class _CreateInventoryItemBodyState extends State<_CreateInventoryItemBody> {
                             onProductToggle: (productId) => setState(() {
                               if (_selectedProductIds.contains(productId)) {
                                 _selectedProductIds.remove(productId);
+                                _productQuantities.remove(productId);
                               } else {
                                 _selectedProductIds.add(productId);
+                                _productQuantities.putIfAbsent(productId, () => 1.0);
                               }
                             }),
+                            onProductQuantityChanged: _onProductQuantityChanged,
                             onShowAll: () {
                               setState(() => _searchController.clear());
                               context.read<ProductsBloc>().add(FetchProductsEvent(params: FetchProductsParams(page: 1), isReload: true));
