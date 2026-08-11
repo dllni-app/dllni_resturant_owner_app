@@ -24,7 +24,7 @@ class UpdateInventoryItemParams with Params {
   final int quantity;
   final int minimumLimit;
   final double unitCost;
-  final List<int> productIds;
+  final Map<int, double> productQuantities;
 
   UpdateInventoryItemParams({
     required this.id,
@@ -33,7 +33,7 @@ class UpdateInventoryItemParams with Params {
     required this.quantity,
     required this.minimumLimit,
     required this.unitCost,
-    required this.productIds,
+    required this.productQuantities,
   });
 
   @override
@@ -46,6 +46,14 @@ class UpdateInventoryItemParams with Params {
         'quantity': quantity,
         'minimumLimit': minimumLimit,
         'unitCost': unitCost,
-        'productIds': productIds,
+        'productIds': productQuantities.keys.toList(),
+        'products': productQuantities.entries
+            .map(
+              (entry) => {
+                'productId': entry.key,
+                'quantityUsed': entry.value,
+              },
+            )
+            .toList(),
       };
 }
