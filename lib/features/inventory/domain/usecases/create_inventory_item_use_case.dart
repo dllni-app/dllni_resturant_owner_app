@@ -24,7 +24,7 @@ class CreateInventoryItemParams with Params {
   final int quantity;
   final int minimumLimit;
   final double unitCost;
-  final List<int> productIds;
+  final Map<int, double> productQuantities;
 
   CreateInventoryItemParams({
     required this.name,
@@ -32,7 +32,7 @@ class CreateInventoryItemParams with Params {
     required this.quantity,
     required this.minimumLimit,
     required this.unitCost,
-    required this.productIds,
+    required this.productQuantities,
   });
 
   @override
@@ -45,6 +45,16 @@ class CreateInventoryItemParams with Params {
         'quantity': quantity,
         'minimumLimit': minimumLimit,
         'unitCost': unitCost,
-        'productIds': productIds,
+        // Keep productIds for backward compatibility with an older backend,
+        // while products carries the actual inventory consumption per order.
+        'productIds': productQuantities.keys.toList(),
+        'products': productQuantities.entries
+            .map(
+              (entry) => {
+                'productId': entry.key,
+                'quantityUsed': entry.value,
+              },
+            )
+            .toList(),
       };
 }
