@@ -18,6 +18,18 @@ class HomeRemoteDataSource with HandlingApiManager {
   Future<FetchNotificationsModel> fetchNotifications(
     FetchNotificationsParams params,
   ) {
+    // #region agent log
+    agentDebugLog(
+      hypothesisId: 'H2',
+      location: 'home_remote_data_source.dart:fetchNotifications',
+      message: 'notifications GET shape',
+      data: {
+        'queryParams': params.getParams().toString(),
+        'body': params.getBody().toString(),
+        'endpoint': '/api/v1/restaurant-owner/notifications',
+      },
+    );
+    // #endregion
     return wrapHandlingApi(
       tryCall: () => dioNetwork.getData(
         endPoint: '/api/v1/restaurant-owner/notifications',
