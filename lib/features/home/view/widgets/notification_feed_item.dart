@@ -1,4 +1,4 @@
-﻿import 'package:common_package/common_package.dart';
+import 'package:common_package/common_package.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -6,9 +6,14 @@ import '../../../../generated/assets.dart';
 import '../../data/models/fetch_notifications_model.dart';
 
 class NotificationFeedItem extends StatefulWidget {
-  const NotificationFeedItem({super.key, required this.notification});
+  const NotificationFeedItem({
+    super.key,
+    required this.notification,
+    this.onRead,
+  });
 
   final FetchNotificationsModelDataItem notification;
+  final VoidCallback? onRead;
 
   @override
   State<NotificationFeedItem> createState() => _NotificationFeedItemState();
@@ -20,6 +25,12 @@ class _NotificationFeedItemState extends State<NotificationFeedItem> {
   @override
   void initState() {
     super.initState();
+    _isRead = widget.notification.isRead == true;
+  }
+
+  @override
+  void didUpdateWidget(covariant NotificationFeedItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
     _isRead = widget.notification.isRead == true;
   }
 
@@ -39,10 +50,10 @@ class _NotificationFeedItemState extends State<NotificationFeedItem> {
   }
 
   void _handleTap() {
-    setState(() {
-      _isRead = true;
-      widget.notification.isRead = true;
-    });
+    if (!_isRead) {
+      widget.onRead?.call();
+      setState(() => _isRead = true);
+    }
 
     final type = (widget.notification.type ?? widget.notification.category ?? '').toLowerCase();
     if (type.contains('order')) {
