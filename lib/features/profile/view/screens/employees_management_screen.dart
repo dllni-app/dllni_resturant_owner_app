@@ -36,69 +36,79 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Column(
-            children: [
-              const EmployeesManagementAppBar(),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
-                child: InkWell(
-                  onTap: () {
-                    context.pushRoute('/employeesmanagement/new', arguments: AddEmployeeScreenParams());
-                  },
-                  borderRadius: BorderRadius.circular(24),
-                  child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
-                    width: context.width,
-                    padding: const EdgeInsetsDirectional.symmetric(vertical: 11),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: 11,
-                          backgroundColor: context.onPrimaryContainer.withAlpha(40),
-                          child: Icon(Icons.add, color: context.onPrimaryContainer, size: 16),
-                        ),
-                        const SizedBox(width: 8),
-                        AppText.labelLarge('إضافة موظف جديد', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
-                      ],
-                    ),
+        child: Column(
+          children: [
+            const EmployeesManagementAppBar(),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
+              child: InkWell(
+                onTap: () {
+                  context.pushRoute('/employeesmanagement/new', arguments: AddEmployeeScreenParams());
+                },
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: context.primaryContainer),
+                  width: context.width,
+                  padding: const EdgeInsetsDirectional.symmetric(vertical: 11),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 11,
+                        backgroundColor: context.onPrimaryContainer.withAlpha(40),
+                        child: Icon(Icons.add, color: context.onPrimaryContainer, size: 16),
+                      ),
+                      const SizedBox(width: 8),
+                      AppText.labelLarge('إضافة موظف جديد', color: context.onPrimaryContainer, fontWeight: FontWeight.bold),
+                    ],
                   ),
                 ),
               ),
-              // const SizedBox(height: 16),
-              // EmployeeManagementFilterCard(
-              //   searchController: _searchController,
-              // ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: BlocBuilder<ProfileBloc, ProfileState>(
-                  builder: (context, state) {
-                    switch (state.employeesStatus) {
-                      case null:
-                        return const SizedBox.shrink();
-                      case BlocStatus.failed:
+            ),
+            // const SizedBox(height: 16),
+            // EmployeeManagementFilterCard(
+            //   searchController: _searchController,
+            // ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: BlocBuilder<ProfileBloc, ProfileState>(
+                builder: (context, state) {
+                  switch (state.employeesStatus) {
+                    case null:
+                      return const SizedBox.shrink();
+                    case BlocStatus.failed:
+                      return Center(
+                        child: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error, fontWeight: FontWeight.bold),
+                      );
+                    case BlocStatus.success:
+                      final employees = state.employees?.data ?? const [];
+                      if (employees.isEmpty) {
                         return Center(
-                          child: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error, fontWeight: FontWeight.bold),
+                          child: AppText.labelLarge(
+                            'لا يوجد موظفين حاليا',
+                            fontWeight: FontWeight.bold,
+                            textAlign: TextAlign.center,
+                          ),
                         );
-                      case BlocStatus.success:
-                        return ListView.separated(
-                          padding: const EdgeInsetsDirectional.only(start: 20, end: 20, bottom: 20),
-                          itemBuilder: (context, index) => EmployeeManagementCard(item: state.employees!.data![index]),
-                          separatorBuilder: (context, index) => const SizedBox(height: 12),
-                          itemCount: state.employees!.data!.length,
-                        );
-                      case BlocStatus.loading:
-                        return Center(child: CircularProgressIndicator.adaptive());
-                      case BlocStatus.init:
-                        return Center(child: CircularProgressIndicator.adaptive());
-                    }
-                  },
-                ),
+                      }
+                      return ListView.separated(
+                        padding: const EdgeInsetsDirectional.only(start: 20, end: 20, bottom: 20),
+                        itemBuilder: (context, index) => EmployeeManagementCard(item: employees[index]),
+                        separatorBuilder: (context, index) => const SizedBox(height: 12),
+                        itemCount: employees.length,
+                      );
+                    case BlocStatus.loading:
+                      return Center(child: CircularProgressIndicator.adaptive());
+                    case BlocStatus.init:
+                      return Center(child: CircularProgressIndicator.adaptive());
+                  }
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }
