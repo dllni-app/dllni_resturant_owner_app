@@ -10,6 +10,7 @@ import '../../../../core/order_card.dart';
 import '../../../orders/domain/usecases/get_orders_use_case.dart';
 import '../../../orders/view/manager/bloc/orders_bloc.dart';
 import '../manager/bloc/home_bloc.dart';
+import '../widgets/engagement_features_cards.dart';
 import '../widgets/home_app_bar.dart';
 import '../widgets/orders_hour_statistics_card.dart';
 import '../widgets/preparing_orders_card.dart';
@@ -106,6 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           const SizedBox(height: 12),
                           const QuickActionsRow(),
                           const SizedBox(height: 16),
+                        ],
+                        if (access.hasFullAccess) ...[
+                          const EngagementFeaturesCards(),
+                          const SizedBox(height: 24),
                         ],
                         if (canManageOrders) ...[
                           BlocBuilder<OrdersBloc, OrdersState>(
