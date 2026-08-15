@@ -1,5 +1,6 @@
 import 'package:common_package/annotations/auto_route_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/helpers/seller_permission_access.dart';
@@ -28,6 +29,7 @@ class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   late final TabController controller;
   late final List<_MainTab> tabs;
+  bool _isExitDialogVisible = false;
 
   @override
   void initState() {
@@ -147,6 +149,47 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
+  Future<void> _handleBackPressed() async {
+    if (controller.index != 0) {
+      controller.animateTo(0);
+      if (mounted) {
+        setState(() {});
+      }
+      return;
+    }
+
+    if (_isExitDialogVisible) return;
+    _isExitDialogVisible = true;
+
+    final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('الخروج من التطبيق'),
+            content: const Text('هل أنت متأكد من أنك تريد الخروج من التطبيق؟'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('إلغاء'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text(
+                  'خروج',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    _isExitDialogVisible = false;
+
+    if (shouldExit && mounted) {
+      await SystemNavigator.pop();
+    }
+  }
+
   @override
   void dispose() {
     controller.dispose();
@@ -155,15 +198,23 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: BottomNavBar(
-        controller: controller,
-        items: tabs.map((tab) => tab.destination).toList(growable: false),
-      ),
-      body: TabBarView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: controller,
-        children: tabs.map((tab) => tab.screen).toList(growable: false),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          _handleBackPressed();
+        }
+      },
+      child: Scaffold(
+        bottomNavigationBar: BottomNavBar(
+          controller: controller,
+          items: tabs.map((tab) => tab.destination).toList(growable: false),
+        ),
+        body: TabBarView(
+          physics: const NeverScrollableScrollPhysics(),
+          controller: controller,
+          children: tabs.map((tab) => tab.screen).toList(growable: false),
+        ),
       ),
     );
   }
