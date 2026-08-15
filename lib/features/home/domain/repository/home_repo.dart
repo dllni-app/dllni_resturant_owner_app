@@ -1,17 +1,22 @@
 import 'package:common_package/helpers/typedef.dart';
 import '../usecases/fetch_notifications_use_case.dart';
-import '../usecases/read_all_notifications_use_case.dart';
 import '../../data/models/fetch_notifications_model.dart';
 import '../../data/models/read_all_notifications_model.dart';
 import '../usecases/home_overview_use_case.dart';
 import '../../data/models/home_overview_model.dart';
 import '../usecases/home_overview_performance_use_case.dart';
 import '../../data/models/home_overview_performance_model.dart';
-abstract class HomeRepo {
 
+abstract class HomeRepo {
   DataResponse<FetchNotificationsModel> fetchNotifications(FetchNotificationsParams params);
 
   DataResponse<ReadAllNotificationsModel> readAllNotifications();
+
+  DataResponse<ReadAllNotificationsModel> readNotification(String notificationId);
+
+  DataResponse<ReadAllNotificationsModel> deleteNotification(String notificationId);
+
+  DataResponse<ReadAllNotificationsModel> deleteAllNotifications();
 
   DataResponse<HomeOverviewModel> homeOverview(HomeOverviewParams params);
 
