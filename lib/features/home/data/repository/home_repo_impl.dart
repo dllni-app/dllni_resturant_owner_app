@@ -5,7 +5,6 @@ import '../../domain/repository/home_repo.dart';
 import 'package:common_package/helpers/typedef.dart';
 import '../source/home_remote_data_source.dart';
 import '../../domain/usecases/fetch_notifications_use_case.dart';
-import '../../domain/usecases/read_all_notifications_use_case.dart';
 import '../models/fetch_notifications_model.dart';
 import '../models/read_all_notifications_model.dart';
 import '../../domain/usecases/home_overview_use_case.dart';
@@ -34,6 +33,27 @@ class HomeRepoImpl with HandlingException implements HomeRepo {
   }
 
   @override
+  DataResponse<ReadAllNotificationsModel> readNotification(String notificationId) {
+    return wrapHandlingException(
+      tryCall: () => homeRemoteDataSource.readNotification(notificationId),
+    );
+  }
+
+  @override
+  DataResponse<ReadAllNotificationsModel> deleteNotification(String notificationId) {
+    return wrapHandlingException(
+      tryCall: () => homeRemoteDataSource.deleteNotification(notificationId),
+    );
+  }
+
+  @override
+  DataResponse<ReadAllNotificationsModel> deleteAllNotifications() {
+    return wrapHandlingException(
+      tryCall: () => homeRemoteDataSource.deleteAllNotifications(),
+    );
+  }
+
+  @override
   DataResponse<HomeOverviewModel> homeOverview(HomeOverviewParams params) {
     return wrapHandlingException(
       tryCall: () => homeRemoteDataSource.homeOverview(params),
@@ -45,5 +65,5 @@ class HomeRepoImpl with HandlingException implements HomeRepo {
     return wrapHandlingException(
       tryCall: () => homeRemoteDataSource.homeOverviewPerformance(params),
     );
-  }}
-
+  }
+}
