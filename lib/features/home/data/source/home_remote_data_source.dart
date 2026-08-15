@@ -18,18 +18,6 @@ class HomeRemoteDataSource with HandlingApiManager {
   Future<FetchNotificationsModel> fetchNotifications(
     FetchNotificationsParams params,
   ) {
-    // #region agent log
-    agentDebugLog(
-      hypothesisId: 'H2',
-      location: 'home_remote_data_source.dart:fetchNotifications',
-      message: 'notifications GET shape',
-      data: {
-        'queryParams': params.getParams().toString(),
-        'body': params.getBody().toString(),
-        'endpoint': '/api/v1/restaurant-owner/notifications',
-      },
-    );
-    // #endregion
     return wrapHandlingApi(
       tryCall: () => dioNetwork.getData(
         endPoint: '/api/v1/restaurant-owner/notifications',
@@ -46,7 +34,35 @@ class HomeRemoteDataSource with HandlingApiManager {
         endPoint: '/api/v1/restaurant-owner/notifications/read-all',
         data: {},
       ),
-      jsonConvert: readAllNotificationsModelFromJson,
+      jsonConvert: (_) => ReadAllNotificationsModel(),
+    );
+  }
+
+  Future<ReadAllNotificationsModel> readNotification(String notificationId) {
+    return wrapHandlingApi(
+      tryCall: () => dioNetwork.patchData(
+        endPoint: '/api/v1/restaurant-owner/notifications/$notificationId/read',
+        data: {},
+      ),
+      jsonConvert: (_) => ReadAllNotificationsModel(),
+    );
+  }
+
+  Future<ReadAllNotificationsModel> deleteNotification(String notificationId) {
+    return wrapHandlingApi(
+      tryCall: () => dioNetwork.deleteData(
+        endPoint: '/api/v1/restaurant-owner/notifications/$notificationId',
+      ),
+      jsonConvert: (_) => ReadAllNotificationsModel(),
+    );
+  }
+
+  Future<ReadAllNotificationsModel> deleteAllNotifications() {
+    return wrapHandlingApi(
+      tryCall: () => dioNetwork.deleteData(
+        endPoint: '/api/v1/restaurant-owner/notifications/all',
+      ),
+      jsonConvert: (_) => ReadAllNotificationsModel(),
     );
   }
 
