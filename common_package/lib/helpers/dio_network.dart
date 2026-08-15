@@ -86,12 +86,16 @@ class DioNetwork {
                   }
                 }
               } else {
-                formData.fields.add(MapEntry(key, item.toString()));
+                formData.fields.add(
+                  MapEntry(_listFieldName(key), item.toString()),
+                );
               }
             }
           } else {
             for (var item in value) {
-              formData.fields.add(MapEntry(key, item.toString()));
+              formData.fields.add(
+                MapEntry(_listFieldName(key), item.toString()),
+              );
             }
           }
         } else if (value is Map<String, dynamic>) {
@@ -114,6 +118,8 @@ class DioNetwork {
     }
     return data;
   }
+
+  String _listFieldName(String key) => key.endsWith('[]') ? key : '$key[]';
 
   Future<MapEntry<String, MultipartFile>> _handleFile(
     String key,
