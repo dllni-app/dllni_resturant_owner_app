@@ -20,6 +20,18 @@ class HomeOverviewPerformanceEvent extends HomeEvent {
   HomeOverviewPerformanceEvent({required this.params});
 }
 
-class ReadAllNotificationsEvent extends HomeEvent {
+class ReadAllNotificationsEvent extends HomeEvent {}
 
+class ReadNotificationEvent extends HomeEvent {
+  final String id;
+
+  ReadNotificationEvent({required this.id});
 }
+
+class DeleteNotificationEvent extends HomeEvent {
+  final String id;
+
+  DeleteNotificationEvent({required this.id});
+}
+
+class DeleteAllNotificationsEvent extends HomeEvent {}
