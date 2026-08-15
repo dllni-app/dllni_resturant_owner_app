@@ -90,13 +90,23 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         child: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error, fontWeight: FontWeight.bold),
                       );
                     case BlocStatus.success:
+                      final notifications = state.notifications?.data ?? const [];
+                      if (notifications.isEmpty) {
+                        return Center(
+                          child: AppText.labelLarge(
+                            'لا توجد إشعارات حاليا',
+                            fontWeight: FontWeight.bold,
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      }
                       return ListView.separated(
                         padding: EdgeInsetsDirectional.only(bottom: 16),
                         itemBuilder: (context, index) {
-                          return NotificationFeedItem(notification: state.notifications!.data![index]);
+                          return NotificationFeedItem(notification: notifications[index]);
                         },
                         separatorBuilder: (context, index) => const Divider(color: Color(0xFFE5E7EB), height: 1),
-                        itemCount: state.notifications!.data!.length,
+                        itemCount: notifications.length,
                       );
                     case BlocStatus.loading:
                       return Center(child: CircularProgressIndicator.adaptive());
