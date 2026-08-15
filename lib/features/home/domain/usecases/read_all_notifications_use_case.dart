@@ -14,13 +14,16 @@ class ReadAllNotificationsUseCase implements UseCase<ReadAllNotificationsModel, 
   DataResponse<ReadAllNotificationsModel> call(NoParams params) {
     return home.readAllNotifications();
   }
-}
 
-// class ReadAllNotificationsParams with Params {
-//   final String tab;
-//
-//   ReadAllNotificationsParams({required this.tab});
-//
-//   @override
-//   BodyMap getBody() => {'tab': tab};
-// }
+  DataResponse<ReadAllNotificationsModel> readOne(String notificationId) {
+    return home.readNotification(notificationId);
+  }
+
+  DataResponse<ReadAllNotificationsModel> deleteOne(String notificationId) {
+    return home.deleteNotification(notificationId);
+  }
+
+  DataResponse<ReadAllNotificationsModel> deleteAll() {
+    return home.deleteAllNotifications();
+  }
+}
