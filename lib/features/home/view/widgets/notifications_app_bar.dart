@@ -9,11 +9,12 @@ class NotificationsAppBar extends StatelessWidget {
     super.key,
     required this.onBackTap,
     required this.homeBloc,
+    this.onDeleteAll,
   });
 
   final VoidCallback onBackTap;
   final HomeBloc homeBloc;
-
+  final VoidCallback? onDeleteAll;
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +39,7 @@ class NotificationsAppBar extends StatelessWidget {
       ),
       width: context.width,
       height: 80,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           InkWell(
@@ -65,49 +63,27 @@ class NotificationsAppBar extends StatelessWidget {
               color: context.primary,
             ),
           ),
-
           BlocBuilder<HomeBloc, HomeState>(
             bloc: homeBloc,
             builder: (context, state) {
-              return InkWell(
-                onTap:
-                    (state.unreadNumber==null||state.unreadNumber==0)?
-                        null
-                        :
-                    () {
-                  homeBloc.add(ReadAllNotificationsEvent());
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color:
-                    (state.unreadNumber==null||state.unreadNumber==0)?
-                    context.primary.withAlpha(32)
-
-                        : context.primary
-
-
-
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsetsDirectional.all(8),
-                  child:
-                  AppText.bodySmall(
+              final hasUnread = (state.unreadNumber ?? 0) > 0;
+              return TextButton(
+                onPressed: hasUnread ? () => homeBloc.add(ReadAllNotificationsEvent()) : null,
+                child: Text(
                   'قراءة الكل',
-                  fontWeight: FontWeight.w700,
-                  textAlign: TextAlign.start,
-                  color:
-                  (state.unreadNumber==null||state.unreadNumber==0)?
-                  Colors.grey:
-                    context.primary
-                    ,
-                ),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: hasUnread ? context.primary : Colors.grey,
+                  ),
                 ),
               );
             },
           ),
-
+          IconButton(
+            tooltip: 'حذف الكل',
+            onPressed: onDeleteAll,
+            icon: const Icon(Icons.delete_outline, color: Color(0xffEF4444)),
+          ),
         ],
       ),
     );
