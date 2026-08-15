@@ -1,5 +1,4 @@
-﻿import 'package:common_package/common_package.dart';
-import 'package:dllni_resturant_owner_app/core/di/injection.dart';
+import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/home/domain/usecases/fetch_notifications_use_case.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,12 +9,11 @@ import '../widgets/notification_feed_item.dart';
 import '../widgets/notifications_app_bar.dart';
 import '../widgets/notifications_filter_bar.dart';
 
-class NotificationsScreenParams{
+class NotificationsScreenParams {
   final HomeBloc homeBloc;
   final String selectedKey;
 
   NotificationsScreenParams({required this.homeBloc, required this.selectedKey});
-
 }
 
 @AutoRoutePage(path: '/notifications')
@@ -28,18 +26,36 @@ class NotificationsScreen extends StatefulWidget {
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-enum NotificationCategory { all, orders, inventory, offers, system }
-
 class _NotificationsScreenState extends State<NotificationsScreen> {
-
-
- late  String selectedKey ;
+  late String selectedKey;
 
   @override
   void initState() {
-    selectedKey=widget.args.selectedKey;
-    // TODO: implement initState
+    selectedKey = widget.args.selectedKey;
     super.initState();
+  }
+
+  Future<void> _confirmDeleteAll(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('حذف الكل'),
+        content: const Text('هل أنت متأكد من حذف جميع الإشعارات؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('حذف'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) {
+      widget.args.homeBloc.add(DeleteAllNotificationsEvent());
+    }
   }
 
   @override
@@ -49,31 +65,31 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            NotificationsAppBar(
-              onBackTap: () {
-                context.pop();
-              },
-              homeBloc:widget.args.homeBloc
-            ),
-            const SizedBox(height: 16),
             BlocBuilder<HomeBloc, HomeState>(
               bloc: widget.args.homeBloc,
               builder: (context, state) {
-                return NotificationsFilterBar(
-                  items: [
-                    NotificationFilterItem(title: 'الكل', key: 'all', icon: null),
-                    NotificationFilterItem(title: 'طلبات', key: 'orders', icon: Assets.images.notificationsOrdersIcon.path),
-                    NotificationFilterItem(title: 'مخزون', key: 'inventory', icon: Assets.images.notificationsInventoryIcon.path),
-                    NotificationFilterItem(title: 'عروض', key: 'offers', icon: Assets.images.notificationsOffersIcon.path),
-                    NotificationFilterItem(title: 'نظام', key: 'system', icon: Assets.images.notificationsSettingsIcon.path),
-                  ],
-                  selectedKey:selectedKey,
-                  onChanged: (val) {
-                    setState(() {
-                      selectedKey = val;
-                    });
-                    widget.args.homeBloc.add(FetchNotificationsEvent(params: FetchNotificationsParams(status: val)));
-                  },
+                final hasNotifications = state.notifications?.data?.isNotEmpty == true;
+                return NotificationsAppBar(
+                  onBackTap: context.pop,
+                  homeBloc: widget.args.homeBloc,
+                  onDeleteAll: hasNotifications ? () => _confirmDeleteAll(context) : null,
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            NotificationsFilterBar(
+              items: [
+                NotificationFilterItem(title: 'الكل', key: 'all', icon: null),
+                NotificationFilterItem(title: 'طلبات', key: 'orders', icon: Assets.images.notificationsOrdersIcon.path),
+                NotificationFilterItem(title: 'مخزون', key: 'inventory', icon: Assets.images.notificationsInventoryIcon.path),
+                NotificationFilterItem(title: 'عروض', key: 'offers', icon: Assets.images.notificationsOffersIcon.path),
+                NotificationFilterItem(title: 'نظام', key: 'system', icon: Assets.images.notificationsSettingsIcon.path),
+              ],
+              selectedKey: selectedKey,
+              onChanged: (val) {
+                setState(() => selectedKey = val);
+                widget.args.homeBloc.add(
+                  FetchNotificationsEvent(params: FetchNotificationsParams(status: val)),
                 );
               },
             ),
@@ -84,10 +100,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 builder: (context, state) {
                   switch (state.notificationsStatus) {
                     case null:
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     case BlocStatus.failed:
                       return Center(
-                        child: AppText.labelLarge(state.errorMessage ?? 'حدث خطا ما', color: context.error, fontWeight: FontWeight.bold),
+                        child: AppText.labelLarge(
+                          state.errorMessage ?? 'حدث خطا ما',
+                          color: context.error,
+                          fontWeight: FontWeight.bold,
+                        ),
                       );
                     case BlocStatus.success:
                       final notifications = state.notifications?.data ?? const [];
@@ -101,17 +121,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         );
                       }
                       return ListView.separated(
-                        padding: EdgeInsetsDirectional.only(bottom: 16),
+                        padding: const EdgeInsetsDirectional.only(bottom: 16),
                         itemBuilder: (context, index) {
-                          return NotificationFeedItem(notification: notifications[index]);
+                          final notification = notifications[index];
+                          return Dismissible(
+                            key: ValueKey(notification.id ?? '${notification.createdAt}-$index'),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              color: const Color(0xffEF4444),
+                              alignment: AlignmentDirectional.centerEnd,
+                              padding: const EdgeInsetsDirectional.only(end: 20),
+                              child: const Icon(Icons.delete_outline, color: Colors.white),
+                            ),
+                            onDismissed: (_) {
+                              final id = notification.id;
+                              if (id != null && id.isNotEmpty) {
+                                widget.args.homeBloc.add(DeleteNotificationEvent(id: id));
+                              }
+                            },
+                            child: NotificationFeedItem(
+                              notification: notification,
+                              onRead: () {
+                                final id = notification.id;
+                                if (id != null && id.isNotEmpty && notification.isRead != true) {
+                                  widget.args.homeBloc.add(ReadNotificationEvent(id: id));
+                                }
+                              },
+                            ),
+                          );
                         },
-                        separatorBuilder: (context, index) => const Divider(color: Color(0xFFE5E7EB), height: 1),
+                        separatorBuilder: (_, __) => const Divider(
+                          color: Color(0xFFE5E7EB),
+                          height: 1,
+                        ),
                         itemCount: notifications.length,
                       );
                     case BlocStatus.loading:
-                      return Center(child: CircularProgressIndicator.adaptive());
                     case BlocStatus.init:
-                      return Center(child: CircularProgressIndicator.adaptive());
+                      return const Center(child: CircularProgressIndicator.adaptive());
                   }
                 },
               ),
@@ -122,32 +169,3 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 }
-
-/*Padding(
-                padding: const EdgeInsetsDirectional.symmetric(horizontal: 20),
-                child: InkWell(
-                  onTap: _canLoadMore ? _onLoadMore : null,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    width: context.width,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9FAFB),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
-                    ),
-                    padding: const EdgeInsetsDirectional.symmetric(vertical: 14),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.refresh_rounded, color: _canLoadMore ? const Color(0xFF4B5563) : const Color(0xFF9CA3AF), size: 18),
-                        const SizedBox(width: 8),
-                        AppText.bodyMedium(
-                          'تحميل المزيد',
-                          color: _canLoadMore ? const Color(0xFF4B5563) : const Color(0xFF9CA3AF),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),*/
