@@ -1,6 +1,6 @@
 import 'package:common_package/common_package.dart';
-import 'package:dllni_resturant_owner_app/core/widgets/app_pickers.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../../products/view/widgets/app_switch.dart';
 
@@ -17,10 +17,33 @@ class CreateOfferDurationCard extends StatefulWidget {
 }
 
 class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
-  Future<void> _pickDate(TextEditingController controller) async {
-    final value = await AppPickers.showAppDatePicker(context: context);
-    if (value.trim().isEmpty) return;
-    controller.text = value;
+  DateTime? _parse(String raw) => raw.trim().isEmpty ? null : DateTime.tryParse(raw.trim())?.toLocal();
+
+  String _formatForController(DateTime value) => value.toUtc().toIso8601String();
+
+  String _displayValue(String raw) {
+    final value = _parse(raw);
+    if (value == null) return '';
+    return DateFormat('yyyy/MM/dd - HH:mm').format(value);
+  }
+
+  Future<void> _pickDateTime(TextEditingController controller) async {
+    final initial = _parse(controller.text) ?? DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime.now().subtract(const Duration(days: 1)),
+      lastDate: DateTime.now().add(const Duration(days: 3650)),
+    );
+    if (date == null || !mounted) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initial),
+    );
+    if (time == null) return;
+
+    controller.text = _formatForController(DateTime(date.year, date.month, date.day, time.hour, time.minute));
     setState(() {});
   }
 
@@ -45,30 +68,29 @@ class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
                 value: widget.isImmediate,
                 onChanged: (value) {
                   widget.changeIsImmediate(value);
-                  if (value && widget.startsAtController.text.trim().isEmpty) {
-                    widget.startsAtController.text = DateTime.now().toIso8601String().split('T').first;
+                  if (value) {
+                    widget.startsAtController.text = DateTime.now().toUtc().toIso8601String();
                   }
                   setState(() {});
                 },
                 inactiveColor: const Color(0xFFD1D5DB),
-
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
         _buildDateField(
-          title: 'تاريخ البداية',
+          title: 'تاريخ ووقت البداية',
           controller: widget.startsAtController,
-          isEnabled: true,
-          onTap: () => _pickDate(widget.startsAtController),
+          isEnabled: !widget.isImmediate,
+          onTap: () => _pickDateTime(widget.startsAtController),
         ),
         const SizedBox(height: 16),
         _buildDateField(
-          title: 'تاريخ النهاية',
+          title: 'تاريخ ووقت النهاية',
           controller: widget.endsAtController,
           isEnabled: true,
-          onTap: () => _pickDate(widget.endsAtController),
+          onTap: () => _pickDateTime(widget.endsAtController),
         ),
       ],
     );
@@ -81,22 +103,23 @@ class _CreateOfferDurationCardState extends State<CreateOfferDurationCard> {
         AppText.bodyMedium(title, fontWeight: FontWeight.w500, color: const Color(0xFF374151)),
         const SizedBox(height: 8),
         TextFormField(
-          controller: controller,
           readOnly: true,
           enabled: isEnabled,
           onTap: onTap,
           onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
           style: const TextStyle(color: Color(0xB22F2B3D), fontSize: 14),
-          decoration: const InputDecoration(
-            suffixIcon: Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF9CA3AF)),
+          decoration: InputDecoration(
+            suffixIcon: const Icon(Icons.event_rounded, size: 18, color: Color(0xFF9CA3AF)),
             filled: true,
-            fillColor: Color(0xFFF9FAFB),
-            hintText: 'yyyy / mm / dd',
-            hintStyle: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
-            border: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
-            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
-            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
-            disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            fillColor: const Color(0xFFF9FAFB),
+            hintText: 'yyyy/mm/dd - hh:mm',
+            hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
+            border: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            disabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: Color(0xFFE5E7EB)), borderRadius: BorderRadius.all(Radius.circular(16))),
+            labelText: _displayValue(controller.text).isEmpty ? null : _displayValue(controller.text),
+            floatingLabelBehavior: FloatingLabelBehavior.never,
           ),
         ),
       ],
