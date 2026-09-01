@@ -1,0 +1,42 @@
+name: Restaurant Feature Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/feature-verification.yml'
+      - 'lib/core/order_card.dart'
+      - 'lib/features/home/view/widgets/notification_feed_item.dart'
+      - 'lib/features/profile/view/screens/create_offer_screen.dart'
+      - 'lib/features/profile/view/widgets/create_offer_duration_card.dart'
+      - 'lib/features/products/**'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze modified restaurant features
+        run: >-
+          flutter analyze
+          lib/core/order_card.dart
+          lib/features/home/view/widgets/notification_feed_item.dart
+          lib/features/profile/view/screens/create_offer_screen.dart
+          lib/features/profile/view/widgets/create_offer_duration_card.dart
+          lib/features/products/domain/usecases/post_new_product_use_case.dart
+          lib/features/products/view/helpers/product_file_importer.dart
+          lib/features/products/view/screens/add_new_product_screen.dart
+          lib/features/products/view/screens/add_product_menu_screen.dart
+          lib/features/products/view/widgets/product_text_field.dart
