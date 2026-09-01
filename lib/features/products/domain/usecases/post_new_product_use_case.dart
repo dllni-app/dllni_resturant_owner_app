@@ -26,33 +26,36 @@ class PostNewProductParams with Params {
   final String discountedPrice;
   final String lowStock;
   final String preparationTime;
-  final File primaryImage;
-  final List<File> images;
+  final File? primaryImage;
+  final List<File>? images;
 
   PostNewProductParams({
     required this.categoryId,
     required this.name,
-    required this.desc,
+    this.desc = '',
     required this.price,
-    required this.discountedPrice,
-    required this.lowStock,
-    required this.preparationTime,
-    required this.primaryImage,
-    required this.images,
+    this.discountedPrice = '',
+    this.lowStock = '',
+    this.preparationTime = '',
+    this.primaryImage,
+    this.images,
   });
 
   @override
-  BodyMap getBody() => {
-    "categoryId": categoryId,
-    "name": name,
-    "description": desc,
-    "price": price,
-    "discountedPrice": discountedPrice,
-    "isAvailable": 1,
-    "lowStockThreshold": lowStock,
-    "preparationTime": preparationTime,
-    "isFeatured": 1,
-    "primaryImage": primaryImage,
-    "images[]": images,
-  };
+  BodyMap getBody() {
+    final body = <String, dynamic>{
+      'categoryId': categoryId,
+      'name': name,
+      'price': price,
+      'isAvailable': 1,
+      'isFeatured': 1,
+    };
+    if (desc.trim().isNotEmpty) body['description'] = desc.trim();
+    if (discountedPrice.trim().isNotEmpty) body['discountedPrice'] = discountedPrice.trim();
+    if (lowStock.trim().isNotEmpty) body['lowStockThreshold'] = lowStock.trim();
+    if (preparationTime.trim().isNotEmpty) body['preparationTime'] = preparationTime.trim();
+    if (primaryImage != null) body['primaryImage'] = primaryImage!;
+    if (images != null && images!.isNotEmpty) body['images[]'] = images!;
+    return body;
+  }
 }
