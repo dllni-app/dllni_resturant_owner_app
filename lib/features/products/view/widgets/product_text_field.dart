@@ -38,6 +38,10 @@ class ProductTextField extends StatelessWidget {
                 return null;
               }
             : null);
+    const errorBorder = OutlineInputBorder(
+      borderRadius: ProductsStyleTokens.fieldRadius,
+      borderSide: BorderSide(color: Color(0xFFEF4444)),
+    );
 
     return Column(
       spacing: 8,
@@ -83,8 +87,8 @@ class ProductTextField extends StatelessWidget {
             border: ProductsStyleTokens.fieldBorder(),
             enabledBorder: ProductsStyleTokens.fieldBorder(),
             focusedBorder: ProductsStyleTokens.fieldBorder(),
-            errorBorder: ProductsStyleTokens.fieldBorder(color: const Color(0xFFEF4444)),
-            focusedErrorBorder: ProductsStyleTokens.fieldBorder(color: const Color(0xFFEF4444)),
+            errorBorder: errorBorder,
+            focusedErrorBorder: errorBorder,
           ),
         ),
       ],
