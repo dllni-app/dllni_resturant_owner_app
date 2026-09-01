@@ -42,7 +42,7 @@ class _OrderCardState extends State<OrderCard> {
   Widget icon(OrderStatus status, Color color) {
     switch (status) {
       case OrderStatus.newOrder:
-        return CircleAvatar(radius: 4, backgroundColor: color);
+        return const Icon(Icons.notifications_active_rounded, size: 16, color: Colors.white);
       case OrderStatus.preparingOrder:
         return AppImage.asset(Assets.images.readyOrderIcon.path, size: 13);
       case OrderStatus.readyOrder:
@@ -72,37 +72,63 @@ class _OrderCardState extends State<OrderCard> {
   }
 
   String deliveryLabel() {
-    final type = widget.order.orderType;
-    final mode = widget.order.pickupMode;
-    if (type == 'pickup') return mode == 'scheduled_pickup' ? 'استلام مجدول' : 'استلام ذاتي';
-    if (type == 'delivery') return mode == 'scheduled_delivery' ? 'توصيل مجدول' : 'توصيل فوري';
-    return 'طلب غير محدد';
+    final type = (widget.order.orderType ?? '').toLowerCase().trim();
+    return type == 'delivery' ? 'توصيل' : 'استلام من المطعم';
   }
 
   @override
   Widget build(BuildContext context) {
     final total = widget.order.totalAmount ?? 0;
     final statusColor = color(widget.status);
+    final isNew = widget.status == OrderStatus.newOrder || widget.order.status == 'pending';
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: isNew ? const Color(0xff1E2A78) : const Color(0xffE5E7EB), width: isNew ? 2 : 1),
+      ),
+      elevation: isNew ? 5 : 2,
       child: InkWell(
         onTap: widget.order.id == null ? null : () => context.pushRoute('/orders/details', arguments: OrderDetailsParams(orderId: widget.order.id!)),
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border(right: BorderSide(color: context.primaryContainer, width: 6))),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: isNew ? const Color(0xffF3F5FF) : Colors.white,
+            border: Border(right: BorderSide(color: statusColor, width: isNew ? 8 : 6)),
+          ),
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              if (isNew) ...[
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(color: const Color(0xff1E2A78), borderRadius: BorderRadius.circular(20)),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.notifications_active_rounded, size: 15, color: Colors.white),
+                          SizedBox(width: 6),
+                          Text('طلب جديد', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    AppText.labelMedium(relativeTime(), color: const Color(0xff1E2A78), fontWeight: FontWeight.w700),
+                  ],
+                ),
+                const SizedBox(height: 12),
+              ],
               Row(children: [
-                Container(decoration: BoxDecoration(color: context.surface, borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.all(10), child: Icon(Icons.person, color: context.primary)),
+                Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.all(10), child: Icon(Icons.person, color: context.primary)),
                 const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.bodyMedium(widget.order.user?.name ?? 'عميل المطعم', fontWeight: FontWeight.bold), const SizedBox(height: 4), AppText.labelMedium('#${widget.order.orderNumber ?? widget.order.id ?? '-'}'), AppText.labelMedium(relativeTime().isEmpty ? '' : '• ${relativeTime()}')])) ,
-                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [AppText.labelLarge('${total.toStringAsFixed(0)} ل.س', color: context.primary, fontWeight: FontWeight.bold), const SizedBox(height: 4), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: context.surface, borderRadius: BorderRadius.circular(6)), child: AppText.labelSmall('نقدي', fontWeight: FontWeight.w600))]),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.bodyMedium(widget.order.user?.name ?? 'عميل المطعم', fontWeight: FontWeight.bold), const SizedBox(height: 4), AppText.labelMedium('#${widget.order.orderNumber ?? widget.order.id ?? '-'}'), if (!isNew) AppText.labelMedium(relativeTime().isEmpty ? '' : '• ${relativeTime()}')])) ,
+                Column(crossAxisAlignment: CrossAxisAlignment.end, children: [AppText.labelLarge('${total.toStringAsFixed(0)} ل.س', color: context.primary, fontWeight: FontWeight.bold), const SizedBox(height: 4), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: AppText.labelSmall('نقدي', fontWeight: FontWeight.w600))]),
               ]),
               const Divider(height: 24),
-              Container(width: double.infinity, padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: context.surface.withOpacity(0.5), borderRadius: BorderRadius.circular(8)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.labelLarge(productsText(), maxLines: 2, overflow: TextOverflow.ellipsis), const SizedBox(height: 8), Row(children: [const Icon(Icons.local_mall, size: 16), const SizedBox(width: 6), AppText.labelLarge(deliveryLabel(), fontWeight: FontWeight.bold)])])),
+              Container(width: double.infinity, padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white.withOpacity(0.85), borderRadius: BorderRadius.circular(8)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.labelLarge(productsText(), maxLines: 2, overflow: TextOverflow.ellipsis), const SizedBox(height: 8), Row(children: [Icon(deliveryLabel() == 'توصيل' ? Icons.delivery_dining_rounded : Icons.storefront_rounded, size: 17, color: statusColor), const SizedBox(width: 6), AppText.labelLarge(deliveryLabel(), fontWeight: FontWeight.bold, color: statusColor)])])),
               if (!widget.isFromHome) ...[const SizedBox(height: 12), Align(alignment: Alignment.centerRight, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(20)), child: Row(mainAxisSize: MainAxisSize.min, children: [icon(widget.status, statusColor), const SizedBox(width: 6), AppText.labelSmall(widget.order.statusLabelAr ?? widget.order.status ?? '-', color: statusColor, fontWeight: FontWeight.bold)])))],
               _buildActionButtons(context),
             ],
