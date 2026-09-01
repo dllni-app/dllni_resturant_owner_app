@@ -34,19 +34,45 @@ class _NotificationFeedItemState extends State<NotificationFeedItem> {
     _isRead = widget.notification.isRead == true;
   }
 
+  String get _classification {
+    final values = <String>[
+      widget.notification.type ?? '',
+      widget.notification.category ?? '',
+      widget.notification.title ?? '',
+    ].join(' ').toLowerCase();
+
+    if (values.contains('order') || values.contains('طلب') || values.contains('استلام')) return 'orders';
+    if (values.contains('inventory') || values.contains('stock') || values.contains('مخزون')) return 'inventory';
+    if (values.contains('offer') || values.contains('coupon') || values.contains('عرض') || values.contains('كوبون')) return 'offers';
+    if (values.contains('system') || values.contains('نظام')) return 'system';
+    return 'system';
+  }
+
   Color notificationStatusColor() {
-    if (widget.notification.type == 'order' || widget.notification.category == 'orders') return const Color(0xff10B981);
-    if (widget.notification.type == 'inventory' || widget.notification.category == 'inventory') return const Color(0xffF59E0B);
-    if (widget.notification.type == 'offers' || widget.notification.category == 'offers') return const Color(0xffD97706);
-    if (widget.notification.type == 'system' || widget.notification.category == 'system') return const Color(0xff6B7280);
-    return const Color(0xffEF4444);
+    switch (_classification) {
+      case 'orders':
+        return const Color(0xff10B981);
+      case 'inventory':
+        return const Color(0xffF59E0B);
+      case 'offers':
+        return const Color(0xffD97706);
+      case 'system':
+      default:
+        return const Color(0xff6B7280);
+    }
   }
 
   String notificationStatusIcon() {
-    if (widget.notification.type == 'order' || widget.notification.category == 'orders') return Assets.images.notificationsOrdersIcon.path;
-    if (widget.notification.type == 'inventory' || widget.notification.category == 'inventory') return Assets.images.notificationsInventoryIcon.path;
-    if (widget.notification.type == 'offers' || widget.notification.category == 'offers') return Assets.images.notificationsOffersIcon.path;
-    return Assets.images.notificationsSettingsIcon.path;
+    switch (_classification) {
+      case 'orders':
+        return Assets.images.notificationsOrdersIcon.path;
+      case 'inventory':
+        return Assets.images.notificationsInventoryIcon.path;
+      case 'offers':
+        return Assets.images.notificationsOffersIcon.path;
+      default:
+        return Assets.images.notificationsSettingsIcon.path;
+    }
   }
 
   void _handleTap() {
@@ -55,17 +81,23 @@ class _NotificationFeedItemState extends State<NotificationFeedItem> {
       setState(() => _isRead = true);
     }
 
-    final type = (widget.notification.type ?? widget.notification.category ?? '').toLowerCase();
-    if (type.contains('order')) {
-      context.pushRouteAndRemoveUntil('/main', arguments: 1);
-    } else if (type.contains('inventory')) {
-      context.pushRouteAndRemoveUntil('/main', arguments: 3);
-    } else if (type.contains('offer')) {
-      context.pushRoute('/offersmanagement');
-    } else if (type.contains('coupon')) {
-      context.pushRoute('/couponsmanagement');
-    } else {
-      context.pushRouteAndRemoveUntil('/main', arguments: 4);
+    switch (_classification) {
+      case 'orders':
+        context.pushRouteAndRemoveUntil('/main', arguments: 1);
+        break;
+      case 'inventory':
+        context.pushRouteAndRemoveUntil('/main', arguments: 3);
+        break;
+      case 'offers':
+        final raw = '${widget.notification.type ?? ''} ${widget.notification.category ?? ''}'.toLowerCase();
+        if (raw.contains('coupon')) {
+          context.pushRoute('/couponsmanagement');
+        } else {
+          context.pushRoute('/offersmanagement');
+        }
+        break;
+      default:
+        context.pushRouteAndRemoveUntil('/main', arguments: 4);
     }
   }
 
@@ -130,7 +162,11 @@ class _NotificationFeedItemState extends State<NotificationFeedItem> {
                   Container(
                     decoration: BoxDecoration(color: notificationStatusColor().withAlpha(25), borderRadius: BorderRadius.circular(10)),
                     padding: const EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 2),
-                    child: AppText.labelLarge(widget.notification.category ?? widget.notification.type ?? '-', color: notificationStatusColor(), fontWeight: FontWeight.w700),
+                    child: AppText.labelLarge(
+                      _classification == 'orders' ? 'الطلبات' : _classification == 'inventory' ? 'المخزون' : _classification == 'offers' ? 'العروض والكوبونات' : 'النظام',
+                      color: notificationStatusColor(),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
