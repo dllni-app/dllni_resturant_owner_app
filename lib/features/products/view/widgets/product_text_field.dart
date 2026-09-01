@@ -14,12 +14,14 @@ class ProductTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
     this.validator,
+    this.required = true,
   });
 
   final String title;
   final String? hintText;
   final int maxLines;
   final bool readOnly;
+  final bool required;
   final TextEditingController? controller;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
@@ -27,6 +29,16 @@ class ProductTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolvedValidator = validator ??
+        (required && controller != null
+            ? (String? value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'هذا الحقل مطلوب';
+                }
+                return null;
+              }
+            : null);
+
     return Column(
       spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,14 +57,7 @@ class ProductTextField extends StatelessWidget {
           readOnly: readOnly,
           controller: controller,
           keyboardType: keyboardType,
-          validator:
-              validator ??
-              (String? value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'هذا الحقل مطلوب';
-                }
-                return null;
-              },
+          validator: resolvedValidator,
           textAlign: TextAlign.start,
           onTapOutside: (_) => FocusScope.of(context).unfocus(),
           style: const TextStyle(
@@ -78,6 +83,8 @@ class ProductTextField extends StatelessWidget {
             border: ProductsStyleTokens.fieldBorder(),
             enabledBorder: ProductsStyleTokens.fieldBorder(),
             focusedBorder: ProductsStyleTokens.fieldBorder(),
+            errorBorder: ProductsStyleTokens.fieldBorder(color: const Color(0xFFEF4444)),
+            focusedErrorBorder: ProductsStyleTokens.fieldBorder(color: const Color(0xFFEF4444)),
           ),
         ),
       ],
