@@ -35,23 +35,36 @@ class ProductFileImporter {
 
     final file = picked.files.single;
     final extension = (file.extension ?? '').toLowerCase();
-    final bytes = file.bytes ?? (file.path == null ? null : await File(file.path!).readAsBytes());
+    final bytes = file.bytes ??
+        (file.path == null ? null : await File(file.path!).readAsBytes());
     if (bytes == null || bytes.isEmpty) {
-      return const ProductFileImportResult(imported: 0, failed: 1, errors: ['تعذر قراءة الملف.']);
+      return const ProductFileImportResult(
+        imported: 0,
+        failed: 1,
+        errors: ['تعذر قراءة الملف.'],
+      );
     }
 
     final rows = extension == 'xlsx' ? _xlsxRows(bytes) : _csvRows(bytes);
     if (rows.isEmpty) {
-      return const ProductFileImportResult(imported: 0, failed: 1, errors: ['الملف لا يحتوي على بيانات.']);
+      return const ProductFileImportResult(
+        imported: 0,
+        failed: 1,
+        errors: ['الملف لا يحتوي على بيانات.'],
+      );
     }
 
     final headers = rows.first.map((e) => e.trim()).toList();
-    final missing = requiredHeaders.where((header) => !headers.contains(header)).toList();
+    final missing = requiredHeaders
+        .where((header) => !headers.contains(header))
+        .toList();
     if (missing.isNotEmpty) {
       return ProductFileImportResult(
         imported: 0,
         failed: 1,
-        errors: ['الأعمدة المطلوبة: ${requiredHeaders.join(', ')}. الأعمدة المفقودة: ${missing.join(', ')}'],
+        errors: [
+          'الأعمدة المطلوبة: ${requiredHeaders.join(', ')}. الأعمدة المفقودة: ${missing.join(', ')}',
+        ],
       );
     }
 
@@ -65,15 +78,22 @@ class ProductFileImporter {
       if (values.every((value) => value.trim().isEmpty)) continue;
       final row = <String, String>{};
       for (var column = 0; column < headers.length; column++) {
-        row[headers[column]] = column < values.length ? values[column].trim() : '';
+        row[headers[column]] =
+            column < values.length ? values[column].trim() : '';
       }
 
       final categoryId = int.tryParse(row['categoryId'] ?? '');
       final name = (row['name'] ?? '').trim();
       final price = double.tryParse((row['price'] ?? '').replaceAll(',', '.'));
-      if (categoryId == null || categoryId <= 0 || name.isEmpty || price == null || price < 0) {
+      if (categoryId == null ||
+          categoryId <= 0 ||
+          name.isEmpty ||
+          price == null ||
+          price < 0) {
         failed++;
-        errors.add('السطر ${index + 1}: categoryId أو name أو price غير صالح.');
+        errors.add(
+          'السطر ${index + 1}: categoryId أو name أو price غير صالح.',
+        );
         continue;
       }
 
@@ -98,22 +118,31 @@ class ProductFileImporter {
       );
     }
 
-    return ProductFileImportResult(imported: imported, failed: failed, errors: errors);
+    return ProductFileImportResult(
+      imported: imported,
+      failed: failed,
+      errors: errors,
+    );
   }
 
   static List<List<String>> _csvRows(List<int> bytes) {
     final text = utf8.decode(bytes, allowMalformed: true);
     final decoded = const CsvToListConverter().convert(text);
-    return decoded.map((row) => row.map((value) => value?.toString() ?? '').toList()).toList();
+    return decoded
+        .map(
+          (row) => row.map((value) => value?.toString() ?? '').toList(),
+        )
+        .toList();
   }
 
   static List<List<String>> _xlsxRows(List<int> bytes) {
     final workbook = Excel.decodeBytes(bytes);
     if (workbook.tables.isEmpty) return const [];
     final sheet = workbook.tables.values.first;
-    if (sheet == null) return const [];
     return sheet.rows
-        .map((row) => row.map((cell) => cell?.value?.toString() ?? '').toList())
+        .map(
+          (row) => row.map((cell) => cell?.value?.toString() ?? '').toList(),
+        )
         .toList();
   }
 }
