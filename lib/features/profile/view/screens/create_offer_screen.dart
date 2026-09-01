@@ -1,7 +1,6 @@
 import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/features/profile/data/models/fetch_offers_model.dart';
 import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/create_offer_use_case.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
@@ -47,11 +46,20 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
     if (offer != null) {
       nameController.text = offer.name ?? '';
       offerValueController.text = offer.discountValue?.toString() ?? '';
-      startsAtController.text = offer.startsAt == null ? '' : DateFormat('yyyy-MM-dd').format(DateTime.parse(offer.startsAt!));
-      endsAtController.text = offer.endsAt == null ? '' : DateFormat('yyyy-MM-dd').format(DateTime.parse(offer.endsAt!));
+      startsAtController.text = offer.startsAt == null ? '' : DateTime.parse(offer.startsAt!).toUtc().toIso8601String();
+      endsAtController.text = offer.endsAt == null ? '' : DateTime.parse(offer.endsAt!).toUtc().toIso8601String();
       offerType = offer.discountType ?? 'fixed_amount';
       isImmediate = offer.isActive ?? false;
     }
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    offerValueController.dispose();
+    startsAtController.dispose();
+    endsAtController.dispose();
+    super.dispose();
   }
 
   bool _validate(BuildContext context) {
@@ -59,16 +67,32 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
       AppToast.showToast(context: context, message: 'أدخل اسم العرض', type: ToastificationType.error);
       return false;
     }
-    if (double.tryParse(offerValueController.text.trim()) == null) {
+    final discountValue = double.tryParse(offerValueController.text.trim());
+    if (discountValue == null || discountValue < 0) {
       AppToast.showToast(context: context, message: 'أدخل قيمة خصم صحيحة', type: ToastificationType.error);
       return false;
     }
+    if (offerType == 'percentage' && discountValue > 100) {
+      AppToast.showToast(context: context, message: 'نسبة الخصم يجب أن تكون بين 0 و 100%', type: ToastificationType.error);
+      return false;
+    }
     if (!isImmediate && startsAtController.text.trim().isEmpty) {
-      AppToast.showToast(context: context, message: 'أدخل تاريخ بداية العرض', type: ToastificationType.error);
+      AppToast.showToast(context: context, message: 'اختر تاريخ ووقت بداية العرض', type: ToastificationType.error);
       return false;
     }
     if (endsAtController.text.trim().isEmpty) {
-      AppToast.showToast(context: context, message: 'أدخل تاريخ نهاية العرض', type: ToastificationType.error);
+      AppToast.showToast(context: context, message: 'اختر تاريخ ووقت نهاية العرض', type: ToastificationType.error);
+      return false;
+    }
+
+    final start = DateTime.tryParse(startsAtController.text.trim());
+    final end = DateTime.tryParse(endsAtController.text.trim());
+    if (start == null || end == null) {
+      AppToast.showToast(context: context, message: 'تاريخ أو وقت العرض غير صالح', type: ToastificationType.error);
+      return false;
+    }
+    if (!end.isAfter(start)) {
+      AppToast.showToast(context: context, message: 'يجب أن يكون انتهاء العرض بعد بدايته', type: ToastificationType.error);
       return false;
     }
     return true;
@@ -103,7 +127,10 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                       number: 3,
                       title: 'مدة العرض',
                       child: CreateOfferDurationCard(
-                        changeIsImmediate: (val) => setState(() => isImmediate = val),
+                        changeIsImmediate: (val) => setState(() {
+                          isImmediate = val;
+                          if (val) startsAtController.text = DateTime.now().toUtc().toIso8601String();
+                        }),
                         endsAtController: endsAtController,
                         isImmediate: isImmediate,
                         startsAtController: startsAtController,
@@ -130,14 +157,12 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
             Padding(
               padding: const EdgeInsetsDirectional.symmetric(horizontal: 24),
               child: BlocConsumer<ProfileBloc, ProfileState>(
-                listener: (context,state){
-
-                  if(state.createOfferStatus==BlocStatus.success){
+                listener: (context, state) {
+                  if (state.createOfferStatus == BlocStatus.success) {
                     context.pop();
                   }
-
                 },
-                listenWhen:(pre,cur)=>pre.createOfferStatus!=cur.createOfferStatus,
+                listenWhen: (pre, cur) => pre.createOfferStatus != cur.createOfferStatus,
                 builder: (context, state) {
                   final isLoading = state.createOfferStatus == BlocStatus.loading;
                   final productIds = state.selectedProducts.where((p) => p.id != null).map((p) => p.id!).toList();
@@ -151,9 +176,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                               : () {
                                   if (!_validate(context)) return;
                                   final editingOffer = widget.params?.offer;
-                                  final startDate = isImmediate
-                                      ? (startsAtController.text.trim().isEmpty ? DateFormat('yyyy-MM-dd').format(DateTime.now()) : startsAtController.text.trim())
-                                      : startsAtController.text.trim();
+                                  final startDate = isImmediate ? DateTime.now().toUtc().toIso8601String() : startsAtController.text.trim();
                                   context.read<ProfileBloc>().add(
                                         CreateOfferSubmitEvent(
                                           context: context,
@@ -163,7 +186,7 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
                                             discountValue: double.parse(offerValueController.text.trim()),
                                             startsAt: startDate,
                                             endsAt: endsAtController.text.trim(),
-                                            isActive: isImmediate,
+                                            isActive: true,
                                             productIds: productIds,
                                             isAddNew: editingOffer == null,
                                             id: editingOffer?.id,
