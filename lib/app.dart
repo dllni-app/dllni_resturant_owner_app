@@ -24,13 +24,15 @@ class App extends StatelessWidget {
           child: child ?? const SizedBox.shrink(),
         );
       },
-      title: 'Dllni resturant',
+      title: 'مطعم ع الندهة',
       debugShowCheckedModeBanner: false,
       locale: context.locale,
       supportedLocales: context.supportedLocales,
       localizationsDelegates: context.localizationDelegates,
       onGenerateRoute: AppRouter.onGenerateRoute,
-      home: SharedPreferencesHelper.getData(key: 'token') != null && SharedPreferencesHelper.getData(key: 'token') != ''
+      home:
+          SharedPreferencesHelper.getData(key: 'token') != null &&
+              SharedPreferencesHelper.getData(key: 'token') != ''
           ? const MainScreen()
           : const LoginScreen(),
       theme: ThemeData(

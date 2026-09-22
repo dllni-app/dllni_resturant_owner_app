@@ -23,29 +23,48 @@ class ProductFileImportResult {
 class ProductFileImporter {
   ProductFileImporter._();
 
+  static const supportedExtensions = <String>{'csv', 'xlsx'};
   static const requiredHeaders = <String>['categoryId', 'name', 'price'];
 
+  static ProductFileImportResult _failure(String message) {
+    return ProductFileImportResult(imported: 0, failed: 1, errors: [message]);
+  }
+
   static Future<ProductFileImportResult?> pickAndImport() async {
-    final picked = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: const ['csv', 'xlsx'],
-      withData: true,
-    );
+    FilePickerResult? picked;
+    try {
+      picked = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: supportedExtensions.toList(),
+        withData: true,
+      );
+    } catch (_) {
+      return _failure('تعذر فتح منتقي الملفات. حاول مرة أخرى.');
+    }
     if (picked == null || picked.files.isEmpty) return null;
 
     final file = picked.files.single;
     final extension = (file.extension ?? '').toLowerCase();
-    final bytes = file.bytes ??
-        (file.path == null ? null : await File(file.path!).readAsBytes());
-    if (bytes == null || bytes.isEmpty) {
-      return const ProductFileImportResult(
-        imported: 0,
-        failed: 1,
-        errors: ['تعذر قراءة الملف.'],
-      );
+    if (!supportedExtensions.contains(extension)) {
+      return _failure('صيغة الملف غير مدعومة. استخدم CSV أو XLSX.');
     }
 
-    final rows = extension == 'xlsx' ? _xlsxRows(bytes) : _csvRows(bytes);
+    List<int>? bytes = file.bytes;
+    try {
+      bytes ??= file.path == null ? null : await File(file.path!).readAsBytes();
+    } catch (_) {
+      return _failure('تعذر قراءة الملف. تحقق من صلاحية الوصول إليه.');
+    }
+    if (bytes == null || bytes.isEmpty) {
+      return _failure('تعذر قراءة الملف.');
+    }
+
+    late final List<List<String>> rows;
+    try {
+      rows = extension == 'xlsx' ? _xlsxRows(bytes) : _csvRows(bytes);
+    } catch (_) {
+      return _failure('الملف تالف أو لا يطابق صيغة $extension.');
+    }
     if (rows.isEmpty) {
       return const ProductFileImportResult(
         imported: 0,
@@ -54,7 +73,10 @@ class ProductFileImporter {
       );
     }
 
-    final headers = rows.first.map((e) => e.trim()).toList();
+    final headers = rows.first.indexed.map((entry) {
+      final header = entry.$2.trim();
+      return entry.$1 == 0 ? header.replaceFirst('\uFEFF', '') : header;
+    }).toList();
     final missing = requiredHeaders
         .where((header) => !headers.contains(header))
         .toList();
@@ -78,8 +100,9 @@ class ProductFileImporter {
       if (values.every((value) => value.trim().isEmpty)) continue;
       final row = <String, String>{};
       for (var column = 0; column < headers.length; column++) {
-        row[headers[column]] =
-            column < values.length ? values[column].trim() : '';
+        row[headers[column]] = column < values.length
+            ? values[column].trim()
+            : '';
       }
 
       final categoryId = int.tryParse(row['categoryId'] ?? '');
@@ -91,9 +114,7 @@ class ProductFileImporter {
           price == null ||
           price < 0) {
         failed++;
-        errors.add(
-          'السطر ${index + 1}: categoryId أو name أو price غير صالح.',
-        );
+        errors.add('السطر ${index + 1}: categoryId أو name أو price غير صالح.');
         continue;
       }
 
@@ -109,13 +130,10 @@ class ProductFileImporter {
         ),
       );
 
-      result.fold(
-        (failure) {
-          failed++;
-          errors.add('السطر ${index + 1} ($name): ${failure.message}');
-        },
-        (_) => imported++,
-      );
+      result.fold((failure) {
+        failed++;
+        errors.add('السطر ${index + 1} ($name): ${failure.message}');
+      }, (_) => imported++);
     }
 
     return ProductFileImportResult(
@@ -127,12 +145,9 @@ class ProductFileImporter {
 
   static List<List<String>> _csvRows(List<int> bytes) {
     final text = utf8.decode(bytes, allowMalformed: true);
-    final decoded = const CsvToListConverter().convert(text);
-    return decoded
-        .map(
-          (row) => row.map((value) => value?.toString() ?? '').toList(),
-        )
-        .toList();
+    return const CsvToListConverter(
+      shouldParseNumbers: false,
+    ).convert<String>(text);
   }
 
   static List<List<String>> _xlsxRows(List<int> bytes) {
@@ -140,9 +155,7 @@ class ProductFileImporter {
     if (workbook.tables.isEmpty) return const [];
     final sheet = workbook.tables.values.first;
     return sheet.rows
-        .map(
-          (row) => row.map((cell) => cell?.value?.toString() ?? '').toList(),
-        )
+        .map((row) => row.map((cell) => cell?.value?.toString() ?? '').toList())
         .toList();
   }
 }
