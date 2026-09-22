@@ -14,14 +14,14 @@ class ProductTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
     this.validator,
-    this.required = true,
+    this.required,
   });
 
   final String title;
   final String? hintText;
   final int maxLines;
   final bool readOnly;
-  final bool required;
+  final bool? required;
   final TextEditingController? controller;
   final TextInputType keyboardType;
   final Widget? suffixIcon;
@@ -29,15 +29,26 @@ class ProductTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedValidator = validator ??
-        (required && controller != null
+    // Fields without a custom validator stay required by default. A field that
+    // supplies its own validator is optional unless it explicitly sets
+    // required: true. This lets optional numeric fields validate only when a
+    // value is actually entered.
+    final isRequired = required ?? validator == null;
+    final resolvedValidator = validator == null
+        ? (isRequired && controller != null
             ? (String? value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'هذا الحقل مطلوب';
                 }
                 return null;
               }
-            : null);
+            : null)
+        : (String? value) {
+            if (!isRequired && (value == null || value.trim().isEmpty)) {
+              return null;
+            }
+            return validator!(value);
+          };
     const errorBorder = OutlineInputBorder(
       borderRadius: ProductsStyleTokens.fieldRadius,
       borderSide: BorderSide(color: Color(0xFFEF4444)),

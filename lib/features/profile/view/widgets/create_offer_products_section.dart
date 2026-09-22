@@ -1,8 +1,8 @@
 import 'dart:async';
+
 import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:toastification/toastification.dart';
 
 import '../../../products/domain/usecases/fetch_products_use_case.dart';
 import '../manager/bloc/profile_bloc.dart';
@@ -12,7 +12,8 @@ class CreateOfferProductsSection extends StatefulWidget {
   const CreateOfferProductsSection({super.key});
 
   @override
-  State<CreateOfferProductsSection> createState() => _CreateOfferProductsSectionState();
+  State<CreateOfferProductsSection> createState() =>
+      _CreateOfferProductsSectionState();
 }
 
 class _CreateOfferProductsSectionState extends State<CreateOfferProductsSection> {
@@ -66,47 +67,10 @@ class _CreateOfferProductsSectionState extends State<CreateOfferProductsSection>
       children: [
         _buildSearchField(),
         const SizedBox(height: 12),
-        InkWell(
-          onTap: () {
-            AppToast.showToast(
-              context: context,
-              message: 'قريباً',
-              type: ToastificationType.info,
-            );
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: 12,
-              vertical: 14,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.layers_outlined,
-                  color: Color(0xFF374151),
-                  size: 18,
-                ),
-                const SizedBox(width: 8),
-                AppText.bodyMedium(
-                  'اختيار تصنيف كامل',
-                  color: const Color(0xFF374151),
-                  fontWeight: FontWeight.w700,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
         BlocBuilder<ProfileBloc, ProfileState>(
           builder: (context, state) {
             final products = state.products;
-            
+
             if (products == null || products.isLoading) {
               return Container(
                 width: double.infinity,
@@ -132,7 +96,9 @@ class _CreateOfferProductsSectionState extends State<CreateOfferProductsSection>
                   color: const Color(0xFFF9FAFB),
                 ),
                 child: AppText.labelLarge(
-                  products.errorMessage.isNotEmpty ? products.errorMessage : 'حدث خطأ',
+                  products.errorMessage.isNotEmpty
+                      ? products.errorMessage
+                      : 'حدث خطأ',
                   textAlign: TextAlign.center,
                   color: const Color(0xFF6B7280),
                 ),
@@ -159,7 +125,9 @@ class _CreateOfferProductsSectionState extends State<CreateOfferProductsSection>
             return Column(
               children: [
                 ...products.list.map((product) {
-                  final isSelected = state.selectedProducts.any((p) => p.id == product.id);
+                  final isSelected = state.selectedProducts.any(
+                    (p) => p.id == product.id,
+                  );
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: CreateOfferProductTile(
@@ -169,14 +137,18 @@ class _CreateOfferProductsSectionState extends State<CreateOfferProductsSection>
                       isSelected: isSelected,
                       onChanged: (value) {
                         if (value) {
-                          context.read<ProfileBloc>().add(SelectProductEvent(product: product));
-                        } else {
-                          context.read<ProfileBloc>().add(DeselectProductEvent(productId: product.id!));
+                          context.read<ProfileBloc>().add(
+                            SelectProductEvent(product: product),
+                          );
+                        } else if (product.id != null) {
+                          context.read<ProfileBloc>().add(
+                            DeselectProductEvent(productId: product.id!),
+                          );
                         }
                       },
                     ),
                   );
-                }).toList(),
+                }),
               ],
             );
           },
