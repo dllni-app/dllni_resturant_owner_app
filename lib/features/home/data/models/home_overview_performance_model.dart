@@ -25,76 +25,51 @@ double? _asDouble(dynamic value) {
   return null;
 }
 
-num? _asNum(dynamic value) {
-  if (value == null) return null;
-  if (value is num) return value;
-  if (value is String) return num.tryParse(value);
-  return null;
-}
+HomeOverviewPerformanceModel homeOverviewPerformanceModelFromJson(str) =>
+    HomeOverviewPerformanceModel.fromJson(str);
 
-bool? _asBool(dynamic value) {
-  if (value == null) return null;
-  if (value is bool) return value;
-  if (value is num) {
-    if (value == 1) return true;
-    if (value == 0) return false;
-  }
-  if (value is String) {
-    final normalized = value.trim().toLowerCase();
-    if (normalized == 'true' || normalized == '1') return true;
-    if (normalized == 'false' || normalized == '0') return false;
-  }
-  return null;
-}
+String homeOverviewPerformanceModelToJson(HomeOverviewPerformanceModel data) =>
+    json.encode(data.toJson());
 
-List<dynamic>? _asDynamicList(dynamic value) {
-  if (value is! List) return null;
-  return value.map(_asDynamic).toList();
-}
-
-dynamic _asDynamic(dynamic value) {
-  if (value == null) return null;
-  if (value is List) {
-    return value.map(_asDynamic).toList();
-  }
-  if (value is Map) {
-    final map = <String, dynamic>{};
-    value.forEach((key, nestedValue) {
-      map['$key'] = _asDynamic(nestedValue);
-    });
-    return map;
-  }
-  if (value is String || value is num || value is bool) {
-    return value;
-  }
-  return value.toString();
-}
-
-HomeOverviewPerformanceModel homeOverviewPerformanceModelFromJson(str) => HomeOverviewPerformanceModel.fromJson(str);
-
-String homeOverviewPerformanceModelToJson(HomeOverviewPerformanceModel data) => json.encode(data.toJson());
-
-HomeOverviewPerformanceModelOffersImpact homeOverviewPerformanceModelOffersImpactFromJson(str) =>
+HomeOverviewPerformanceModelOffersImpact
+homeOverviewPerformanceModelOffersImpactFromJson(str) =>
     HomeOverviewPerformanceModelOffersImpact.fromJson(str);
 
-String homeOverviewPerformanceModelOffersImpactToJson(HomeOverviewPerformanceModelOffersImpact data) => json.encode(data.toJson());
+String homeOverviewPerformanceModelOffersImpactToJson(
+  HomeOverviewPerformanceModelOffersImpact data,
+) => json.encode(data.toJson());
 
-HomeOverviewPerformanceModelFulfillment homeOverviewPerformanceModelFulfillmentFromJson(str) => HomeOverviewPerformanceModelFulfillment.fromJson(str);
+HomeOverviewPerformanceModelFulfillment
+homeOverviewPerformanceModelFulfillmentFromJson(str) =>
+    HomeOverviewPerformanceModelFulfillment.fromJson(str);
 
-String homeOverviewPerformanceModelFulfillmentToJson(HomeOverviewPerformanceModelFulfillment data) => json.encode(data.toJson());
+String homeOverviewPerformanceModelFulfillmentToJson(
+  HomeOverviewPerformanceModelFulfillment data,
+) => json.encode(data.toJson());
 
-HomeOverviewPerformanceModelTopProductsItem homeOverviewPerformanceModelTopProductsItemFromJson(str) =>
+HomeOverviewPerformanceModelTopProductsItem
+homeOverviewPerformanceModelTopProductsItemFromJson(str) =>
     HomeOverviewPerformanceModelTopProductsItem.fromJson(str);
 
-String homeOverviewPerformanceModelTopProductsItemToJson(HomeOverviewPerformanceModelTopProductsItem data) => json.encode(data.toJson());
+String homeOverviewPerformanceModelTopProductsItemToJson(
+  HomeOverviewPerformanceModelTopProductsItem data,
+) => json.encode(data.toJson());
 
-HomeOverviewPerformanceModelSummary homeOverviewPerformanceModelSummaryFromJson(str) => HomeOverviewPerformanceModelSummary.fromJson(str);
+HomeOverviewPerformanceModelSummary homeOverviewPerformanceModelSummaryFromJson(
+  str,
+) => HomeOverviewPerformanceModelSummary.fromJson(str);
 
-String homeOverviewPerformanceModelSummaryToJson(HomeOverviewPerformanceModelSummary data) => json.encode(data.toJson());
+String homeOverviewPerformanceModelSummaryToJson(
+  HomeOverviewPerformanceModelSummary data,
+) => json.encode(data.toJson());
 
-HomeOverviewPerformanceModelRange homeOverviewPerformanceModelRangeFromJson(str) => HomeOverviewPerformanceModelRange.fromJson(str);
+HomeOverviewPerformanceModelRange homeOverviewPerformanceModelRangeFromJson(
+  str,
+) => HomeOverviewPerformanceModelRange.fromJson(str);
 
-String homeOverviewPerformanceModelRangeToJson(HomeOverviewPerformanceModelRange data) => json.encode(data.toJson());
+String homeOverviewPerformanceModelRangeToJson(
+  HomeOverviewPerformanceModelRange data,
+) => json.encode(data.toJson());
 
 class HomeOverviewPerformanceModel {
   HomeOverviewPerformanceModelRange? range;
@@ -104,26 +79,52 @@ class HomeOverviewPerformanceModel {
   HomeOverviewPerformanceModelOffersImpact? offersImpact;
   HomeOverviewModelBestOfferPerformance? bestOfferPerformance;
 
-  HomeOverviewPerformanceModel({this.range, this.summary, this.topProducts, this.fulfillment, this.offersImpact, this.bestOfferPerformance});
+  HomeOverviewPerformanceModel({
+    this.range,
+    this.summary,
+    this.topProducts,
+    this.fulfillment,
+    this.offersImpact,
+    this.bestOfferPerformance,
+  });
 
   factory HomeOverviewPerformanceModel.fromJson(Map<String, dynamic> json) {
     return HomeOverviewPerformanceModel(
-      range: json['range'] is Map ? HomeOverviewPerformanceModelRange.fromJson(Map<String, dynamic>.from(json['range'] as Map)) : null,
-      summary: json['summary'] is Map ? HomeOverviewPerformanceModelSummary.fromJson(Map<String, dynamic>.from(json['summary'] as Map)) : null,
+      range: json['range'] is Map
+          ? HomeOverviewPerformanceModelRange.fromJson(
+              Map<String, dynamic>.from(json['range'] as Map),
+            )
+          : null,
+      summary: json['summary'] is Map
+          ? HomeOverviewPerformanceModelSummary.fromJson(
+              Map<String, dynamic>.from(json['summary'] as Map),
+            )
+          : null,
       topProducts: json['topProducts'] is List
           ? (json['topProducts'] as List)
                 .whereType<Map>()
-                .map((item) => HomeOverviewPerformanceModelTopProductsItem.fromJson(Map<String, dynamic>.from(item)))
+                .map(
+                  (item) =>
+                      HomeOverviewPerformanceModelTopProductsItem.fromJson(
+                        Map<String, dynamic>.from(item),
+                      ),
+                )
                 .toList()
           : null,
       fulfillment: json['fulfillment'] is Map
-          ? HomeOverviewPerformanceModelFulfillment.fromJson(Map<String, dynamic>.from(json['fulfillment'] as Map))
+          ? HomeOverviewPerformanceModelFulfillment.fromJson(
+              Map<String, dynamic>.from(json['fulfillment'] as Map),
+            )
           : null,
       offersImpact: json['offersImpact'] is Map
-          ? HomeOverviewPerformanceModelOffersImpact.fromJson(Map<String, dynamic>.from(json['offersImpact'] as Map))
+          ? HomeOverviewPerformanceModelOffersImpact.fromJson(
+              Map<String, dynamic>.from(json['offersImpact'] as Map),
+            )
           : null,
       bestOfferPerformance: json['bestOfferPerformance'] is Map
-          ? HomeOverviewModelBestOfferPerformance.fromJson(Map<String, dynamic>.from(json['bestOfferPerformance'] as Map))
+          ? HomeOverviewModelBestOfferPerformance.fromJson(
+              Map<String, dynamic>.from(json['bestOfferPerformance'] as Map),
+            )
           : null,
     );
   }
@@ -146,9 +147,16 @@ class HomeOverviewPerformanceModelOffersImpact {
   int? discountedRevenue;
   int? totalSavings;
 
-  HomeOverviewPerformanceModelOffersImpact({this.discountedOrdersCount, this.conversionRatePercent, this.discountedRevenue, this.totalSavings});
+  HomeOverviewPerformanceModelOffersImpact({
+    this.discountedOrdersCount,
+    this.conversionRatePercent,
+    this.discountedRevenue,
+    this.totalSavings,
+  });
 
-  factory HomeOverviewPerformanceModelOffersImpact.fromJson(Map<String, dynamic> json) {
+  factory HomeOverviewPerformanceModelOffersImpact.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return HomeOverviewPerformanceModelOffersImpact(
       discountedOrdersCount: _asInt(json['discountedOrdersCount']),
       conversionRatePercent: _asInt(json['conversionRatePercent']),
@@ -180,7 +188,9 @@ class HomeOverviewPerformanceModelFulfillment {
     this.onTimePercent,
   });
 
-  factory HomeOverviewPerformanceModelFulfillment.fromJson(Map<String, dynamic> json) {
+  factory HomeOverviewPerformanceModelFulfillment.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return HomeOverviewPerformanceModelFulfillment(
       averagePrepTimeMinutes: _asInt(json['averagePrepTimeMinutes']),
       averageReadyToPickupMinutes: _asInt(json['averageReadyToPickupMinutes']),
@@ -205,9 +215,16 @@ class HomeOverviewPerformanceModelTopProductsItem {
   int? quantity;
   int? revenue;
 
-  HomeOverviewPerformanceModelTopProductsItem({this.productId, this.name, this.quantity, this.revenue});
+  HomeOverviewPerformanceModelTopProductsItem({
+    this.productId,
+    this.name,
+    this.quantity,
+    this.revenue,
+  });
 
-  factory HomeOverviewPerformanceModelTopProductsItem.fromJson(Map<String, dynamic> json) {
+  factory HomeOverviewPerformanceModelTopProductsItem.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return HomeOverviewPerformanceModelTopProductsItem(
       productId: _asInt(json['productId']),
       name: _asString(json['name']),
@@ -217,7 +234,12 @@ class HomeOverviewPerformanceModelTopProductsItem {
   }
 
   Map<String, dynamic> toJson() {
-    return {'productId': productId, 'name': name, 'quantity': quantity, 'revenue': revenue};
+    return {
+      'productId': productId,
+      'name': name,
+      'quantity': quantity,
+      'revenue': revenue,
+    };
   }
 }
 
@@ -231,6 +253,11 @@ class HomeOverviewPerformanceModelSummary {
   double? totalRevenue;
   double? averageOrderValue;
   int? cancellationRatePercent;
+  double? merchantGrossRevenue;
+  double? merchantNetRevenue;
+  double? platformCommission;
+  double? merchantCouponFunding;
+  int? unsnapshottedOrders;
 
   HomeOverviewPerformanceModelSummary({
     this.totalOrders,
@@ -242,9 +269,16 @@ class HomeOverviewPerformanceModelSummary {
     this.totalRevenue,
     this.averageOrderValue,
     this.cancellationRatePercent,
+    this.merchantGrossRevenue,
+    this.merchantNetRevenue,
+    this.platformCommission,
+    this.merchantCouponFunding,
+    this.unsnapshottedOrders,
   });
 
-  factory HomeOverviewPerformanceModelSummary.fromJson(Map<String, dynamic> json) {
+  factory HomeOverviewPerformanceModelSummary.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return HomeOverviewPerformanceModelSummary(
       totalOrders: _asInt(json['totalOrders']),
       newOrdersCount: _asInt(json['newOrdersCount']),
@@ -255,6 +289,11 @@ class HomeOverviewPerformanceModelSummary {
       totalRevenue: _asDouble(json['totalRevenue']),
       averageOrderValue: _asDouble(json['averageOrderValue']),
       cancellationRatePercent: _asInt(json['cancellationRatePercent']),
+      merchantGrossRevenue: _asDouble(json['merchantGrossRevenue']),
+      merchantNetRevenue: _asDouble(json['merchantNetRevenue']),
+      platformCommission: _asDouble(json['platformCommission']),
+      merchantCouponFunding: _asDouble(json['merchantCouponFunding']),
+      unsnapshottedOrders: _asInt(json['unsnapshottedOrders']),
     );
   }
 
@@ -269,6 +308,11 @@ class HomeOverviewPerformanceModelSummary {
       'totalRevenue': totalRevenue,
       'averageOrderValue': averageOrderValue,
       'cancellationRatePercent': cancellationRatePercent,
+      'merchantGrossRevenue': merchantGrossRevenue,
+      'merchantNetRevenue': merchantNetRevenue,
+      'platformCommission': platformCommission,
+      'merchantCouponFunding': merchantCouponFunding,
+      'unsnapshottedOrders': unsnapshottedOrders,
     };
   }
 }
@@ -280,8 +324,14 @@ class HomeOverviewPerformanceModelRange {
 
   HomeOverviewPerformanceModelRange({this.key, this.from, this.to});
 
-  factory HomeOverviewPerformanceModelRange.fromJson(Map<String, dynamic> json) {
-    return HomeOverviewPerformanceModelRange(key: _asString(json['key']), from: _asString(json['from']), to: _asString(json['to']));
+  factory HomeOverviewPerformanceModelRange.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return HomeOverviewPerformanceModelRange(
+      key: _asString(json['key']),
+      from: _asString(json['from']),
+      to: _asString(json['to']),
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -308,7 +358,9 @@ class HomeOverviewModelBestOfferPerformance {
     this.totalSavings,
   });
 
-  factory HomeOverviewModelBestOfferPerformance.fromJson(Map<String, dynamic> json) {
+  factory HomeOverviewModelBestOfferPerformance.fromJson(
+    Map<String, dynamic> json,
+  ) {
     return HomeOverviewModelBestOfferPerformance(
       promoCodeId: _asInt(json['promoCodeId']),
       code: _asString(json['code']),

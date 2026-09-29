@@ -1,4 +1,4 @@
-﻿import 'package:common_package/common_package.dart';
+import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/generated/assets.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
@@ -6,7 +6,12 @@ import 'package:shimmer/shimmer.dart';
 import '../../data/models/home_overview_performance_model.dart';
 
 class PerformanceKpiCards extends StatelessWidget {
-  const PerformanceKpiCards({super.key, required this.status, required this.summary, required this.errorMessage});
+  const PerformanceKpiCards({
+    super.key,
+    required this.status,
+    required this.summary,
+    required this.errorMessage,
+  });
 
   final BlocStatus? status;
   final HomeOverviewPerformanceModelSummary? summary;
@@ -15,7 +20,11 @@ class PerformanceKpiCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget buildValue(String text) {
-      return AppText.headlineLarge(text, fontWeight: FontWeight.bold, color: const Color(0xff111827));
+      return AppText.headlineLarge(
+        text,
+        fontWeight: FontWeight.bold,
+        color: const Color(0xff111827),
+      );
     }
 
     Widget buildLoading() {
@@ -27,7 +36,10 @@ class PerformanceKpiCards extends StatelessWidget {
     }
 
     Widget buildError() {
-      return AppText.labelMedium(errorMessage ?? 'حدث خطأ ما', color: context.error);
+      return AppText.labelMedium(
+        errorMessage ?? 'حدث خطأ ما',
+        color: context.error,
+      );
     }
 
     Widget valueOrState(String value) {
@@ -45,11 +57,36 @@ class PerformanceKpiCards extends StatelessWidget {
 
     final cards = [
       _KpiCardConfig(
-        title: 'إجمالي المبيعات',
+        title: 'صافي مستحق المطعم',
         icon: Assets.images.overviewMoney.path,
         backgroundColor: const Color(0xff064E3B).withAlpha(51),
         iconColor: const Color(0xff064E3B),
+        valueBuilder: () => valueOrState('${summary?.merchantNetRevenue ?? 0}'),
+        subtitle: 'ل.س',
+      ),
+      _KpiCardConfig(
+        title: 'إجمالي مبيعات العملاء',
+        icon: Assets.images.overviewMoney.path,
+        backgroundColor: const Color(0xff10B981).withAlpha(51),
+        iconColor: const Color(0xff10B981),
         valueBuilder: () => valueOrState('${summary?.totalRevenue ?? 0}'),
+        subtitle: 'ل.س',
+      ),
+      _KpiCardConfig(
+        title: 'عمولة المنصة',
+        icon: Icons.account_balance_outlined,
+        backgroundColor: const Color(0xff2563EB).withAlpha(51),
+        iconColor: const Color(0xff2563EB),
+        valueBuilder: () => valueOrState('${summary?.platformCommission ?? 0}'),
+        subtitle: 'ل.س',
+      ),
+      _KpiCardConfig(
+        title: 'تمويل كوبونات المطعم',
+        icon: Icons.local_offer_outlined,
+        backgroundColor: const Color(0xff7C3AED).withAlpha(51),
+        iconColor: const Color(0xff7C3AED),
+        valueBuilder: () =>
+            valueOrState('${summary?.merchantCouponFunding ?? 0}'),
         subtitle: 'ل.س',
       ),
       _KpiCardConfig(
@@ -64,15 +101,9 @@ class PerformanceKpiCards extends StatelessWidget {
         icon: Icons.close_rounded,
         backgroundColor: const Color(0xffEF4444).withAlpha(51),
         iconColor: const Color(0xffEF4444),
-        valueBuilder: () => valueOrState('${summary?.cancellationRatePercent?.toStringAsFixed(1) ?? '0.0'} %'),
-      ),
-      _KpiCardConfig(
-        title: 'متوسط قيمة الطلب',
-        icon: Assets.images.avgCancelation.path,
-        backgroundColor: const Color(0xff10B981).withAlpha(51),
-        iconColor: const Color(0xff10B981),
-        valueBuilder: () => valueOrState('${summary?.averageOrderValue ?? 0}'),
-        subtitle: 'ل.س',
+        valueBuilder: () => valueOrState(
+          '${summary?.cancellationRatePercent?.toStringAsFixed(1) ?? '0.0'} %',
+        ),
       ),
     ];
 
@@ -94,20 +125,37 @@ class PerformanceKpiCards extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: card.iconColor.withAlpha(51), width: 1),
           ),
-          padding: const EdgeInsetsDirectional.symmetric(horizontal: 12, vertical: 12),
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    decoration: BoxDecoration(color: card.backgroundColor, borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(
+                      color: card.backgroundColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     padding: const EdgeInsetsDirectional.all(8),
-                    child: card.icon is String ? AppImage.asset(card.icon, color: card.iconColor, size: 18) : Icon(card.icon, color: card.iconColor, size: 18),
+                    child: card.icon is String
+                        ? AppImage.asset(
+                            card.icon,
+                            color: card.iconColor,
+                            size: 18,
+                          )
+                        : Icon(card.icon, color: card.iconColor, size: 18),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: AppText.labelMedium(card.title, fontWeight: FontWeight.w500, color: const Color(0xff4B5563), textAlign: TextAlign.start,),
+                    child: AppText.labelMedium(
+                      card.title,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xff4B5563),
+                      textAlign: TextAlign.start,
+                    ),
                   ),
                 ],
               ),

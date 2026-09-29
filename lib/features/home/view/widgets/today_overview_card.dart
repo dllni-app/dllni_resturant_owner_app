@@ -1,4 +1,4 @@
-﻿import 'package:common_package/common_package.dart';
+import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -29,7 +29,11 @@ class TodayOverviewCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppText.labelLarge('إجمالي الايرادات', color: context.onPrimary, fontWeight: FontWeight.w400),
+                AppText.labelLarge(
+                  'صافي مستحق المطعم',
+                  color: context.onPrimary,
+                  fontWeight: FontWeight.w400,
+                ),
                 SizedBox(height: 14),
                 BlocBuilder<HomeBloc, HomeState>(
                   builder: (context, state) {
@@ -38,35 +42,54 @@ class TodayOverviewCard extends StatelessWidget {
                         return Shimmer.fromColors(
                           baseColor: context.onPrimary,
                           highlightColor: context.primary,
-                          child: Container(color: context.surface, height: 10, width: 100),
+                          child: Container(
+                            color: context.surface,
+                            height: 10,
+                            width: 100,
+                          ),
                         );
                       case BlocStatus.failed:
-                        return AppText.labelMedium(state.errorMessage!, color: context.error);
+                        return AppText.labelMedium(
+                          state.errorMessage!,
+                          color: context.error,
+                        );
                       case BlocStatus.success:
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
                             AppText.displaySmall(
-                              '${state.homeOverviewPerformance?.summary?.totalRevenue}',
+                              '${state.homeOverviewPerformance?.summary?.merchantNetRevenue ?? state.homeOverviewPerformance?.summary?.totalRevenue ?? 0}',
                               color: context.onPrimary,
                               fontWeight: FontWeight.bold,
                             ),
                             SizedBox(width: 14),
-                            AppText.bodyMedium('ل.س', color: Color(0xffFACC15), fontWeight: FontWeight.w500),
+                            AppText.bodyMedium(
+                              'ل.س',
+                              color: Color(0xffFACC15),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ],
                         );
                       case BlocStatus.loading:
                         return Shimmer.fromColors(
                           baseColor: context.onPrimary,
                           highlightColor: context.primary,
-                          child: Container(color: context.surface, height: 10, width: 100),
+                          child: Container(
+                            color: context.surface,
+                            height: 10,
+                            width: 100,
+                          ),
                         );
                       case BlocStatus.init:
                         return Shimmer.fromColors(
                           baseColor: context.onPrimary,
                           highlightColor: context.primary,
-                          child: Container(color: context.surface, height: 10, width: 100),
+                          child: Container(
+                            color: context.surface,
+                            height: 10,
+                            width: 100,
+                          ),
                         );
                     }
                   },
@@ -75,13 +98,22 @@ class TodayOverviewCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      decoration: BoxDecoration(color: Color(0xff22C55E).withAlpha(51), borderRadius: BorderRadius.circular(16)),
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Color(0xff22C55E).withAlpha(51),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: EdgeInsetsDirectional.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       child: BlocBuilder<HomeBloc, HomeState>(
                         builder: (context, state) {
                           return Row(
                             children: [
-                              AppImage.asset(Assets.images.todayCardArrow.path, width: 13),
+                              AppImage.asset(
+                                Assets.images.todayCardArrow.path,
+                                width: 13,
+                              ),
                               SizedBox(width: 4),
                               AppText.labelSmall(
                                 '${state.homeOverview?.kpis?.salesChangePercent ?? 0}%',
@@ -94,7 +126,11 @@ class TodayOverviewCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 6),
-                    AppText.labelSmall('مقارنة بالأمس', color: Color(0xffFFEEFF), fontWeight: FontWeight.w400),
+                    AppText.labelSmall(
+                      'مقارنة بالأمس',
+                      color: Color(0xffFFEEFF),
+                      fontWeight: FontWeight.w400,
+                    ),
                   ],
                 ),
               ],
