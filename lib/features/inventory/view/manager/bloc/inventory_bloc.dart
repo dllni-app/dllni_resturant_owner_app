@@ -65,7 +65,11 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
   FutureOr<void> _fetchInventoryItems(FetchInventoryItemsEvent event, Emitter<InventoryState> emit) async {
     if (!state.inventoryItems!.isEndPage || event.isReload) {
       if (state.inventoryItems!.status == BlocStatus.loading && !event.isReload) return;
-      emit(state.copyWith(inventoryItems: state.inventoryItems!.setLoading(isReload: event.isReload)));
+      emit(state.copyWith(
+        inventoryItems: state.inventoryItems!.setLoading(isReload: event.isReload),
+        currentStatus: event.params.status,
+        setCurrentStatus: true,
+      ));
       final res = await fetchInventoryItemsUseCase(event.params);
       res.fold(
         (l) {
@@ -79,7 +83,12 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
         },
         (r) {
           if (isClosed) return;
-          emit(state.copyWith(inventoryItems: state.inventoryItems!.setSuccess(data: r.data!)));
+          emit(state.copyWith(
+            inventoryItems: state.inventoryItems!.setSuccess(
+              data: r.data ?? const [],
+              perPage: event.params.perPage,
+            ),
+          ));
         },
       );
     }
