@@ -1,0 +1,35 @@
+name: Restaurant Feature Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/feature-verification.yml'
+      - 'lib/**'
+      - 'common_package/lib/**'
+      - 'test/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze application
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
