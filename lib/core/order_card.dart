@@ -128,7 +128,7 @@ class _OrderCardState extends State<OrderCard> {
       );
     }
 
-    if (!hasRestaurantOrderStatusActions(widget.order.status)) {
+    if (!hasRestaurantOrderStatusActions(widget.order.status, orderType: widget.order.orderType)) {
       return const SizedBox.shrink();
     }
 
