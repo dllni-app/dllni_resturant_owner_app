@@ -44,20 +44,12 @@ class CreateCouponParams with Params {
     this.id,
   });
 
-  String _formatDate(DateTime value) {
-    final year = value.year.toString().padLeft(4, '0');
-    final month = value.month.toString().padLeft(2, '0');
-    final day = value.day.toString().padLeft(2, '0');
-    return '$year-$month-$day';
-  }
-
   @override
   BodyMap getBody() {
     if (isDelete) return {};
 
-    final now = DateTime.now();
-    final normalizedStartsAt = startsAt?.trim().isNotEmpty == true ? startsAt!.trim() : (isAddNew ? _formatDate(now) : null);
-    final normalizedEndsAt = endsAt?.trim().isNotEmpty == true ? endsAt!.trim() : (isAddNew ? _formatDate(now.add(const Duration(days: 365))) : null);
+    final normalizedStartsAt = startsAt?.trim().isNotEmpty == true ? startsAt!.trim() : null;
+    final normalizedEndsAt = endsAt?.trim().isNotEmpty == true ? endsAt!.trim() : null;
 
     return {
       'code': code,
