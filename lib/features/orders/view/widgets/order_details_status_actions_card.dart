@@ -17,7 +17,7 @@ class OrderDetailsStatusActionsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = order.status;
-    final canChangeStatus = hasRestaurantOrderStatusActions(status);
+    final canChangeStatus = hasRestaurantOrderStatusActions(status, orderType: order.orderType);
     final isTerminal = status == 'completed' || status == 'cancelled';
 
     if (status == 'pending') {
