@@ -114,7 +114,7 @@ class InventoryItemCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  /*SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -161,7 +161,7 @@ class InventoryItemCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),*/
+                  ),
                 ],
               ),
             ),
