@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:common_package/extensions/route_extensions.dart';
 import 'package:common_package/helpers/shared_preferences_helper.dart';
@@ -63,6 +61,7 @@ class NotificationHelper {
   static NotificationTapCallback? _onBackgroundTap;
   static NotificationTapCallback? _onForegroundTap;
   static NotificationRouteArgumentsBuilder? _routeArgumentsBuilder;
+  static String? _tokenKey;
 
   static String? _lastTapFingerprint;
   static DateTime? _lastTapAt;
@@ -81,6 +80,7 @@ class NotificationHelper {
     _onBackgroundTap = onBackgroundTap;
     _onForegroundTap = onForegroundTap;
     _routeArgumentsBuilder = routeArgumentsBuilder;
+    _tokenKey = tokenKey;
 
     await _initFirebase(tokenKey);
     await _initAwesomeNotifications();
@@ -97,7 +97,7 @@ class NotificationHelper {
   }
 
   static Future<void> getToken(String tokenKey) async {
-    final token = Platform.isIOS ? await FirebaseMessaging.instance.getAPNSToken() : await FirebaseMessaging.instance.getToken();
+    final token = await FirebaseMessaging.instance.getToken();
     if (token != null) {
       await SharedPreferencesHelper.saveData(key: tokenKey, value: token);
       log('FCM Token: $token');
@@ -131,6 +131,13 @@ class NotificationHelper {
 
   static void _registerListeners() {
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
+
+    FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+      final tokenKey = _tokenKey;
+      if (tokenKey == null || token.trim().isEmpty) return;
+      await SharedPreferencesHelper.saveData(key: tokenKey, value: token);
+      log('FCM Token refreshed');
+    });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) async {
       log('Background notification tapped: ${message.data}');
