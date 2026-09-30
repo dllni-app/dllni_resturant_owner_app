@@ -104,7 +104,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       },
       (r) {
         if (isClosed) return;
-        add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(), isReload: true));
+        add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(status: state.currentStatus), isReload: true));
         emit(state.copyWith(createInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },
     );
@@ -120,7 +120,8 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       },
       (r) {
         if (isClosed) return;
-        add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(), isReload: true));
+        add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(status: state.currentStatus), isReload: true));
+        add(FetchInventorySummaryEvent(params: FetchInventorySummaryParams()));
         emit(state.copyWith(updateInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },
     );
@@ -140,7 +141,8 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       (r) {
         Loading.close();
         if (isClosed) return;
-        add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(), isReload: true));
+        add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(status: state.currentStatus), isReload: true));
+        add(FetchInventorySummaryEvent(params: FetchInventorySummaryParams()));
         emit(state.copyWith(deleteInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },
     );
