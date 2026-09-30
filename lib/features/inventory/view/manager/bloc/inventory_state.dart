@@ -8,6 +8,7 @@ class InventoryState {
   BlocStatus? updateInventoryItemStatus;
   BlocStatus? deleteInventoryItemStatus;
   CreateInventoryItemModel? createInventoryItemModel;
+  String? currentStatus;
   String? errorMessage;
 
   InventoryState({
@@ -18,6 +19,7 @@ class InventoryState {
     this.updateInventoryItemStatus,
     this.deleteInventoryItemStatus,
     this.createInventoryItemModel,
+    this.currentStatus,
     this.inventoryItems = const PaginationStateModel(perPage: 10),
   });
 
@@ -29,6 +31,8 @@ class InventoryState {
     BlocStatus? updateInventoryItemStatus,
     BlocStatus? deleteInventoryItemStatus,
     CreateInventoryItemModel? createInventoryItemModel,
+    String? currentStatus,
+    bool setCurrentStatus = false,
     PaginationStateModel<FetchInventoryItemsModelDataItem>? inventoryItems,
   }) => InventoryState(
     errorMessage: errorMessage ?? this.errorMessage,
@@ -38,6 +42,7 @@ class InventoryState {
     updateInventoryItemStatus: updateInventoryItemStatus ?? this.updateInventoryItemStatus,
     deleteInventoryItemStatus: deleteInventoryItemStatus ?? this.deleteInventoryItemStatus,
     createInventoryItemModel: createInventoryItemModel ?? this.createInventoryItemModel,
+    currentStatus: setCurrentStatus ? currentStatus : this.currentStatus,
     inventoryItems: inventoryItems ?? this.inventoryItems,
   );
 }
