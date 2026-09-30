@@ -63,7 +63,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  Future<void> _changeAvailability(BuildContext context, bool value) async {
+  Future<void> _changeAvailability(bool value) async {
     final productId = widget.product.id;
     if (productId == null || _availabilityUpdating || value == enabled) return;
 
@@ -80,7 +80,7 @@ class _ProductCardState extends State<ProductCard> {
       );
 
       if (!mounted) return;
-      context.read<ProductsBloc>().add(
+      this.context.read<ProductsBloc>().add(
         FetchProductsEvent(
           params: widget.refreshParams,
           isReload: true,
@@ -89,7 +89,7 @@ class _ProductCardState extends State<ProductCard> {
     } catch (_) {
       if (!mounted) return;
       setState(() => enabled = previousValue);
-      ScaffoldMessenger.of(context).showSnackBar(
+      ScaffoldMessenger.of(this.context).showSnackBar(
         const SnackBar(content: Text('تعذر تحديث توفر المنتج')),
       );
     } finally {
@@ -265,7 +265,7 @@ class _ProductCardState extends State<ProductCard> {
                           value: enabled,
                           onChanged: _availabilityUpdating
                               ? (_) {}
-                              : (value) => _changeAvailability(context, value),
+                              : _changeAvailability,
                         ),
                       ],
                     ),
