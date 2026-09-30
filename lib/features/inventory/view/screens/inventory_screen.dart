@@ -3,6 +3,7 @@ import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/features/inventory/domain/usecases/fetch_inventory_items_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/inventory/domain/usecases/fetch_inventory_summary_use_case.dart';
 import 'package:dllni_resturant_owner_app/features/inventory/domain/usecases/delete_inventory_item_use_case.dart';
+import 'package:dllni_resturant_owner_app/features/inventory/domain/usecases/update_inventory_item_use_case.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -92,6 +93,70 @@ class InventoryScreen extends StatelessWidget {
                             return SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator.adaptive()));
                           }
                           final item = state.inventoryItems!.list[index];
+
+                          void updateQuantity(double quantity) {
+                            final id = item.id;
+                            if (id == null) return;
+
+                            final productQuantities = <int, double>{
+                              for (final product in item.products ?? const [])
+                                if (product.id != null)
+                                  product.id!: product.quantityUsed ?? 1,
+                            };
+
+                            context.read<InventoryBloc>().add(
+                              UpdateInventoryItemEvent(
+                                params: UpdateInventoryItemParams(
+                                  id: id,
+                                  name: item.name ?? '',
+                                  unit: item.unit ?? '',
+                                  quantity: quantity < 0 ? 0 : quantity,
+                                  minimumLimit: item.minimumLimit ?? 0,
+                                  unitCost: item.unitCost ?? 0,
+                                  productQuantities: productQuantities,
+                                ),
+                              ),
+                            );
+                          }
+
+                          Future<void> adjustQuantity() async {
+                            final controller = TextEditingController(
+                              text: '${item.quantity ?? 0}',
+                            );
+                            final value = await showDialog<double>(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                title: const Text('تعديل الكمية'),
+                                content: TextField(
+                                  controller: controller,
+                                  autofocus: true,
+                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                  decoration: InputDecoration(
+                                    labelText: 'الكمية الحالية (${item.unit ?? ''})',
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(dialogContext).pop(),
+                                    child: const Text('إلغاء'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      final parsed = double.tryParse(controller.text.trim());
+                                      if (parsed == null || parsed < 0) return;
+                                      Navigator.of(dialogContext).pop(parsed);
+                                    },
+                                    child: const Text('حفظ'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            controller.dispose();
+                            if (value != null && context.mounted) {
+                              updateQuantity(value);
+                            }
+                          }
+
                           return InventoryItemCard(
                             isLow: item.quantity! <= item.minimumLimit!,
                             productName: item.name!,
@@ -100,9 +165,9 @@ class InventoryScreen extends StatelessWidget {
                             statusText: item.quantity! <= item.minimumLimit! ? 'منخفض' : 'طبيعي',
                             lastUpdated: DateFormat('MM/dd - HH:mm a', 'en').format(DateTime.parse(item.updatedAt!)),
                             cardColor: item.quantity! <= item.minimumLimit! ? context.error : Color(0xff24B364),
-                            onIncrement: () {},
-                            onDecrement: () {},
-                            onAdjustQuantity: () {},
+                            onIncrement: () => updateQuantity((item.quantity ?? 0) + 1),
+                            onDecrement: () => updateQuantity((item.quantity ?? 0) - 1),
+                            onAdjustQuantity: adjustQuantity,
                             onUpdate: () {
                               context.pushRoute(
                                 '/inventory/new',
