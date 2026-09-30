@@ -47,15 +47,15 @@ class FetchProductsParams with Params {
     }
 
     if (isAvailable != null) {
-      params['filter[isAvailable]'] = isAvailable! ? 1 : null;
+      params['filter[isAvailable]'] = isAvailable;
     }
 
     if (lowStock != null) {
-      params['filter[lowStock]'] = lowStock! ? 1 : null;
+      params['filter[lowStock]'] = lowStock;
     }
 
     if (hasDiscount != null) {
-      params['filter[hasDiscount]'] = hasDiscount! ? 1 : null;
+      params['filter[hasDiscount]'] = hasDiscount;
     }
 
     return params..removeWhere((key, value) => value == null);
