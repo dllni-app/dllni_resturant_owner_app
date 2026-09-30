@@ -79,8 +79,15 @@ class InventoryScreen extends StatelessWidget {
                         padding: EdgeInsetsDirectional.only(start: 24, end: 24, bottom: 10),
                         itemBuilder: (context, index) {
                           if (state.inventoryItems!.list.length == index) {
-                            if (state.inventoryItems!.list.length <= index) {
-                              context.read<InventoryBloc>().add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams()));
+                            if (!state.inventoryItems!.isEndPage && state.inventoryItems!.status != BlocStatus.loading) {
+                              context.read<InventoryBloc>().add(
+                                FetchInventoryItemsEvent(
+                                  params: FetchInventoryItemsParams(
+                                    page: state.inventoryItems!.pageNumber,
+                                    status: state.currentStatus,
+                                  ),
+                                ),
+                              );
                             }
                             return SizedBox(width: 20, height: 20, child: FittedBox(child: CircularProgressIndicator.adaptive()));
                           }
