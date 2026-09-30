@@ -43,8 +43,9 @@ String restaurantOrderStatusLabel(String? status) {
 }
 
 List<RestaurantOrderStatusAction> restaurantOrderNextStatusActions(
-  String? status,
-) {
+  String? status, {
+  String? orderType,
+}) {
   return switch (status) {
     'accepted' => const [
         RestaurantOrderStatusAction(
@@ -76,19 +77,33 @@ List<RestaurantOrderStatusAction> restaurantOrderNextStatusActions(
           isDanger: true,
         ),
       ],
-    'ready_for_pickup' || 'picked_up' => const [],
+    'ready_for_pickup' => orderType == 'delivery'
+        ? const []
+        : const [
+            RestaurantOrderStatusAction(
+              status: 'completed',
+              label: 'إكمال الطلب',
+              description: 'تأكيد استلام العميل للطلب وإغلاق الطلب.',
+              icon: Icons.task_alt,
+            ),
+          ],
+    'picked_up' => const [],
     _ => const [],
   };
 }
 
-bool hasRestaurantOrderStatusActions(String? status) =>
-    restaurantOrderNextStatusActions(status).isNotEmpty;
+bool hasRestaurantOrderStatusActions(
+  String? status, {
+  String? orderType,
+}) =>
+    restaurantOrderNextStatusActions(status, orderType: orderType).isNotEmpty;
 
 class OrderStatusActionBottomSheet extends StatefulWidget {
   final int orderId;
   final String? orderNumber;
   final String? status;
   final String? statusLabelAr;
+  final String? orderType;
   final int? estimatedPreparationMinutes;
   final OrdersBloc bloc;
 
@@ -98,6 +113,7 @@ class OrderStatusActionBottomSheet extends StatefulWidget {
     this.orderNumber,
     this.status,
     this.statusLabelAr,
+    this.orderType,
     this.estimatedPreparationMinutes,
   });
 
@@ -110,6 +126,7 @@ class OrderStatusActionBottomSheet extends StatefulWidget {
       orderNumber: order.orderNumber,
       status: order.status,
       statusLabelAr: order.statusLabelAr,
+      orderType: order.orderType,
       estimatedPreparationMinutes: order.estimatedPreparationMinutes,
       bloc: bloc,
     );
@@ -124,6 +141,7 @@ class OrderStatusActionBottomSheet extends StatefulWidget {
       orderNumber: order.orderNumber,
       status: order.status,
       statusLabelAr: order.statusLabelAr,
+      orderType: order.orderType,
       estimatedPreparationMinutes: order.estimatedPreparationMinutes,
       bloc: bloc,
     );
@@ -159,7 +177,10 @@ class _OrderStatusActionBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final actions = restaurantOrderNextStatusActions(widget.status);
+    final actions = restaurantOrderNextStatusActions(
+      widget.status,
+      orderType: widget.orderType,
+    );
     final currentLabel =
         widget.statusLabelAr ?? restaurantOrderStatusLabel(widget.status);
     final hasCancelAction =
