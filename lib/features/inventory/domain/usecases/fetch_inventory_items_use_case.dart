@@ -18,9 +18,19 @@ class FetchInventoryItemsUseCase implements UseCase<FetchInventoryItemsModel, Fe
 
 class FetchInventoryItemsParams with Params {
   final String? status;
+  final int page;
+  final int perPage;
 
-  FetchInventoryItemsParams({this.status});
+  FetchInventoryItemsParams({
+    this.status,
+    this.page = 1,
+    this.perPage = 10,
+  });
 
   @override
-  QueryParams getParams() => {'filter[status]': status}..removeWhere((key, value) => value == null);
+  QueryParams getParams() => {
+        'filter[status]': status,
+        'page': page,
+        'perPage': perPage,
+      }..removeWhere((key, value) => value == null);
 }
