@@ -2,7 +2,9 @@ import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/di/injection.dart';
 import '../../data/models/fetch_products_model.dart';
+import '../../data/source/products_remote_data_source.dart';
 import '../../domain/usecases/delete_product_use_case.dart';
 import '../../domain/usecases/fetch_products_use_case.dart';
 import '../manager/bloc/products_bloc.dart';
@@ -28,6 +30,7 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
   late bool enabled;
+  bool _availabilityUpdating = false;
 
   @override
   void initState() {
@@ -58,6 +61,40 @@ class _ProductCardState extends State<ProductCard> {
         isReload: true,
       ),
     );
+  }
+
+  Future<void> _changeAvailability(BuildContext context, bool value) async {
+    final productId = widget.product.id;
+    if (productId == null || _availabilityUpdating || value == enabled) return;
+
+    final previousValue = enabled;
+    setState(() {
+      enabled = value;
+      _availabilityUpdating = true;
+    });
+
+    try {
+      await getIt<ProductsRemoteDataSource>().updateProductAvailability(
+        id: productId,
+        isAvailable: value,
+      );
+
+      if (!mounted) return;
+      context.read<ProductsBloc>().add(
+        FetchProductsEvent(
+          params: widget.refreshParams,
+          isReload: true,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => enabled = previousValue);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر تحديث توفر المنتج')),
+      );
+    } finally {
+      if (mounted) setState(() => _availabilityUpdating = false);
+    }
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
@@ -226,9 +263,9 @@ class _ProductCardState extends State<ProductCard> {
                         const Spacer(),
                         AppSwitch(
                           value: enabled,
-                          onChanged: (value) {
-                            setState(() => enabled = value);
-                          },
+                          onChanged: _availabilityUpdating
+                              ? (_) {}
+                              : (value) => _changeAvailability(context, value),
                         ),
                       ],
                     ),
