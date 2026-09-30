@@ -156,6 +156,18 @@ class ProductsRemoteDataSource with HandlingApiManager {
     );
   }
 
+  Future<void> updateProductAvailability({
+    required int id,
+    required bool isAvailable,
+  }) async {
+    await dioNetwork.patchData(
+      endPoint: '/api/v1/restaurant-owner/products/$id/availability',
+      data: {
+        'mode': isAvailable ? 'available' : 'manual_unavailable',
+      },
+    );
+  }
+
   Future<Response> _withProductEndpointFallback(
     Future<Response> Function(String endpoint) request,
   ) async {
