@@ -21,8 +21,8 @@ class UpdateInventoryItemParams with Params {
   final int id;
   final String name;
   final String unit;
-  final int quantity;
-  final int minimumLimit;
+  final double quantity;
+  final double minimumLimit;
   final double unitCost;
   final Map<int, double> productQuantities;
 
