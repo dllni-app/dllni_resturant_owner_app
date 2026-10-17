@@ -1,5 +1,6 @@
 import 'package:common_package/annotations/auto_route_page.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/widgets/exit_confirmation_dialog.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/di/injection.dart';
@@ -152,41 +153,18 @@ class _MainScreenState extends State<MainScreen>
   Future<void> _handleBackPressed() async {
     if (controller.index != 0) {
       controller.animateTo(0);
-      if (mounted) {
-        setState(() {});
-      }
       return;
     }
 
     if (_isExitDialogVisible) return;
     _isExitDialogVisible = true;
-
-    final shouldExit = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: const Text('الخروج من التطبيق'),
-            content: const Text('هل أنت متأكد من أنك تريد الخروج من التطبيق؟'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('إلغاء'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text(
-                  'خروج',
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    _isExitDialogVisible = false;
-
-    if (shouldExit && mounted) {
-      await SystemNavigator.pop();
+    try {
+      final shouldExit = await showExitConfirmationDialog(context);
+      if (shouldExit && mounted) {
+        await SystemNavigator.pop();
+      }
+    } finally {
+      _isExitDialogVisible = false;
     }
   }
 
