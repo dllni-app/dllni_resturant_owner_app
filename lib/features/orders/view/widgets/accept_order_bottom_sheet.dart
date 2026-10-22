@@ -222,6 +222,13 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
     );
   }
 
+  String get _acceptanceDescription {
+    final type = (widget.order.orderType ?? '').toLowerCase().trim();
+    return type == 'delivery'
+        ? 'وقت التجهيز اختياري، وسيبدأ البحث عن مندوب فور القبول.'
+        : 'وقت التجهيز اختياري، وسيتم إعلام العميل ليحضر لاستلام الطلب بنفسه عندما يصبح جاهزاً.';
+  }
+
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
@@ -243,7 +250,7 @@ class _AcceptOrderBottomSheetState extends State<AcceptOrderBottomSheet> {
                   textAlign: TextAlign.start,
                 ),
                 AppText.bodySmall(
-                  'وقت التجهيز اختياري، وسيبدأ البحث عن مندوب فور القبول.',
+                  _acceptanceDescription,
                   color: const Color(0xff6B7280),
                   textAlign: TextAlign.start,
                 ),
