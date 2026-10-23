@@ -7,7 +7,8 @@ import '../repository/profile_repo.dart';
 import '../../data/models/add_employee_model.dart';
 
 @lazySingleton
-class AddEmployeeUseCase implements UseCase<AddEmployeeModel, AddEmployeeParams> {
+class AddEmployeeUseCase
+    implements UseCase<AddEmployeeModel, AddEmployeeParams> {
   final ProfileRepo profile;
 
   AddEmployeeUseCase({required this.profile});
@@ -42,10 +43,18 @@ class AddEmployeeParams with Params {
     this.id,
   });
 
+  static String? normalizedPhone(String? value) {
+    if (value == null) return null;
+    final cleaned = value.trim().replaceAll(RegExp(r'[\s()-]'), '');
+    final digits = cleaned.startsWith('+') ? cleaned.substring(1) : cleaned;
+    final match = RegExp(r'^(?:00963|963|0)?(9[0-9]{8})$').firstMatch(digits);
+    return match != null ? '+963${match.group(1)}' : cleaned;
+  }
+
   @override
   BodyMap getBody() => {
     'name': name,
-    'phone': phone,
+    'phone': normalizedPhone(phone),
     'password': password,
     if (isActive != null) 'isActive': isActive == true ? 1 : 0,
     'profileImage': image,

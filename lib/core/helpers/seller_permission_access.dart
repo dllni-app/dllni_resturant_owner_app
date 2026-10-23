@@ -22,7 +22,8 @@ final class SellerPermissionAccess {
   final bool isOwner;
   final bool hasExplicitPermissions;
 
-  bool get hasFullAccess => isOwner || !hasExplicitPermissions;
+  // Missing or corrupt permission payloads must never upgrade an employee.
+  bool get hasFullAccess => isOwner;
 
   factory SellerPermissionAccess.current() {
     final rawSession = SharedPreferencesHelper.getData(key: 'user');
@@ -58,8 +59,7 @@ final class SellerPermissionAccess {
   }
 
   bool can(String permission) {
-    // Sessions created before the backend permission payload was introduced keep
-    // the previous full-access behavior until the user signs in again.
+    // Only the explicit restaurant owner role can access all sections.
     return hasFullAccess || permissions.contains(permission);
   }
 

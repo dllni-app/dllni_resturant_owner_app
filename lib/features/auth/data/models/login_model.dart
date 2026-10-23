@@ -81,23 +81,46 @@ String loginModelUserToJson(LoginModelUser data) => json.encode(data.toJson());
 class LoginModel {
   LoginModelUser? user;
   String? token;
+  Map<String, dynamic>? restaurant;
 
   // ✅ NEW
   LoginModelRole? role;
   List<LoginModelPermission>? permissions;
 
-  LoginModel({this.user, this.token, this.role, this.permissions});
+  LoginModel({
+    this.user,
+    this.token,
+    this.role,
+    this.permissions,
+    this.restaurant,
+  });
 
   factory LoginModel.fromJson(Map<String, dynamic> json) {
     return LoginModel(
-      user: json['user'] is Map ? LoginModelUser.fromJson(Map<String, dynamic>.from(json['user'] as Map)) : null,
+      user: json['user'] is Map
+          ? LoginModelUser.fromJson(
+              Map<String, dynamic>.from(json['user'] as Map),
+            )
+          : null,
       token: _asString(json['token']),
+      restaurant: json['restaurant'] is Map
+          ? Map<String, dynamic>.from(json['restaurant'] as Map)
+          : null,
 
       // ✅ NEW
-      role: json['role'] is Map ? LoginModelRole.fromJson(Map<String, dynamic>.from(json['role'])) : null,
+      role: json['role'] is Map
+          ? LoginModelRole.fromJson(Map<String, dynamic>.from(json['role']))
+          : null,
 
       permissions: json['permissions'] is List
-          ? (json['permissions'] as List).whereType<Map>().map((e) => LoginModelPermission.fromJson(Map<String, dynamic>.from(e))).toList()
+          ? (json['permissions'] as List)
+                .whereType<Map>()
+                .map(
+                  (e) => LoginModelPermission.fromJson(
+                    Map<String, dynamic>.from(e),
+                  ),
+                )
+                .toList()
           : null,
     );
   }
@@ -106,6 +129,7 @@ class LoginModel {
     return {
       'user': user?.toJson(),
       'token': token,
+      'restaurant': restaurant,
 
       // ✅ NEW
       'role': role?.toJson(),
@@ -122,7 +146,11 @@ class LoginModelRole {
   LoginModelRole({this.id, this.name, this.slug});
 
   factory LoginModelRole.fromJson(Map<String, dynamic> json) {
-    return LoginModelRole(id: _asInt(json['id']), name: _asString(json['name']), slug: _asString(json['slug']));
+    return LoginModelRole(
+      id: _asInt(json['id']),
+      name: _asString(json['name']),
+      slug: _asString(json['slug']),
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -162,7 +190,16 @@ class LoginModelUser {
   String? createdAt;
   String? updatedAt;
 
-  LoginModelUser({this.id, this.name, this.email, this.phone, this.moduleType, this.emailVerifiedAt, this.createdAt, this.updatedAt});
+  LoginModelUser({
+    this.id,
+    this.name,
+    this.email,
+    this.phone,
+    this.moduleType,
+    this.emailVerifiedAt,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   factory LoginModelUser.fromJson(Map<String, dynamic> json) {
     return LoginModelUser(
