@@ -36,7 +36,14 @@ class AddEmployeePermissionTile extends StatelessWidget {
                     // Icon(item.icon, color: item.iconColor, size: 18),
                     // SizedBox(width: 4),
                     Expanded(
-                      child: AppText.bodyMedium(item.slug!, fontWeight: FontWeight.w700, color: const Color(0xFF111827), textAlign: TextAlign.start),
+                      child: AppText.bodyMedium(
+                        item.name?.trim().isNotEmpty == true
+                            ? item.name!
+                            : (item.slug ?? 'صلاحية'),
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                        textAlign: TextAlign.start,
+                      ),
                     ),
                   ],
                 ),

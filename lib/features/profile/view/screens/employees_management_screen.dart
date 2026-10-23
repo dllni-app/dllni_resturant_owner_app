@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/fetch_employees_use_case.dart';
+import '../../domain/usecases/fetch_employees_permissions_use_case.dart';
 import '../manager/bloc/profile_bloc.dart';
 
 @AutoRoutePage(path: '/employeesmanagement')
@@ -23,7 +24,9 @@ class _EmployeesManagementScreenState extends State<EmployeesManagementScreen> {
   @override
   void initState() {
     super.initState();
-    getIt<ProfileBloc>().add(FetchEmployeesEvent(params: FetchEmployeesParams()));
+    final bloc = getIt<ProfileBloc>();
+    bloc.add(FetchEmployeesEvent(params: FetchEmployeesParams()));
+    bloc.add(FetchEmployeesPermissionsEvent(params: FetchEmployeesPermissionsParams()));
   }
 
   @override
