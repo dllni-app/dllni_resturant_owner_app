@@ -124,13 +124,25 @@ class _OrderCardState extends State<OrderCard> {
               Row(children: [
                 Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.all(10), child: Icon(Icons.person, color: context.primary)),
                 const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.bodyMedium(widget.order.user?.name ?? 'عميل المطعم', fontWeight: FontWeight.bold), const SizedBox(height: 4), AppText.labelMedium('#${widget.order.orderNumber ?? widget.order.id ?? '-'}'), if (!isNew) AppText.labelMedium(relativeTime().isEmpty ? '' : '• ${relativeTime()}')])) ,
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.bodyMedium('طلب #${widget.order.id ?? '-'}', fontWeight: FontWeight.bold), const SizedBox(height: 4), AppText.labelMedium('العميل: ${widget.order.user?.name ?? 'عميل المطعم'}'), const SizedBox(height: 2), AppText.labelMedium('رقم الطلب: ${widget.order.orderNumber ?? widget.order.id ?? '-'}'), if (!isNew) AppText.labelMedium(relativeTime().isEmpty ? '' : '• ${relativeTime()}')])) ,
                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [AppText.labelLarge('${total.toStringAsFixed(0)} ل.س', color: context.primary, fontWeight: FontWeight.bold), const SizedBox(height: 4), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6)), child: AppText.labelSmall('نقدي', fontWeight: FontWeight.w600))]),
               ]),
               const Divider(height: 24),
               Container(width: double.infinity, padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.85), borderRadius: BorderRadius.circular(8)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [AppText.labelLarge(productsText(), maxLines: 2, overflow: TextOverflow.ellipsis), const SizedBox(height: 8), Row(children: [Icon(deliveryLabel() == 'توصيل' ? Icons.delivery_dining_rounded : Icons.storefront_rounded, size: 17, color: statusColor), const SizedBox(width: 6), AppText.labelLarge(deliveryLabel(), fontWeight: FontWeight.bold, color: statusColor)])])),
               if (!widget.isFromHome) ...[const SizedBox(height: 12), Align(alignment: Alignment.centerRight, child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)), child: Row(mainAxisSize: MainAxisSize.min, children: [icon(widget.status, statusColor), const SizedBox(width: 6), AppText.labelSmall(widget.order.statusLabelAr ?? widget.order.status ?? '-', color: statusColor, fontWeight: FontWeight.bold)])))],
               _buildActionButtons(context),
+              if (widget.order.id != null)
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: () => context.pushRoute(
+                      '/orders/details',
+                      arguments: OrderDetailsParams(orderId: widget.order.id!),
+                    ),
+                    icon: const Icon(Icons.open_in_new, size: 17),
+                    label: const Text('عرض تفاصيل الطلب'),
+                  ),
+                ),
             ],
           ),
         ),

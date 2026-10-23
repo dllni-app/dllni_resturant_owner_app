@@ -25,6 +25,15 @@ class EmployeeManagementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final permissionIds = item.permissionIds ?? [];
+    final availablePermissions =
+        context.watch<ProfileBloc>().state.employeesPermissions?.data?.permissions ?? [];
+    final permissionNames = <int, String>{
+      for (final permission in availablePermissions)
+        if (permission.id != null)
+          permission.id!: permission.name?.trim().isNotEmpty == true
+              ? permission.name!.trim()
+              : (permission.slug ?? 'صلاحية'),
+    };
 
     return Container(
       decoration: BoxDecoration(
@@ -165,7 +174,13 @@ class EmployeeManagementCard extends StatelessWidget {
                       AppText.labelLarge('-', color: const Color(0xFF065F46), fontWeight: FontWeight.w700, textAlign: TextAlign.end)
                     else
                       ...permissionIds.map(
-                        (permission) => AppText.labelLarge('$permission', color: const Color(0xFF065F46), fontWeight: FontWeight.w700, textAlign: TextAlign.end),
+                        (permission) => AppText.labelLarge(
+                          permissionNames[int.tryParse('$permission')] ??
+                              'صلاحية #$permission',
+                          color: const Color(0xFF065F46),
+                          fontWeight: FontWeight.w700,
+                          textAlign: TextAlign.end,
+                        ),
                       ),
                   ],
                 ),
