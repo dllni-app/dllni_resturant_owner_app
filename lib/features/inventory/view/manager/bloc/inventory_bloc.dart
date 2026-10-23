@@ -105,6 +105,8 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       (r) {
         if (isClosed) return;
         add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(status: state.currentStatus), isReload: true));
+        // Refresh aggregate counters after creation, just as update/delete do.
+        add(FetchInventorySummaryEvent(params: FetchInventorySummaryParams()));
         emit(state.copyWith(createInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },
     );
