@@ -294,7 +294,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
         (r) {
           if (isClosed) return;
-          emit(state.copyWith(products: state.products!.setSuccess(data: r.data!)));
+          emit(state.copyWith(products: state.products!.setSuccess(data: r.data ?? const [])));
         },
       );
     }

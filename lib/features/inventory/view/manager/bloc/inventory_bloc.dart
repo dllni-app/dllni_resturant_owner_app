@@ -105,6 +105,7 @@ class InventoryBloc extends Bloc<InventoryEvent, InventoryState> {
       (r) {
         if (isClosed) return;
         add(FetchInventoryItemsEvent(params: FetchInventoryItemsParams(status: state.currentStatus), isReload: true));
+        add(FetchInventorySummaryEvent(params: FetchInventorySummaryParams()));
         emit(state.copyWith(createInventoryItemStatus: BlocStatus.success, createInventoryItemModel: r));
       },
     );

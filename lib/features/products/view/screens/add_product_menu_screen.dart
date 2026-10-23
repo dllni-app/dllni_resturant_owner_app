@@ -29,6 +29,39 @@ class AddProductMenuScreen extends StatefulWidget {
 
 class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
   String? imagePath;
+  final Map<int, TextEditingController> _titleControllers = {};
+  final Map<int, TextEditingController> _descriptionControllers = {};
+
+  void _populateExtractedFields(
+    List<GenerateAiProductDataFromMenuModelDataItemsItem> items,
+  ) {
+    for (final controller in _titleControllers.values) {
+      controller.dispose();
+    }
+    for (final controller in _descriptionControllers.values) {
+      controller.dispose();
+    }
+    _titleControllers.clear();
+    _descriptionControllers.clear();
+
+    for (var index = 0; index < items.length; index++) {
+      _titleControllers[index] =
+          TextEditingController(text: items[index].title ?? '');
+      _descriptionControllers[index] =
+          TextEditingController(text: items[index].description ?? '');
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _titleControllers.values) {
+      controller.dispose();
+    }
+    for (final controller in _descriptionControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +80,11 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
             previous.postProductsFromMenuStatus !=
                 current.postProductsFromMenuStatus,
         listener: (context, state) {
+          if (state.generateAiProductDataFromMenuStatus == BlocStatus.success) {
+            _populateExtractedFields(
+              state.generateAiProductDataFromMenu?.data?.items ?? const [],
+            );
+          }
           if (state.generateAiProductDataFromMenuStatus == BlocStatus.failed) {
             AppToast.showToast(
               context: context,
@@ -68,9 +106,9 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
             AppToast.showToast(
               context: context,
               message: createdCount == null
-                  ? 'تمت إضافة المنتجات للقائمة بنجاح'
-                  : 'تمت إضافة $createdCount منتجات للقائمة بنجاح',
-              type: ToastificationType.success,
+                  ? 'تم حفظ الوجبات بوضع غير متوفر. أكمل بيانات كل وجبة لتفعيلها.'
+                  : 'تم حفظ $createdCount وجبات بوضع غير متوفر. أكمل بياناتها لتفعيلها.',
+              type: ToastificationType.warning,
             );
             context.pushRouteAndRemoveUntil('/main', arguments: 2);
           }
@@ -112,13 +150,10 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
                                           padding: EdgeInsets.zero,
                                           separatorBuilder: (_, _) =>
                                               const SizedBox(height: 12),
-                                          itemBuilder: (context, index) =>
-                                              _NewProductCard(
-                                                state
-                                                    .generateAiProductDataFromMenu!
-                                                    .data!
-                                                    .items![index],
-                                              ),
+                                          itemBuilder: (context, index) => _NewProductCard(
+                                            titleController: _titleControllers[index]!,
+                                            descriptionController: _descriptionControllers[index]!,
+                                          ),
                                         ),
                                       ],
                                     )
@@ -403,13 +438,20 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
         state.generateAiProductDataFromMenu?.data?.items ?? const [];
     final products = <PostProductFromMenuParams>[];
 
-    for (final product in extractedItems) {
-      final title = (product.title ?? '').trim();
-      if (title.isEmpty) continue;
+    for (var index = 0; index < extractedItems.length; index++) {
+      final title =
+          (_titleControllers[index]?.text ?? extractedItems[index].title ?? '')
+              .trim();
+      final description = (_descriptionControllers[index]?.text ??
+              extractedItems[index].description ??
+              '')
+          .trim();
+      // Product names are mandatory in the API. Preserve an incomplete
+      // extraction as an unpublished placeholder rather than dropping it.
       products.add(
         PostProductFromMenuParams(
-          title: title,
-          description: (product.description ?? '').trim(),
+          title: title.isEmpty ? 'وجبة غير مكتملة ${index + 1}' : title,
+          description: description,
         ),
       );
     }
@@ -446,9 +488,13 @@ class _AddProductMenuScreenState extends State<AddProductMenuScreen> {
 }
 
 class _NewProductCard extends StatelessWidget {
-  const _NewProductCard(this.product);
+  const _NewProductCard({
+    required this.titleController,
+    required this.descriptionController,
+  });
 
-  final GenerateAiProductDataFromMenuModelDataItemsItem product;
+  final TextEditingController titleController;
+  final TextEditingController descriptionController;
 
   @override
   Widget build(BuildContext context) {
@@ -464,21 +510,19 @@ class _NewProductCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: ProductTextField(
-                  title: 'اسم المنتج',
-                  hintText: product.title,
-                ),
-              ),
-            ],
+          ProductTextField(
+            title: 'اسم المنتج',
+            hintText: 'أدخل اسم المنتج',
+            controller: titleController,
+            required: false,
           ),
           const SizedBox(height: 10),
           ProductTextField(
             maxLines: 3,
             title: 'وصف المنتج',
-            hintText: product.description,
+            hintText: 'أدخل وصف المنتج',
+            controller: descriptionController,
+            required: false,
           ),
         ],
       ),
