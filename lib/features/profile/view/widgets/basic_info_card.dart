@@ -72,8 +72,16 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
   @override
   void initState() {
     super.initState();
-    downloadImage(widget.image).then((value) => setState(() => image = value));
-    downloadImage(widget.images).then((value) => setState(() => images = value));
+    if (widget.image.trim().isNotEmpty) {
+      downloadImage(widget.image).then((value) {
+        if (mounted) setState(() => image = value);
+      });
+    }
+    if (widget.images.trim().isNotEmpty) {
+      downloadImage(widget.images).then((value) {
+        if (mounted) setState(() => images = value);
+      });
+    }
   }
 
   @override
@@ -116,10 +124,16 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
                   width: 112,
                   height: 112,
                   child: image == null
-                      ? Padding(padding: const EdgeInsets.all(40.0), child: CircularProgressIndicator())
+                      ? const Center(child: Icon(Icons.image_not_supported_outlined, color: Colors.white70))
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: Image.file(image!, fit: BoxFit.cover),
+                          child: Image.file(
+                            image!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => const Center(
+                              child: Icon(Icons.broken_image_outlined, color: Colors.white70),
+                            ),
+                          ),
                         ),
                 ),
                 SizedBox(width: 12),
@@ -186,15 +200,17 @@ class _BasicInfoCardState extends State<BasicInfoCard> {
             width: context.width,
             height: 112,
             child: images == null
-                ? Center(
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.symmetric(horizontal: 100, vertical: 40),
-                      child: CircularProgressIndicator.adaptive(),
-                    ),
-                  )
+                ? const Center(child: Icon(Icons.image_not_supported_outlined, color: Colors.white70))
                 : ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.file(images!, fit: BoxFit.cover, width: 112),
+                    child: Image.file(
+                      images!,
+                      fit: BoxFit.cover,
+                      width: 112,
+                      errorBuilder: (context, error, stackTrace) => const Center(
+                        child: Icon(Icons.broken_image_outlined, color: Colors.white70),
+                      ),
+                    ),
                   ),
           ),
           SizedBox(height: 8),

@@ -122,11 +122,12 @@ class _CouponsFilterCardState extends State<CouponsFilterCard> {
           const SizedBox(height: 12),
           SizedBox(
             height: 50,
-            child: Row(
-              children: List.generate(
-                title.length,
-                (i) => Expanded(
-                  child: Padding(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(
+                  title.length,
+                  (i) => Padding(
                     padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
                     child: InkWell(
                       onTap: () {

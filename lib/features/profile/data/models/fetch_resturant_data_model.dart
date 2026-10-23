@@ -146,6 +146,7 @@ class FetchResturantDataModelData {
   bool? isTemporarilyClosed;
   dynamic suspensionUntil;
   String? primaryImage;
+  String? banner;
   List<dynamic>? images;
   FetchResturantDataModelDataUser? user;
   List<FetchResturantDataModelDataCuisineTypesItem>? cuisineTypes;
@@ -187,6 +188,7 @@ class FetchResturantDataModelData {
     this.isTemporarilyClosed,
     this.suspensionUntil,
     this.primaryImage,
+    this.banner,
     this.images,
     this.user,
     this.cuisineTypes,
@@ -230,6 +232,7 @@ class FetchResturantDataModelData {
       isTemporarilyClosed: _asBool(json['isTemporarilyClosed']),
       suspensionUntil: _asDynamic(json['suspensionUntil']),
       primaryImage: _asString(json['primaryImage']),
+      banner: _asString(json['banner']),
       images: _asDynamicList(json['images']),
       user: json['user'] is Map ? FetchResturantDataModelDataUser.fromJson(Map<String, dynamic>.from(json['user'] as Map)) : null,
       cuisineTypes: json['cuisineTypes'] is List ? (json['cuisineTypes'] as List).whereType<Map>().map((item) => FetchResturantDataModelDataCuisineTypesItem.fromJson(Map<String, dynamic>.from(item))).toList() : null,
@@ -274,6 +277,7 @@ class FetchResturantDataModelData {
       'isTemporarilyClosed': isTemporarilyClosed,
       'suspensionUntil': suspensionUntil,
       'primaryImage': primaryImage,
+      'banner': banner,
       'images': images,
       'user': user?.toJson(),
       'cuisineTypes': cuisineTypes?.map((item) => item.toJson()).toList(),

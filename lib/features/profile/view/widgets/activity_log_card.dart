@@ -3,6 +3,8 @@ import 'package:dllni_resturant_owner_app/features/profile/data/models/fetch_act
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
+import '../helpers/activity_description_localizer.dart';
+
 class ActivityLogCard extends StatelessWidget {
   const ActivityLogCard({super.key, required this.item});
 
@@ -90,7 +92,7 @@ class ActivityLogCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppText.bodyLarge(description, fontWeight: FontWeight.bold, textAlign: TextAlign.start),
+                    AppText.bodyLarge(localizeActivityDescription(description), fontWeight: FontWeight.bold, textAlign: TextAlign.start),
                     const SizedBox(height: 6),
                     Row(
                       children: [
@@ -100,7 +102,7 @@ class ActivityLogCard extends StatelessWidget {
                           child: AppText.labelSmall(causerInitial, color: const Color(0xff374151), fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 6),
-                        Expanded(child: AppText.labelLarge(causerName, color: const Color(0xff6B7280), textAlign: TextAlign.start, scrollText: true)),
+                        Expanded(child: AppText.labelLarge(causerName, color: const Color(0xff6B7280), textAlign: TextAlign.start)),
                       ],
                     ),
                   ],
