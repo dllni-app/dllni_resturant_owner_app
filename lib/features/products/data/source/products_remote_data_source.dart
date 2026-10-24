@@ -120,8 +120,11 @@ class ProductsRemoteDataSource with HandlingApiManager {
           discountedPrice: params.discountedPrice,
           lowStock: params.lowStock,
           preparationTime: params.preparationTime,
-          primaryImage: params.image,
-          images: const [],
+          // The menu photo is only used for OCR. It is not an image of this
+          // particular dish and can exceed the backend's 2MB image limit.
+          // Keep extracted products unpublished until the owner completes
+          // prices, photographs and any missing details.
+          isAvailable: false,
         ),
       );
       createdProducts.add(createdProduct);

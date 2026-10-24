@@ -25,11 +25,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final res = await loginUseCase(event.params);
     res.fold(
       (l) {
-        emit(state.copyWith(loginStatus: BlocStatus.failed, errorMessage: l.message));
+        emit(
+          state.copyWith(
+            loginStatus: BlocStatus.failed,
+            errorMessage: l.message,
+          ),
+        );
       },
       (r) {
         SharedPreferencesHelper.saveData(key: 'token', value: r.token);
         SharedPreferencesHelper.saveData(key: 'user', value: json.encode(r));
+        // Reinitialize the scoped restaurant cache on every login so a
+        // limited employee cannot inherit another account's restaurant.
+        final restaurant = r.restaurant;
+        SharedPreferencesHelper.saveData(
+          key: 'restaurant_name',
+          value: restaurant?['name']?.toString() ?? '',
+        );
+        SharedPreferencesHelper.saveData(
+          key: 'restaurant_branch',
+          value: restaurant?['branch']?.toString() ?? '',
+        );
+        SharedPreferencesHelper.saveData(
+          key: 'restaurant_image',
+          value: restaurant?['primaryImage']?.toString() ?? '',
+        );
         emit(state.copyWith(loginStatus: BlocStatus.success, login: r));
       },
     );

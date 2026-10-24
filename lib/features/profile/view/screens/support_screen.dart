@@ -7,8 +7,30 @@ import 'package:url_launcher/url_launcher.dart';
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
 
+  // Configure with --dart-define=DLLNI_SUPPORT_PHONE=+<verified phone>.
+  // Never direct merchants to an unassigned placeholder phone number.
+  static const String _supportPhone = String.fromEnvironment('DLLNI_SUPPORT_PHONE');
+
+  void _openPhone(BuildContext context, {required bool whatsapp}) {
+    final digits = _supportPhone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.isEmpty) {
+      AppToast.showToast(
+        context: context,
+        message: 'رقم الدعم غير مهيأ حالياً. يرجى التواصل عبر البريد الإلكتروني.',
+        type: ToastificationType.warning,
+      );
+      return;
+    }
+    final uri = whatsapp
+        ? Uri.parse('https://wa.me/$digits')
+        : Uri(scheme: 'tel', path: _supportPhone);
+    _open(context, uri, 'تعذر فتح وسيلة التواصل مع الدعم');
+  }
+
   Future<void> _open(BuildContext context, Uri uri, String errorMessage) async {
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!context.mounted) return;
+    if (!launched) {
       AppToast.showToast(context: context, message: errorMessage, type: ToastificationType.error);
     }
   }
@@ -29,15 +51,15 @@ class SupportScreen extends StatelessWidget {
                   _SupportCard(
                     icon: Icons.phone_in_talk_rounded,
                     title: 'اتصال مباشر',
-                    subtitle: 'تواصل مع فريق الدعم عبر الهاتف',
-                    onTap: () => _open(context, Uri(scheme: 'tel', path: '+963000000000'), 'تعذر فتح تطبيق الاتصال'),
+                    subtitle: _supportPhone.isEmpty ? 'غير متاح حالياً — استخدم البريد الإلكتروني' : 'تواصل مع فريق الدعم عبر الهاتف',
+                    onTap: () => _openPhone(context, whatsapp: false),
                   ),
                   const SizedBox(height: 12),
                   _SupportCard(
                     icon: Icons.chat_bubble_outline_rounded,
                     title: 'واتساب',
-                    subtitle: 'أرسل رسالة للدعم الفني',
-                    onTap: () => _open(context, Uri.parse('https://wa.me/963000000000'), 'تعذر فتح واتساب'),
+                    subtitle: _supportPhone.isEmpty ? 'غير متاح حالياً — استخدم البريد الإلكتروني' : 'أرسل رسالة للدعم الفني',
+                    onTap: () => _openPhone(context, whatsapp: true),
                   ),
                   const SizedBox(height: 12),
                   _SupportCard(

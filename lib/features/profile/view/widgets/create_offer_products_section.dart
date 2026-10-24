@@ -24,6 +24,11 @@ class _CreateOfferProductsSectionState extends State<CreateOfferProductsSection>
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    // Always reload when opening creation or editing; otherwise the products
+    // section stays on a spinner if no previous screen fetched products.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _fetchAllProducts();
+    });
   }
 
   @override

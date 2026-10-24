@@ -23,6 +23,7 @@ class PostNewProductParams with Params {
   final String name;
   final String desc;
   final String price;
+  final bool isAvailable;
   final String discountedPrice;
   final String lowStock;
   final String preparationTime;
@@ -34,6 +35,7 @@ class PostNewProductParams with Params {
     required this.name,
     this.desc = '',
     required this.price,
+    this.isAvailable = true,
     this.discountedPrice = '',
     this.lowStock = '',
     this.preparationTime = '',
@@ -47,8 +49,8 @@ class PostNewProductParams with Params {
       'categoryId': categoryId,
       'name': name,
       'price': price,
-      'isAvailable': 1,
-      'isFeatured': 1,
+      'isAvailable': isAvailable ? 1 : 0,
+      'isFeatured': isAvailable ? 1 : 0,
     };
     if (desc.trim().isNotEmpty) body['description'] = desc.trim();
     if (discountedPrice.trim().isNotEmpty) body['discountedPrice'] = discountedPrice.trim();

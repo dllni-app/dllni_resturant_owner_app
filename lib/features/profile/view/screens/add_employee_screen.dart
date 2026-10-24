@@ -58,6 +58,15 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
     super.dispose();
   }
 
+  // Match the international +963 format used by restaurant sign-in.
+  String _normalizedEmployeePhone(String value) {
+    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digits.startsWith('963')) return '+$digits';
+    if (digits.startsWith('0')) return '+963${digits.substring(1)}';
+    if (digits.startsWith('9')) return '+963$digits';
+    return value.trim();
+  }
+
   bool _validate(BuildContext context) {
     if (_nameController.text.trim().isEmpty) {
       AppToast.showToast(context: context, message: 'أدخل اسم الموظف', type: ToastificationType.error);
@@ -170,7 +179,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                                           context: context,
                                           params: AddEmployeeParams(
                                             name: _nameController.text.trim(),
-                                            phone: _phoneController.text.trim(),
+                                            phone: _normalizedEmployeePhone(_phoneController.text),
                                             image: _pickedImagePath,
                                             permissions: _selectedPermissions.toList(),
                                             password: _passwordController.text.trim().isEmpty ? null : _passwordController.text.trim(),

@@ -56,17 +56,28 @@ class InventoryItemCard extends StatelessWidget {
                 children: [
                   AppText.bodyLarge(productName, fontWeight: FontWeight.bold, color: Colors.black, textAlign: TextAlign.start,),
                   SizedBox(height: 12),
-                  Row(
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      AppText.labelLarge(currentQuantity, color: cardColor, fontWeight: FontWeight.bold),
-                      SizedBox(width: 8),
+                      Text(
+                        currentQuantity,
+                        softWrap: true,
+                        maxLines: 2,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: cardColor, fontWeight: FontWeight.bold),
+                      ),
                       Container(
                         width: 4,
                         height: 4,
                         decoration: BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
                       ),
-                      SizedBox(width: 8),
-                      AppText.labelLarge('الحد الأدنى: $minimumQuantity', color: Colors.black87),
+                      Text(
+                        'الحد الأدنى: $minimumQuantity',
+                        softWrap: true,
+                        maxLines: 2,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.black87),
+                      ),
                     ],
                   ),
                   SizedBox(height: 12),

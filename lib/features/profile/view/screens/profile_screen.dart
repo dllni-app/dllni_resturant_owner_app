@@ -59,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     lat = widget.params.profile.latitude ?? 0;
     long = widget.params.profile.longitude ?? 0;
     image = widget.params.profile.primaryImage ?? '';
-    banner = widget.params.profile.primaryImage ?? '';
+    banner = widget.params.profile.banner ?? '';
   }
 
   @override
