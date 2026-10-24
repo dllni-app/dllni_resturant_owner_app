@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:common_package/helpers/pagination_helper.dart';
 import 'package:common_package/widgets/app_text.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
@@ -17,15 +19,47 @@ class OrdersScreen extends StatefulWidget {
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
-class _OrdersScreenState extends State<OrdersScreen> {
+class _OrdersScreenState extends State<OrdersScreen>
+    with WidgetsBindingObserver {
   final OrdersNotifier ordersNotifier = OrdersNotifier();
+  late final OrdersBloc _ordersBloc;
+  Timer? _pollTimer;
+
+  void _refreshOrders() {
+    if (!mounted) return;
+    _ordersBloc.add(GetOrdersEvent(
+      params: GetOrdersParams(page: 1, status: ordersNotifier.status.value),
+      isReload: true,
+    ));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _ordersBloc = getIt<OrdersBloc>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshOrders());
+    _pollTimer = Timer.periodic(const Duration(seconds: 25), (_) => _refreshOrders());
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refreshOrders();
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    ordersNotifier.status.dispose();
+    _ordersBloc.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<OrdersBloc>(
-      lazy: false,
-      create: (context) => getIt<OrdersBloc>()
-        ..add(GetOrdersEvent(params: GetOrdersParams(page: 1), isReload: true)),
+    return BlocProvider<OrdersBloc>.value(
+      value: _ordersBloc,
       child: SafeArea(
         child: Column(
           children: [

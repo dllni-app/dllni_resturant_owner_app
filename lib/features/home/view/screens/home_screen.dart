@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:common_package/common_package.dart';
 import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/features/home/domain/usecases/home_overview_performance_use_case.dart';
@@ -24,7 +26,58 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver {
+  late final OrdersBloc _ordersBloc;
+  late final HomeBloc _homeBloc;
+  Timer? _pollTimer;
+
+  void _refreshDashboard() {
+    if (!mounted) return;
+    _homeBloc
+      ..add(HomeOverviewEvent(params: HomeOverviewParams()))
+      ..add(HomeOverviewPerformanceEvent(
+        params: HomeOverviewPerformanceParams(),
+      ));
+    if (SellerPermissionAccess.current().can(RestaurantPermissionCodes.orders)) {
+      _ordersBloc
+        ..add(GetOrdersEvent(
+          params: GetOrdersParams(page: 1, status: 'pending'),
+          isReload: true,
+        ))
+        ..add(GetHomePreparingOrdersEvent(
+          params: GetOrdersParams(page: 1, status: 'preparing'),
+        ));
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _ordersBloc = getIt<OrdersBloc>();
+    _homeBloc = getIt<HomeBloc>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshDashboard());
+    _pollTimer = Timer.periodic(
+      const Duration(seconds: 25),
+      (_) => _refreshDashboard(),
+    );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refreshDashboard();
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    _ordersBloc.close();
+    _homeBloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final access = SellerPermissionAccess.current();
@@ -36,30 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider<OrdersBloc>(
-          create: (context) {
-            final bloc = getIt<OrdersBloc>();
-            if (canManageOrders) {
-              bloc
-                ..add(GetOrdersEvent(
-                  params: GetOrdersParams(page: 1, status: 'pending'),
-                  isReload: true,
-                ))
-                ..add(GetHomePreparingOrdersEvent(
-                  params: GetOrdersParams(page: 1, status: 'preparing'),
-                ));
-            }
-            return bloc;
-          },
-        ),
-        BlocProvider<HomeBloc>(
-          lazy: false,
-          create: (context) => getIt<HomeBloc>()
-            ..add(HomeOverviewEvent(params: HomeOverviewParams()))
-            ..add(HomeOverviewPerformanceEvent(
-              params: HomeOverviewPerformanceParams(),
-            )),
-        ),
+        BlocProvider<OrdersBloc>.value(value: _ordersBloc),
+        BlocProvider<HomeBloc>.value(value: _homeBloc),
       ],
       child: SafeArea(
         child: Column(

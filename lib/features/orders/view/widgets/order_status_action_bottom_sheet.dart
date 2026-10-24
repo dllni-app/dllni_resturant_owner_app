@@ -46,7 +46,7 @@ List<RestaurantOrderStatusAction> restaurantOrderNextStatusActions(
   String? status, {
   String? orderType,
 }) {
-  return switch (status) {
+  final List<RestaurantOrderStatusAction> actions = switch (status) {
     'accepted' => const [
         RestaurantOrderStatusAction(
           status: 'preparing',
@@ -88,8 +88,20 @@ List<RestaurantOrderStatusAction> restaurantOrderNextStatusActions(
             ),
           ],
     'picked_up' => const [],
-    _ => const [],
+    _ => const <RestaurantOrderStatusAction>[],
   };
+  if (status == 'preparing' && orderType != 'delivery') {
+    return actions.map((action) {
+      if (action.status != 'ready_for_pickup') return action;
+      return const RestaurantOrderStatusAction(
+        status: 'ready_for_pickup',
+        label: 'جاهز للاستلام',
+        description: 'إعلام العميل بأن طلبه جاهز للاستلام من المطعم.',
+        icon: Icons.inventory_2_outlined,
+      );
+    }).toList();
+  }
+  return actions;
 }
 
 bool hasRestaurantOrderStatusActions(
