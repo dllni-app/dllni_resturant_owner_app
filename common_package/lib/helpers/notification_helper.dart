@@ -21,7 +21,6 @@ class _ResolvedRoute {
 const String _lifecycleMarkerKey = '_notification_lifecycle';
 const String _basicChannelKey = 'basic_channel';
 const String _notificationIcon = 'resource://drawable/notification_icon';
-const String _notificationLargeIcon = 'resource://mipmap/launcher_icon';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -160,7 +159,6 @@ class NotificationHelper {
         body: message.notification?.body ?? message.data['body'] ?? '',
         payload: payload,
         icon: _notificationIcon,
-        largeIcon: _notificationLargeIcon,
       ),
     );
   }
