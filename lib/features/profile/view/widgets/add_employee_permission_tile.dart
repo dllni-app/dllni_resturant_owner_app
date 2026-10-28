@@ -2,6 +2,7 @@ import 'package:common_package/common_package.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/models/fetch_employees_permissions_model.dart';
+import '../../../../core/helpers/restaurant_permission_labels.dart';
 
 class AddEmployeePermissionTile extends StatelessWidget {
   const AddEmployeePermissionTile({super.key, required this.item, required this.isSelected, required this.onChanged});
@@ -37,9 +38,7 @@ class AddEmployeePermissionTile extends StatelessWidget {
                     // SizedBox(width: 4),
                     Expanded(
                       child: AppText.bodyMedium(
-                        item.name?.trim().isNotEmpty == true
-                            ? item.name!
-                            : (item.slug ?? 'صلاحية'),
+                        RestaurantPermissionLabels.title(name: item.name, slug: item.slug),
                         fontWeight: FontWeight.w700,
                         color: const Color(0xFF111827),
                         textAlign: TextAlign.start,
@@ -47,7 +46,7 @@ class AddEmployeePermissionTile extends StatelessWidget {
                     ),
                   ],
                 ),
-                AppText.labelLarge('${item.desc}', fontWeight: FontWeight.w500, color: const Color(0xFF6B7280), textAlign: TextAlign.start,),
+                AppText.labelLarge(item.desc ?? '', fontWeight: FontWeight.w500, color: const Color(0xFF6B7280), textAlign: TextAlign.start,),
               ],
             ),
           ),
