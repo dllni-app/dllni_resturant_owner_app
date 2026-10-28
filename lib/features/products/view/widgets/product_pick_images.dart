@@ -118,7 +118,9 @@ class _ProductPickMainImageState extends State<ProductPickMainImage> {
     final XFile? pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedImage == null) return;
     setState(() {
+      // Prefer the newly selected file over the original base64/network image.
       imagePath = pickedImage.path;
+      image64 = null;
       existingImageUrl = null;
     });
     widget.onPickImage(pickedImage.path);
