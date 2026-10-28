@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/models/fetch_employees_model.dart';
+import '../../../../core/helpers/restaurant_permission_labels.dart';
 import '../screens/add_employee_screen.dart';
 
 enum _EmployeeAction { update, delete }
@@ -30,9 +31,7 @@ class EmployeeManagementCard extends StatelessWidget {
     final permissionNames = <int, String>{
       for (final permission in availablePermissions)
         if (permission.id != null)
-          permission.id!: permission.name?.trim().isNotEmpty == true
-              ? permission.name!.trim()
-              : (permission.slug ?? 'صلاحية'),
+          permission.id!: RestaurantPermissionLabels.title(name: permission.name, slug: permission.slug),
     };
 
     return Container(
@@ -176,7 +175,7 @@ class EmployeeManagementCard extends StatelessWidget {
                       ...permissionIds.map(
                         (permission) => AppText.labelLarge(
                           permissionNames[int.tryParse('$permission')] ??
-                              'صلاحية #$permission',
+                              'صلاحية أخرى',
                           color: const Color(0xFF065F46),
                           fontWeight: FontWeight.w700,
                           textAlign: TextAlign.end,

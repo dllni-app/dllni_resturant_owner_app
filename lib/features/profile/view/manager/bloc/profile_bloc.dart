@@ -85,6 +85,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<CreateOfferSubmitEvent>(_createOfferSubmit);
     on<CreateCouponSubmitEvent>(_createCouponSubmit);
     on<FetchProductsEvent>(_fetchProducts, transformer: droppableProMax());
+    on<InitializeOfferSelectionEvent>(_initializeOfferSelection);
     on<SelectProductEvent>(_selectProduct);
     on<DeselectProductEvent>(_deselectProduct);
 
@@ -298,6 +299,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         },
       );
     }
+  }
+
+  void _initializeOfferSelection(
+    InitializeOfferSelectionEvent event,
+    Emitter<ProfileState> emit,
+  ) {
+    final seenIds = <int>{};
+    final products = event.products
+        .where((product) => product.id != null && seenIds.add(product.id!))
+        .map((product) => FetchProductsModelDataItem(id: product.id, name: product.name))
+        .toList();
+    emit(state.copyWith(
+      selectedProducts: products,
+      createOfferStatus: BlocStatus.init,
+    ));
   }
 
   FutureOr<void> _selectProduct(SelectProductEvent event, Emitter<ProfileState> emit) async {
