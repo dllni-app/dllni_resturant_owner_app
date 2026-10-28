@@ -70,6 +70,13 @@ class FetchProductsEvent extends ProfileEvent with EventWithReload {
   FetchProductsEvent({required this.params, this.isReload = false});
 }
 
+/// Start each offer form with only that offer's own linked products.
+class InitializeOfferSelectionEvent extends ProfileEvent {
+  final List<FetchOffersModelProduct> products;
+
+  InitializeOfferSelectionEvent({this.products = const []});
+}
+
 class SelectProductEvent extends ProfileEvent {
   final FetchProductsModelDataItem product;
 
