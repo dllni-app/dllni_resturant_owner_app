@@ -51,8 +51,6 @@ class _AddProductDetailsBody extends StatefulWidget {
 class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _discountedPriceController =
-      TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _preparationTimeController =
       TextEditingController();
@@ -74,7 +72,6 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
     _descriptionController.text =
         widget.params.desc ?? existing?.description ?? '';
     _priceController.text = _formatNum(existing?.price);
-    _discountedPriceController.text = _formatNum(existing?.discountedPrice);
     _preparationTimeController.text = _formatNum(existing?.preparationTime);
     _lowStockController.text = _formatNum(existing?.lowStockThreshold);
     _selectedCategoryId = existing?.categoryId;
@@ -94,7 +91,6 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _discountedPriceController.dispose();
     _priceController.dispose();
     _preparationTimeController.dispose();
     _lowStockController.dispose();
@@ -246,31 +242,6 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                               title: 'السعر الأساسي',
                               hintText: '0.00',
                               controller: _priceController,
-                              keyboardType: TextInputType.number,
-                              suffixIcon: const Padding(
-                                padding: EdgeInsetsDirectional.only(
-                                  end: 12,
-                                  top: 14,
-                                ),
-                                child: Text(
-                                  'ل.س',
-                                  style: TextStyle(
-                                    color: ProductsStyleTokens.textHint,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 16),
-                            ProductTextField(
-                              title: 'السعر بعد الحسم',
-                              hintText: '0.00',
-                              controller: _discountedPriceController,
-                              validator: (value) => maxValueValidator(
-                                value,
-                                _priceController.text,
-                              ),
                               keyboardType: TextInputType.number,
                               suffixIcon: const Padding(
                                 padding: EdgeInsetsDirectional.only(
@@ -454,8 +425,7 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                                             description:
                                                 _descriptionController.text,
                                             price: _priceController.text.trim(),
-                                            discountedPrice:
-                                                _discountedPriceController.text,
+
                                             isAvailable: existing.isAvailable,
                                             stockQuantity: existing.stockQuantity
                                                 ?.toString(),
@@ -480,8 +450,7 @@ class _AddProductDetailsBodyState extends State<_AddProductDetailsBody> {
                                         params: PostNewProductParams(
                                           name: _nameController.text,
                                           desc: _descriptionController.text,
-                                          discountedPrice:
-                                              _discountedPriceController.text,
+
                                           price: _priceController.text,
                                           preparationTime:
                                               _preparationTimeController.text,
