@@ -1,4 +1,5 @@
 import 'package:common_package/common_package.dart';
+import 'package:dllni_resturant_owner_app/core/di/injection.dart';
 import 'package:dllni_resturant_owner_app/features/profile/data/models/fetch_offers_model.dart';
 import 'package:dllni_resturant_owner_app/features/profile/domain/usecases/create_offer_use_case.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,11 @@ class _CreateOfferScreenState extends State<CreateOfferScreen> {
   void initState() {
     super.initState();
     final offer = widget.params?.offer;
+    // The shared ProfileBloc must not retain products from a previous form.
+    // In edit mode, seed only the products linked to the offer being edited.
+    getIt<ProfileBloc>().add(
+      InitializeOfferSelectionEvent(products: offer?.products ?? const []),
+    );
     if (offer != null) {
       nameController.text = offer.name ?? '';
       offerValueController.text = offer.discountValue?.toString() ?? '';
