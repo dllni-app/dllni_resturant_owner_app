@@ -23,7 +23,7 @@ abstract final class RestaurantPermissionLabels {
     // Some API versions supply an already localized human-readable name.
     for (final candidate in [name, slug]) {
       final value = candidate?.trim() ?? '';
-      if (value.isNotEmpty && !RegExp(r'^[a-z]{2}\\.').hasMatch(value)) {
+      if (value.isNotEmpty && !value.startsWith('ro.')) {
         return value;
       }
     }
